@@ -1,8 +1,25 @@
+"use client";
+
 import Image from "next/image";
+import { Navbar } from "@ikelongo/react-component-library";
 
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <Navbar 
+        logoSrc="/logo-whiteout.png"
+        navLinks={[
+          { name: 'Home', href: '/' },
+          { name: 'About', href: '/about' },
+          { name: 'Qualifications', href: '/qualifications' },
+          { name: 'Services', href: '/services' },
+          { name: 'Testimonials', href: '/testimonials' },
+          { name: 'FAQ', href: '/faq' },
+        ]}
+        showBookingButton={true}
+        bookingText="Get Started"
+        bookingHref="/signup"
+      />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
