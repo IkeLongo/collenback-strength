@@ -1,3 +1,6 @@
 [submodule "external-components"]
 	path = external-components
 	url = https://github.com/IkeLongo/react-component-library.git
+[submodule "lib/react-component-library"]
+	path = lib/react-component-library
+	url = https://github.com/IkeLongo/react-component-library.git

@@ -10,6 +10,30 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Grey Color Palette */
+  --color-grey-100: #EBEAEA;  /* Light */
+  --color-grey-300: #BEBDBD;  /* Light:hover */
+  --color-grey-400: #999595;  /* Light:active */
+  --color-grey-500: #676666;  /* Normal */
+  --color-grey-600: #3D3D3D;  /* Normal:hover */
+  --color-grey-650: #303030;  /* Normal:active */
+  --color-grey-700: #1A1A1A;  /* Dark */
+  --color-grey-900: #000000;  /* Dark:hover */
+  
+  /* Gold Color Palette */
+  --color-gold-100: #FFEBB4;  /* Light */
+  --color-gold-300: #F5D372;  /* Light:hover */
+  --color-gold-400: #E6BC47;  /* Light:active */
+  --color-gold-500: #CB9F24;  /* Normal */
+  --color-gold-600: #B78D19;  /* Normal:hover */
+  --color-gold-700: #977412;  /* Dark */
+  --color-gold-900: #654D0A;  /* Dark:hover */
+
+  /* Custom Gradient Background */
+  --color-gradient-gold: linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%);
+  --color-gradient-fallback: #79DD1A;
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +47,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+p {
+  font-family: 'Outfit', sans-serif;
 }
