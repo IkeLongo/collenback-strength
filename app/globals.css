@@ -34,6 +34,8 @@
   --color-gradient-gold: linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%);
   --color-gradient-fallback: #79DD1A;
 
+  /* Font Families */
+  --font-oxanium: Oxanium, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,6 +51,52 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+h1 {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+h2 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
+  color: white;
+  text-align: left;
+  font-size: 14px;
+}
+
 p {
   font-family: 'Outfit', sans-serif;
+}
+
+/* Medium screens and up (768px+) */
+@media (min-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: left;
+    /* Add any other styles you want for md+ screens */
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 300;
+    text-align: left;
+    /* Add any other styles you want for md+ screens */
+  }
+  button {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    /* Add any other styles you want for md+ screens */
+  }
+}
+
+/* Large screens and up (1024px+) */
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 1.7rem;
+    /* Additional styles for lg+ screens */
+  }
 }
