@@ -8,7 +8,7 @@ export default function Hero() {
   return (
   <>
     {/* Hero Section */}
-    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden md:-top-24">
+    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden">
       {/* Weights background image */}
       <Image
         src="/hero-weights-bg.webp"
@@ -35,8 +35,8 @@ export default function Hero() {
         />
       </div>
 
-      <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 px-4 z-10 md:flex md:flex-row-reverse md:items-center md:justify-center lg:self-center">
-        <div className="flex flex-col h-full justify-between items-start w-full max-w-[400px] md:max-w-[650px] lg:max-w-[750px] gap-4 md:gap-6 lg:gap-8">
+      <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-16 sm:pb-20 md:pb-24 px-4 z-10 md:flex md:flex-row-reverse md:items-center md:justify-center lg:self-center">
+        <div className="flex flex-col h-full justify-between items-start w-full max-w-[400px] md:max-w-[650px] lg:max-w-[750px] md:gap-6 lg:gap-8">
           <h1 className="w-full max-w-[300px] md:max-w-[450px] sm:pt-10 md:pt-20">
             <span className="text-gold-500">Athlete focused </span>personal training and nutritional coaching in San Antonio, Texas!
           </h1>

@@ -1,11 +1,32 @@
 import Image from "next/image";
 import Hero from "@/app/ui/home/hero";
+import TextCarousel from "./lib/text-carosel";
+
+const benchPress = "/assets/bench-press.lottie";
+const strongman = "/assets/strongman.lottie";
+const strongwoman = "/assets/strongwoman.lottie";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-start w-full h-auto">
       <main className="flex flex-col w-full h-full mx-4">
         <Hero />
+        <TextCarousel 
+          texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
+          speed={15}
+          className="w-full h-16 flex items-center bg-[#1F1F1F]"
+          textClassName="text-xl font-semibold text-white uppercase font-oxanium"
+          gap="4rem"
+          highlightWords={["athlete", "champion", "limits"]}
+          highlightColor="text-yellow-500"
+          showLottie={true}
+          lottieSize={50}
+          lottieFiles={[
+            benchPress,
+            strongman,
+            strongwoman
+          ]}
+        />
       </main>
     </div>
   );

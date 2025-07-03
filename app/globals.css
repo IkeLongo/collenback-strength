@@ -40,7 +40,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #1A1A1A;
     --foreground: #ededed;
   }
 }
@@ -99,4 +99,17 @@ p {
     font-size: 1.7rem;
     /* Additional styles for lg+ screens */
   }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll linear infinite;
 }
