@@ -19,9 +19,9 @@ export default function Home() {
           textClassName="text-xl font-semibold text-white uppercase font-oxanium"
           gap="4rem"
           highlightWords={["athlete", "champion", "limits"]}
-          highlightColor="text-yellow-500"
+          highlightColor="text-gold-500"
           showLottie={true}
-          lottieSize={50}
+          lottieSize={{ mobile: 200, md: 200, lg: 200 }}
           lottieFiles={[
             benchPress,
             strongman,

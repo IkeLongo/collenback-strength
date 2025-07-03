@@ -136,3 +136,12 @@ p {
 .animate-scroll {
   animation: scroll linear infinite;
 }
+
+/* Add this to your globals.css file */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}

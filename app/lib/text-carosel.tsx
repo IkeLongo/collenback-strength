@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface TextCarouselProps {
@@ -12,8 +12,12 @@ interface TextCarouselProps {
   highlightWords?: string[];
   highlightColor?: string;
   showLottie?: boolean;
-  lottieSize?: number;
-  lottieFiles?: string[]; // Array of Lottie file paths
+  lottieSize?: {
+    mobile: number;
+    md: number;
+    lg: number;
+  };
+  lottieFiles?: string[];
 }
 
 export default function TextCarousel({
@@ -23,15 +27,33 @@ export default function TextCarousel({
   textClassName = "",
   gap = "4rem",
   highlightWords = ["athlete", "champion", "greatness"],
-  highlightColor = "text-yellow-500",
+  highlightColor = "text-gold-500",
   showLottie = false,
-  lottieSize = 50,
+  lottieSize = { mobile: 30, md: 50, lg: 70 },
   lottieFiles = [
     "/assets/bench-press.lottie",
     "/assets/deadlift.lottie", 
     "/assets/squat.lottie"
   ]
 }: TextCarouselProps) {
+  const [currentLottieSize, setCurrentLottieSize] = useState(lottieSize.mobile);
+
+  // Update lottie size based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setCurrentLottieSize(lottieSize.lg);
+      } else if (window.innerWidth >= 768) {
+        setCurrentLottieSize(lottieSize.md);
+      } else {
+        setCurrentLottieSize(lottieSize.mobile);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [lottieSize]);
 
   // Function to highlight specific words
   const highlightText = (text: string) => {
@@ -76,7 +98,7 @@ export default function TextCarousel({
               src={lottieFiles[index]}
               loop
               autoplay
-              style={{ width: lottieSize, height: lottieSize }}
+              style={{ width: currentLottieSize }}
             />
           </span>
         );

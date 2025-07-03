@@ -61,7 +61,7 @@ export default function MeetCade() {
         </div>
 
         {/* Three Components Container */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 lg:hidden">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-0 md:justify-between md:pt-10 lg:hidden">
           <div className="flex justify-center items-center w-full md:w-1/3">
             <InfoGraphic 
               number="6"

@@ -114,7 +114,7 @@ export default function InfoGraphic({
       }}
     >
       {/* Animated Number */}
-      <div className="text-yellow-500 font-anton text-[50px] md:text-5xl lg:text-[40px] lg:pb-2">
+      <div className="text-gold-500 font-anton text-[50px] md:text-5xl lg:text-[40px] lg:pb-2">
         {formatNumber(displayNumber)}
       </div>
       
