@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Hero from "@/app/ui/home/hero";
 import TextCarousel from "./lib/text-carosel";
+import MeetCade from "@/app/ui/home/meet-cade";
 
 const benchPress = "/assets/bench-press.lottie";
 const strongman = "/assets/strongman.lottie";
@@ -14,7 +14,7 @@ export default function Home() {
         <TextCarousel 
           texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
           speed={15}
-          className="w-full h-16 flex items-center bg-[#1F1F1F]"
+          className="w-full h-16 flex items-center bg-grey-700"
           textClassName="text-xl font-semibold text-white uppercase font-oxanium"
           gap="4rem"
           highlightWords={["athlete", "champion", "limits"]}
@@ -27,6 +27,7 @@ export default function Home() {
             strongwoman
           ]}
         />
+        <MeetCade />
       </main>
     </div>
   );

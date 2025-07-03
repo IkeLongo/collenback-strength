@@ -1,0 +1,9 @@
+{
+  "name": "@my-ui-library/navbar",
+  "version": "0.1.0",
+  "main": "src/navbar.tsx",
+  "types": "src/navbar.tsx",
+  "dependencies": {
+    "react": "^18.0.0"
+  }
+}

@@ -24,7 +24,7 @@ export default function Hero() {
         className="absolute z-0 object-contain pointer-events-none select-none transform translate-x-8 translate-y-12"
         style={{ pointerEvents: "none", userSelect: "none" }}
       />
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[650px] lg:max-w-[800px] h-full z-2 pointer-events-none">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[700px] lg:max-w-[1000px] h-full z-2 pointer-events-none">
         <Image
           src="/hero-cade.webp"
           alt="Cade Collenback hero image"
@@ -35,9 +35,9 @@ export default function Hero() {
         />
       </div>
 
-      <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-16 sm:pb-20 md:pb-24 px-4 z-10 md:flex md:flex-row-reverse md:items-center md:justify-center lg:self-center">
-        <div className="flex flex-col h-full justify-between items-start w-full max-w-[400px] md:max-w-[650px] lg:max-w-[750px] md:gap-6 lg:gap-8">
-          <h1 className="w-full max-w-[300px] md:max-w-[450px] sm:pt-10 md:pt-20">
+      <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-16 sm:pb-20 md:pb-24 lg:pb-36 px-4 z-10 md:flex md:flex-row-reverse md:items-center md:justify-center lg:self-center">
+        <div className="flex flex-col h-full justify-between items-start w-full max-w-[400px] md:max-w-[650px] lg:max-w-[850px] md:gap-6 lg:gap-8">
+          <h1 className="w-full max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-20">
             <span className="text-gold-500">Athlete focused </span>personal training and nutritional coaching in San Antonio, Texas!
           </h1>
 
