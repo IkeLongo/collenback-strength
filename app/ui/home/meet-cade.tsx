@@ -3,12 +3,12 @@ import InfoGraphic from "@/app/lib/info-graphic-1";
 
 export default function MeetCade() {
   return (
-    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 md:py-24 lg:py-32">
+    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 md:pt-24 lg:pt-12">
 
       <div className="flex flex-col">
         <div className="md:flex md:flex-row-reverse">
           {/* Header Content */}
-          <div className="flex flex-col mb-12 md:mb-16 md:w-1/2 md:ml-10 lg:justify-around">
+          <div className="flex flex-col mb-4 md:mb-6 md:w-1/2 md:ml-10 lg:justify-around">
             <div className="">
               <h3 className="text-left md:text-right lg:text-left text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
                 Meet Cade!
@@ -47,7 +47,7 @@ export default function MeetCade() {
           </div>
 
           {/* Centered Photo */}
-          <div className="flex justify-center mb-12 md:mb-16 md:w-1/2">
+          <div className="flex justify-center mb-12 md:mb-6 md:w-1/2">
             <div className="relative w-full h-96 md:w-[500px] md:h-[375px] lg:h-[450px] lg:w-[450px]">
               <Image
                 src="/home-cade-w-client-1.webp"
