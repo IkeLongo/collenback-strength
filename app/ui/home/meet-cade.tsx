@@ -13,7 +13,7 @@ export default function MeetCade() {
               <h3 className="text-left md:text-right lg:text-left text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
                 Meet Cade!
               </h3>
-              <p className="text-left md:text-right lg:text-left text-base md:text-lg text-grey-100 max-w-3xl leading-relaxed">
+              <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed">
                 After years of playing collegiate football, Cade turned his passion for strength and performance into a mission: helping others build the mindset, discipline, and physical power needed to thrive.
               </p>
             </div>

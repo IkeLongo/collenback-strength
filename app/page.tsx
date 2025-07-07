@@ -2,6 +2,7 @@ import Hero from "@/app/ui/home/hero";
 import TextCarousel from "./lib/text-carosel";
 import MeetCade from "@/app/ui/home/meet-cade";
 import Qualifications from "@/app/ui/home/qualifications";
+import Programs from "@/app/ui/home/programs";
 
 const benchPress = "/assets/bench-press.lottie";
 const strongman = "/assets/strongman.lottie";
@@ -30,6 +31,7 @@ export default function Home() {
         />
         <MeetCade />
         <Qualifications />
+        <Programs />
       </main>
     </div>
   );

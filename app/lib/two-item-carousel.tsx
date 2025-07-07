@@ -6,45 +6,107 @@ interface TwoItemCarouselProps {
   children: React.ReactNode[];
   className?: string;
   gap?: string;
+  itemWidth?: string; // New optional parameter
 }
 
 export default function TwoItemCarousel({
   children,
   className = "",
-  gap = "16px"
+  gap = "16px",
+  itemWidth // New optional parameter
 }: TwoItemCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Determine if we're using custom item width or default two-item behavior
+  const isCustomWidth = itemWidth !== undefined;
+
   const handleScroll = () => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const itemWidth = container.clientWidth / 2; // Each item is half the container width
-      const scrollLeft = container.scrollLeft;
-      const newIndex = Math.round(scrollLeft / itemWidth);
-      setCurrentIndex(newIndex);
+      
+      if (isCustomWidth) {
+        // Custom width: calculate based on item width + gap
+        const itemWidthNum = parseInt(itemWidth);
+        const gapNum = parseInt(gap);
+        const itemFullWidth = itemWidthNum + gapNum;
+        const scrollLeft = container.scrollLeft;
+        const newIndex = Math.round(scrollLeft / itemFullWidth);
+        setCurrentIndex(newIndex);
+      } else {
+        // Default behavior: Each item is half the container width
+        const itemWidth = container.clientWidth / 2;
+        const scrollLeft = container.scrollLeft;
+        const newIndex = Math.round(scrollLeft / itemWidth);
+        setCurrentIndex(newIndex);
+      }
     }
   };
 
   const scrollToItem = (index: number) => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const itemWidth = container.clientWidth / 2;
-      container.scrollTo({
-        left: index * itemWidth,
-        behavior: 'smooth'
-      });
+      
+      if (isCustomWidth) {
+        // Custom width: scroll based on item width + gap
+        const itemWidthNum = parseInt(itemWidth);
+        const gapNum = parseInt(gap);
+        const itemFullWidth = itemWidthNum + gapNum;
+        container.scrollTo({
+          left: index * itemFullWidth,
+          behavior: 'smooth'
+        });
+      } else {
+        // Default behavior: scroll by half container width
+        const itemWidth = container.clientWidth / 2;
+        container.scrollTo({
+          left: index * itemWidth,
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
-  // Calculate total pages based on screen size
+  // Calculate total pages based on screen size and item width
   const getTotalPages = () => {
-    // On mobile: 1 item per page
-    // On md+: 2 items per page, but scroll by 1
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      return Math.max(0, children.length - 1); // Can scroll through all items minus 1
+      if (isCustomWidth) {
+        return children.length; // Custom width: each item is a page
+      } else {
+        return Math.max(0, children.length - 1); // Default: can scroll through all items minus 1
+      }
     }
     return children.length; // Mobile shows 1 at a time
+  };
+
+  // Calculate padding for centering when using custom width
+  const getPaddingMobile = () => {
+    if (isCustomWidth) {
+      return `0 calc(50vw - ${itemWidth}/2)`;
+    }
+    return `0 ${gap}`;
+  };
+
+  const getPaddingDesktop = () => {
+    if (isCustomWidth) {
+      return `0 calc(50vw - ${itemWidth})`;
+    }
+    return `0 ${gap}`;
+  };
+
+  // Calculate item width style
+  const getItemWidthMobile = () => {
+    if (isCustomWidth) {
+      return itemWidth;
+    }
+    return `calc(100% - ${gap})`;
+  };
+
+  const getItemWidthDesktop = () => {
+    if (isCustomWidth) {
+      return itemWidth;
+    }
+    return `calc(50% - ${gap}/2)`;
   };
 
   return (
@@ -54,16 +116,16 @@ export default function TwoItemCarousel({
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ padding: `0 ${gap}` }}
+          style={{ padding: getPaddingMobile() }}
           onScroll={handleScroll}
         >
           {children.map((child, index) => (
             <div
               key={index}
-              className="flex-shrink-0 snap-center w-full"
+              className="flex-shrink-0 snap-center"
               style={{ 
-                marginRight: index < children.length - 1 ? gap : "0",
-                width: `calc(100% - ${gap})`
+                width: getItemWidthMobile(),
+                marginRight: index < children.length - 1 ? gap : "0"
               }}
             >
               {child}
@@ -72,12 +134,12 @@ export default function TwoItemCarousel({
         </div>
       </div>
 
-      {/* Desktop: Two items visible */}
+      {/* Desktop: Two items visible or custom width */}
       <div className="hidden md:block">
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ padding: `0 ${gap}` }}
+          style={{ padding: getPaddingDesktop() }}
           onScroll={handleScroll}
         >
           {children.map((child, index) => (
@@ -85,7 +147,7 @@ export default function TwoItemCarousel({
               key={index}
               className="flex-shrink-0 snap-start"
               style={{ 
-                width: `calc(50% - ${gap}/2)`,
+                width: getItemWidthDesktop(),
                 marginRight: index < children.length - 1 ? gap : "0"
               }}
             >
