@@ -4,3 +4,6 @@
 [submodule "lib/react-component-library"]
 	path = lib/react-component-library
 	url = https://github.com/IkeLongo/react-component-library.git
+[submodule "packages/react-component-library"]
+	path = packages/react-component-library
+	url = https://github.com/ikelongo/react-component-library.git

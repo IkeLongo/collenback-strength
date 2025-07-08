@@ -21,8 +21,8 @@ importers:
         specifier: ^2.4.17
         version: 2.4.17(tailwindcss@4.1.11)
       '@ikelongo/react-component-library':
-        specifier: ^0.0.7
-        version: 0.0.7(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^0.1.0
+        version: 0.1.0(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@lottiefiles/dotlottie-react':
         specifier: ^0.14.2
         version: 0.14.2(react@19.1.0)
@@ -637,8 +637,8 @@ packages:
       react: '>=18 || >=19.0.0-rc.0'
       react-dom: '>=18 || >=19.0.0-rc.0'
 
-  '@ikelongo/react-component-library@0.0.7':
-    resolution: {integrity: sha512-5C/4IBg+ET7QtMMOuDC+Ssm6S1OttXD2MRaZQQ/4ryxso+M2Dt9KNPPvoZj8YLFqIEPTwOy67LJZiXi4EAUSFg==}
+  '@ikelongo/react-component-library@0.1.0':
+    resolution: {integrity: sha512-7LKrufW2jxRPPH97IfQjWp1HYp7S/CLNSn0AeNvPi73iMkUKxj1MizPgVBGmFwvo9nfIz1eridMV/62k2MhSpQ==}
     peerDependencies:
       next: ^15.3.4
       react: ^19.1.0
@@ -793,6 +793,15 @@ packages:
     resolution: {integrity: sha512-RR4r0HrKQbOAw6iS6C3mRARS2iu+yI+G1vICoUsRMHzlUUk1/26l3WyAjhcG+KoaGoKmORx8FgHjTNr4Sr/2Ug==}
     peerDependencies:
       react: ^17 || ^18 || ^19
+
+  '@lottiefiles/dotlottie-react@0.8.12':
+    resolution: {integrity: sha512-6S9q5mH2l8JDnKAruAq4NP7bzHVzJNUt8UsXONfveSyJPUgT5hGw5b5vCjW19Ra3hgN/d69qUtRLHfmyRAgblQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  '@lottiefiles/dotlottie-web@0.33.0':
+    resolution: {integrity: sha512-/KerIs0UkmwuDKYWlNGWYSSZkZaLNXXHqg6qCnP7P2JuzgI4bHRmlIk3+LoJjl/jWqd3WyI4t5oRV6ch0sQwvg==}
 
   '@lottiefiles/dotlottie-web@0.47.0':
     resolution: {integrity: sha512-YN6wSB4iYZBYEAFKEs/taufrPH3rfNlUA632Ib61WoR58TALAJ1ZX8yDIGUBT28byMJhZR4+xdpRX4v7X8OeBQ==}
@@ -2887,9 +2896,11 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@ikelongo/react-component-library@0.0.7(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@ikelongo/react-component-library@0.1.0(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@heroui/button': 2.2.22(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@heroui/skeleton': 2.2.14(@heroui/system@2.4.18(@heroui/theme@2.4.17(tailwindcss@4.1.11))(framer-motion@12.22.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.17(tailwindcss@4.1.11))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@lottiefiles/dotlottie-react': 0.8.12(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       clsx: 2.1.1
       lottie-web: 5.13.0
       next: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3020,6 +3031,14 @@ snapshots:
     dependencies:
       '@lottiefiles/dotlottie-web': 0.47.0
       react: 19.1.0
+
+  '@lottiefiles/dotlottie-react@0.8.12(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@lottiefiles/dotlottie-web': 0.33.0
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  '@lottiefiles/dotlottie-web@0.33.0': {}
 
   '@lottiefiles/dotlottie-web@0.47.0': {}
 

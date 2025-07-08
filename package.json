@@ -13,7 +13,7 @@
     "@heroui/react": "^2.7.11",
     "@heroui/skeleton": "^2.2.14",
     "@heroui/theme": "^2.4.17",
-    "@ikelongo/react-component-library": "^0.0.7",
+    "@ikelongo/react-component-library": "^0.1.0",
     "@lottiefiles/dotlottie-react": "^0.14.2",
     "clsx": "^2.1.1",
     "lottie": "^0.0.1",
