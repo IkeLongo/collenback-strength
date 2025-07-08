@@ -5,6 +5,7 @@ import Qualifications from "@/app/ui/home/qualifications";
 import Programs from "@/app/ui/home/programs";
 import Testimonials from "@/app/ui/home/testimonials";
 import Faq from "@/app/ui/home/faq";
+import TrainWithCade from "@/app/ui/home/train-w-cade"
 
 const benchPress = "/assets/bench-press.lottie";
 const strongman = "/assets/strongman.lottie";
@@ -36,6 +37,7 @@ export default function Home() {
         <Programs />
         <Testimonials />
         <Faq />
+        <TrainWithCade />
       </main>
     </div>
   );
