@@ -1,0 +1,39 @@
+.accordionContent {
+  transition: max-height 0.5s ease-in-out;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.hoverBounce:hover {
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { 
+    transform: translateY(0); 
+  }
+  25% { 
+    transform: translateY(-2px); 
+  }
+  50% { 
+    transform: translateY(-4px); 
+  }
+  75% { 
+    transform: translateY(-2px); 
+  }
+}
+
+/* Optional: Add smooth transitions for better UX */
+.accordionContent * {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Fade in content when opening */
+.accordionContent:not([style*="max-height: 0px"]) * {
+  opacity: 1;
+}
+
+/* Fade out content when closing */
+.accordionContent[style*="max-height: 0px"] * {
+  opacity: 0;
+}
