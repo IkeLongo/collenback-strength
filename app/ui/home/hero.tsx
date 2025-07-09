@@ -2,6 +2,7 @@
 
 import { Button } from "@heroui/button";
 import Image from "next/image";
+import { env } from "process";
 
 export default function Hero() {
 
@@ -9,6 +10,7 @@ export default function Hero() {
   <>
     {/* Hero Section */}
     <section id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden">
+      
       {/* Weights background image */}
       <Image
         src="/hero-weights-bg.webp"
