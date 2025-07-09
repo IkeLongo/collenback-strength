@@ -3,7 +3,7 @@ import InfoGraphic from "@/app/lib/info-graphic-1";
 
 export default function MeetCade() {
   return (
-    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 md:pt-24 lg:pt-12">
+    <section id="about" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4">
 
       <div className="flex flex-col">
         <div className="md:flex md:flex-row-reverse">

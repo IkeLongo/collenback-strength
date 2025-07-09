@@ -25,7 +25,7 @@ export default function TrainWithCade() {
         src="/home-testimonials-bg.webp"
         alt="Testimonials background"
         fill
-        className="absolute inset-0 w-full h-full object-cover z-5 md:z-0 pointer-events-none select-none pt-64 md:pt-0"
+        className="absolute inset-0 w-full max-w-[800px] h-full object-cover z-5 md:z-0 pointer-events-none select-none pt-64 md:pt-0"
         style={{ 
           pointerEvents: "none", 
           userSelect: "none",

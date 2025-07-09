@@ -21,7 +21,6 @@ export default function InfoGraphic2({
       className={`rounded-[10px] p-6 flex flex-col items-center text-center w-full ${className}`}
       style={{
         width: fixedWidth, // Only apply fixed width if provided
-        boxShadow: "0px 20px 40px 0px rgba(0, 0, 0, 0.10)"
       }}
     >
       {/* Thunder Icon */}

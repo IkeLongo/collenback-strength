@@ -32,7 +32,7 @@ export default function Qualifications() {
   ];
 
   return (
-    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 pt-16 md:pt-24 lg:pt-12">
+    <section id="qualifications" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 pt-16 md:pt-24 lg:pt-12">
 
       <div className="flex flex-col md:flex-row md:gap-[52px] lg:gap-0">
         {/* Header Content */}

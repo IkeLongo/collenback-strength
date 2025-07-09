@@ -33,7 +33,7 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="flex flex-col w-full mx-auto py-4 pt-12 md:pt-24 lg:pt-12">
+    <section id="testimonials" className="flex flex-col w-full mx-auto py-4 pt-12 md:pt-24 lg:pt-12">
       <Testimonial>
         <div className="flex flex-col items-center text-center mb-8 md:mb-12">
           <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit mb-4">

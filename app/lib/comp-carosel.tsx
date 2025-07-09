@@ -6,14 +6,16 @@ interface FullWidthCarouselProps {
   children: React.ReactNode[];
   className?: string;
   gap?: string;
-  itemWidth?: string; // New optional parameter
+  itemWidth?: string;
+  dotPadding?: string; // New optional parameter for dot indicators padding
 }
 
 export default function FullWidthCarousel({
   children,
   className = "",
   gap = "16px",
-  itemWidth // New optional parameter
+  itemWidth,
+  dotPadding = "16px" // Default padding between carousel and dots
 }: FullWidthCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -105,8 +107,11 @@ export default function FullWidthCarousel({
         ))}
       </div>
 
-      {/* Dot Indicators */}
-      <div className="flex justify-center mt-4 gap-2">
+      {/* Dot Indicators with customizable padding */}
+      <div 
+        className="flex justify-center gap-2"
+        style={{ marginTop: dotPadding }}
+      >
         {children.map((_, index) => (
           <button
             key={index}

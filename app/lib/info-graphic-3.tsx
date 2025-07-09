@@ -25,9 +25,6 @@ export default function InfoGraphic3({
   return (
     <div 
       className={`bg-grey-650 border border-grey-100 rounded-lg p-6 md:p-6 flex flex-col items-center text-center max-w-[300px] h-full gap-5 ${className}`}
-      style={{
-        boxShadow: "0px 20px 40px 0px rgba(0, 0, 0, 0.10)"
-      }}
     >
       {/* Icon */}
       <div className="flex justify-center">

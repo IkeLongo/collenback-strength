@@ -40,12 +40,12 @@ export default function RootLayout({
         <Navbar 
           logoSrc="/logo-whiteout.png"
           navLinks={[
-            { name: 'Home', href: '/' },
-            { name: 'About', href: '/about' },
-            { name: 'Qualifications', href: '/qualifications' },
-            { name: 'Services', href: '/services' },
-            { name: 'Testimonials', href: '/testimonials' },
-            { name: 'FAQ', href: '/faq' },
+            { name: 'Home', href: '#home' },
+            { name: 'About', href: '#about' },
+            { name: 'Qualifications', href: '#qualifications' },
+            { name: 'Programs', href: '#programs' },
+            { name: 'Testimonials', href: '#testimonials' },
+            { name: 'FAQ', href: '#faq' },
           ]}
           showBookingButton={true}
           bookingText="Book a Call"
@@ -54,7 +54,7 @@ export default function RootLayout({
         />
         {children}
         <Footer>
-          
+
         </Footer>
       </body>
     </html>

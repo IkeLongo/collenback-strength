@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,6 +16,44 @@ export default function NavLinks({
   onClick: () => void;
 }) {
   const pathname = usePathname();
+  const [activeSection, setActiveSection] = useState('');
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(`#${entry.target.id}`);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe all sections with IDs that match nav links
+    links.forEach((link) => {
+      if (link.href.startsWith('#')) {
+        const element = document.getElementById(link.href.slice(1));
+        if (element) {
+          observer.observe(element);
+        }
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [links]);
+
+  const isActiveLink = (href: string) => {
+    if (href.startsWith('#')) {
+      return activeSection === href;
+    }
+    return pathname === href;
+  };
 
   return (
     <>
@@ -28,7 +66,7 @@ export default function NavLinks({
         >
           <p
             className={clsx(
-              pathname === link.href
+              isActiveLink(link.href)
                 ? 'text-white font-bold'
                 : 'font-medium hover:font-bold text-grey-400'
             )}
