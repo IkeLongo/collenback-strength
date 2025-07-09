@@ -3,14 +3,14 @@ import InfoGraphic from "@/app/lib/info-graphic-1";
 
 export default function MeetCade() {
   return (
-    <section id="about" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4">
+    <section id="about" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 lg:py-24 md:py-18">
 
       <div className="flex flex-col">
         <div className="md:flex md:flex-row-reverse">
           {/* Header Content */}
           <div className="flex flex-col mb-4 md:mb-6 md:w-1/2 md:ml-10 lg:justify-around">
             <div className="">
-              <h3 className="text-left md:text-right lg:text-left text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
+              <h3 className="text-left md:text-right lg:text-left text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">
                 Meet Cade!
               </h3>
               <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed">

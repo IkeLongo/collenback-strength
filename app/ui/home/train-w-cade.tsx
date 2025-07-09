@@ -8,14 +8,14 @@ export default function TrainWithCade() {
   return (
   <>
     {/* Hero Section */}
-    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start self-center overflow-hidden my-12 mb-0 max-w-[400px] md:max-w-[1000px]">
+    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start self-center overflow-hidden pb-24 md:py-18 md:max-w-[1000px]">
       {/* Cade background image */}
-      <div className="absolute inset-0 w-full md:w-1/2 h-full z-1">
+      <div className="absolute left-1/2 transform -translate-x-1/2 md:left-1/2 md:-translate-x-1/2 lg:left-10 lg:translate-x-0 top-[400px] -translate-y-1/2 max-w-[450px] max-h-[500px] w-full h-full z-2">
         <Image
           src="/home-train-w-cade.webp"
           alt="Background weights"
           fill
-          className="object-cover pointer-events-none select-none"
+          className="object-cover object-top pointer-events-none select-none"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
       </div>
@@ -25,15 +25,15 @@ export default function TrainWithCade() {
         src="/home-testimonials-bg.webp"
         alt="Testimonials background"
         fill
-        className="absolute inset-0 w-full max-w-[800px] h-full object-cover z-5 md:z-0 pointer-events-none select-none pt-64 md:pt-0"
+        className="absolute inset-0 w-full max-w-[800px] h-full object-cover z-1 md:z-0 pointer-events-none select-none pt-64 md:pt-0"
         style={{ 
           pointerEvents: "none", 
           userSelect: "none",
         }}
       />
 
-      <div className="absolute inset-0 flex flex-col w-full h-full items-center md:items-end justify-end md:justify-center py-24 pb-16 sm:pb-20 md:pb-24 lg:pb-36 px-4 z-10">
-        <div className="flex flex-col gap-4 md:w-1/2 md:px-12">
+      <div className="absolute inset-0 flex flex-col w-full h-full items-center md:items-end justify-end md:justify-center pb-16 sm:pb-20 md:pb-24 px-4 z-10">
+        <div className="flex flex-col gap-4 pb-[120px] md:w-1/2 md:px-12">
           <h3 className="flex-1 font-normal lg:text-base text-white text-left md:text-left w-auto">
             Want to train <br />with me?
           </h3>

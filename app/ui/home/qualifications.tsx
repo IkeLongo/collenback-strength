@@ -32,7 +32,7 @@ export default function Qualifications() {
   ];
 
   return (
-    <section id="qualifications" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 pt-16 md:pt-24 lg:pt-12">
+    <section id="qualifications" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 md:py-18 lg:py-24">
 
       <div className="flex flex-col md:flex-row md:gap-[52px] lg:gap-0">
         {/* Header Content */}
@@ -92,8 +92,10 @@ export default function Qualifications() {
       {/* Desktop: Two-Item Carousel */}
       <div className="hidden md:block lg:hidden px-8 md:px-16">
         <TwoItemCarousel
-          gap="16px"
-          className="mb-4"
+          containerWidth="632px" // Adjust based on your needs
+          gap="32px"
+          itemWidth='300px'
+          dotPadding='32px'
         >
           {qualifications.map((qual, index) => (
             <InfoGraphic2

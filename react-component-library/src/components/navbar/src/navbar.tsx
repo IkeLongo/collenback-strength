@@ -61,7 +61,7 @@ export default function Navbar({
         />
         <div className="flex items-center justify-center">
           <div className='hidden md:w-[900px] md:flex md:flex-col md:pt-[30px] md:justify-center md:gap-[10px]'>
-            <div className={`flex py-[13px] px-[20px] justify-between items-center self-stretch rounded-[30px] border-[1px] ${backgroundColor}/75 backdrop-blur-[3.5px]`}>
+            <div className={`flex py-[13px] px-[20px] justify-between items-center self-stretch rounded-[30px] border-[1px] border-grey-500 bg-grey-700/50 ${backgroundColor}/0 backdrop-blur-[3.5px]`}>
               <Link href="/" onClick={handleLogoClick}>
                 <Image
                   src={resolvedLogoSrc}

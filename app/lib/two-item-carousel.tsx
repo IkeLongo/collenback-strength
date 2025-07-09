@@ -5,17 +5,19 @@ import React, { useRef, useState } from 'react';
 interface TwoItemCarouselProps {
   children: React.ReactNode[];
   className?: string;
+  containerWidth: string; // Required: total width of the carousel container
   gap?: string;
   itemWidth?: string;
-  dotPadding?: string; // New optional parameter for dot indicators padding
+  dotPadding?: string;
 }
 
 export default function TwoItemCarousel({
   children,
   className = "",
+  containerWidth, // New required prop
   gap = "16px",
   itemWidth,
-  dotPadding = "16px" // Default padding between carousel and dots
+  dotPadding = "16px"
 }: TwoItemCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -72,28 +74,12 @@ export default function TwoItemCarousel({
   // Calculate total pages based on screen size and item width
   const getTotalPages = () => {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      if (isCustomWidth) {
-        return children.length; // Custom width: each item is a page
-      } else {
-        return Math.max(0, children.length - 1); // Default: can scroll through all items minus 1
-      }
+      // Desktop: shows 2 items, scrolls 1 at a time
+      // So total pages = total items minus 1
+      return Math.max(0, children.length - 1);
     }
-    return children.length; // Mobile shows 1 at a time
-  };
-
-  // Calculate padding for centering when using custom width
-  const getPaddingMobile = () => {
-    if (isCustomWidth) {
-      return `0 calc(50vw - ${itemWidth}/2)`;
-    }
-    return `0 ${gap}`;
-  };
-
-  const getPaddingDesktop = () => {
-    if (isCustomWidth) {
-      return `0 calc(50vw - ${itemWidth})`;
-    }
-    return `0 ${gap}`;
+    // Mobile: one item per page
+    return children.length;
   };
 
   // Calculate item width style
@@ -118,7 +104,7 @@ export default function TwoItemCarousel({
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ padding: getPaddingMobile() }}
+          style={{ padding: `0 ${gap}` }}
           onScroll={handleScroll}
         >
           {children.map((child, index) => (
@@ -136,12 +122,16 @@ export default function TwoItemCarousel({
         </div>
       </div>
 
-      {/* Desktop: Two items visible or custom width */}
-      <div className="hidden md:block">
+      {/* Desktop: Centered container with explicit width */}
+      <div className="hidden md:flex md:justify-center">
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ padding: getPaddingDesktop() }}
+          style={{ 
+            width: containerWidth,
+            padding: `0 ${gap}`,
+            gap: gap
+          }}
           onScroll={handleScroll}
         >
           {children.map((child, index) => (
@@ -149,8 +139,7 @@ export default function TwoItemCarousel({
               key={index}
               className="flex-shrink-0 snap-start"
               style={{ 
-                width: getItemWidthDesktop(),
-                marginRight: index < children.length - 1 ? gap : "0"
+                width: getItemWidthDesktop()
               }}
             >
               {child}
@@ -159,7 +148,7 @@ export default function TwoItemCarousel({
         </div>
       </div>
 
-      {/* Dot Indicators with customizable padding */}
+      {/* Dot Indicators */}
       <div 
         className="flex justify-center gap-2"
         style={{ marginTop: dotPadding }}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@heroui/react';
 import Image from 'next/image';
 
 interface InfoGraphic3Props {
@@ -53,15 +54,15 @@ export default function InfoGraphic3({
       </p>
 
       {/* Gold Button - This will stick to bottom */}
-      <button
+      <Button
         onClick={onButtonClick}
-        className="bg-gold-500 hover:bg-gold-600 text-grey-650 font-semibold py-2 px-6 rounded-lg transition-colors duration-200 font-outfit mt-auto"
+        className="bg-gold-500 hover:bg-gold-600 text-grey-650 font-semibold py-2 px-6 rounded-lg transition-colors duration-200 font-outfit mt-auto cursor-pointer"
         style={{ 
           background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
         }}
       >
         {buttonText}
-      </button>
+      </Button>
     </div>
   );
 }

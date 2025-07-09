@@ -9,7 +9,7 @@ export default function Hero() {
   return (
   <>
     {/* Hero Section */}
-    <section id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden">
+    <section id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden mb-14 md:mb-20">
       
       {/* Weights background image */}
       <Image
@@ -19,20 +19,30 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full object-cover z-1 pointer-events-none select-none"
         style={{ pointerEvents: "none", userSelect: "none" }}
       />
-      <Image
-        src="/hero-angled-boxes.webp"
-        alt="Colored background boxes"
-        fill
-        className="absolute z-0 object-contain pointer-events-none select-none transform translate-x-8 translate-y-12"
-        style={{ pointerEvents: "none", userSelect: "none" }}
-      />
+      <div className="absolute z-0 pointer-events-none select-none
+        w-[600px] h-[600px] -bottom-20 -right-22
+        sm:w-[600px] sm:h-[600px] sm:-bottom-20 sm:-right-22
+        md:w-[800px] md:h-[800px] md:-bottom-28 md:-right-22
+        lg:w-[800px] lg:h-[800px] lg:-bottom-28 lg:-right-22
+        xl:w-[800px] xl:h-[800px] xl:-bottom-28 xl:right-40">
+        <Image
+          src="/hero-angled-boxes.webp"
+          alt="Colored background boxes"
+          fill
+          className="object-contain"
+          style={{ 
+            pointerEvents: "none", 
+            userSelect: "none"
+          }}
+        />
+      </div>
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[700px] lg:max-w-[750px] h-full z-2 pointer-events-none">
         <Image
           src="/hero-cade.webp"
           alt="Cade Collenback hero image"
           width={300}
           height={570}
-          className="absolute bottom-0 right-0 md:w-[350px] pointer-events-none select-none"
+          className="absolute bottom-0 right-0 md:w-[350px] lg:w-[400px] pointer-events-none select-none"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
       </div>

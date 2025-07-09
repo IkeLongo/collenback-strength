@@ -3,7 +3,7 @@ import AccordionItem from "@/app/lib/accordion-item";
 export default function Faq() {
 
   return (
-    <section id="faq" className="flex flex-col w-full mx-auto py-12 md:pt-24 lg:pt-12">
+    <section id="faq" className="flex flex-col w-full mx-auto py-16 md:py-18 lg:py-24">
       <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit mb-4">
         Commonly Asked Questions
       </h3>

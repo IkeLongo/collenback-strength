@@ -93,12 +93,16 @@ p, a {
   }
 
   h2 {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 300;
     text-align: left;
     /* Add any other styles you want for md+ screens */
   }
 
+  h3 {
+    font-size: 3rem;
+    /* Additional styles for lg+ screens */
+  }
   p {
     font-family: 'Outfit', sans-serif;
     font-size: 1rem;
@@ -116,6 +120,11 @@ p, a {
 @media (min-width: 1024px) {
   h1 {
     font-size: 1.7rem;
+    /* Additional styles for lg+ screens */
+  }
+
+  h3 {
+    font-size: 3rem;
     /* Additional styles for lg+ screens */
   }
 

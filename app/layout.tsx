@@ -42,7 +42,7 @@ export default function RootLayout({
         <Navbar 
           logoSrc="/logo-whiteout.png"
           navLinks={[
-            { name: 'Home', href: '/' },
+            { name: 'Home', href: '#home' },
             { name: 'About', href: '#about' },
             { name: 'Qualifications', href: '#qualifications' },
             { name: 'Programs', href: '#programs' },

@@ -42,7 +42,7 @@ export default function Programs() {
   ];
 
   return (
-    <section id="programs" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-4 pt-12 md:pt-24 lg:pt-12">
+    <section id="programs" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 md:py-18 lg:py-24">
       
       {/* Header Content */}
       <div className="flex flex-col items-center text-center mb-8 md:mb-12">
@@ -81,9 +81,9 @@ export default function Programs() {
       <div className="hidden md:block md:px-16 lg:px-32">
         <div className="mx-auto max-w-2xl">
           <TwoItemCarousel
+            containerWidth="648px" // 2 items (300px each) + gap (48px) = 648px
             gap="48px"
-            className="mb-4"
-            itemWidth='316px'
+            itemWidth='300px'
             dotPadding='48px'
           >
             {programs.map((program, index) => (
