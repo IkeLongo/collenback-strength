@@ -37,7 +37,7 @@ export default function Navbar({
   loginHref = "/login",
   bookingText = "Book a Call",
   loginText = "Login",
-  backgroundColor = "bg-navy-500"
+  backgroundColor = "bg-grey-650"
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentHref, setCurrentHref] = useState('/');

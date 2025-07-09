@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@heroui/button": "^2.2.22",
+    "@heroui/checkbox": "^2.3.21",
+    "@heroui/input": "^2.4.22",
     "@heroui/react": "^2.7.11",
+    "@heroui/select": "^2.4.22",
     "@heroui/skeleton": "^2.2.14",
     "@heroui/theme": "^2.4.17",
     "@ikelongo/react-component-library": "^0.1.0",
@@ -21,6 +24,7 @@
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-toastify": "^11.0.5",
     "tailwind-scrollbar": "^4.0.2"
   },
   "devDependencies": {
