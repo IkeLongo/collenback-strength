@@ -36,13 +36,13 @@ export default function Hero() {
           }}
         />
       </div>
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[700px] lg:max-w-[750px] h-full z-2 pointer-events-none">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[750px] lg:max-w-[800px] h-full z-2 pointer-events-none">
         <Image
           src="/hero-cade.webp"
           alt="Cade Collenback hero image"
           width={300}
           height={570}
-          className="absolute bottom-0 right-0 md:w-[350px] lg:w-[400px] pointer-events-none select-none"
+          className="absolute bottom-0 right-0 w-[400px] md:w-[400px] lg:w-[450px] pointer-events-none select-none"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
       </div>
