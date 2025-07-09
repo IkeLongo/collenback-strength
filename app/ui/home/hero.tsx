@@ -42,7 +42,7 @@ export default function Hero() {
           alt="Cade Collenback hero image"
           width={300}
           height={570}
-          className="absolute bottom-0 right-0 w-[400px] md:w-[400px] lg:w-[450px] pointer-events-none select-none"
+          className="absolute bottom-0 right-0 w-[350px] md:w-[400px] lg:w-[450px] pointer-events-none select-none"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
       </div>
