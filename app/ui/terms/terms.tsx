@@ -9,7 +9,7 @@ export async function Terms() {
   return (
     <section id="terms-of-service" className="flex flex-col self-center p-6 pb-20 max-w-[920px]">
       <h1 className="text-center self-center">Terms of Service</h1>
-      <p className="text-center pt-4 text-navy-900">Last Updated: Feburary 13, 2025</p>
+      <p className="text-center pt-4 text-navy-900">Last Updated: July 11, 2025</p>
 
       <p className="mt-10 text-left text-navy-900">
         Welcome to <strong>{LEGAL_COMPANY_NAME}</strong> (“Company”, “we”, “our”, “us”) doing business as <strong>{DBA_NAME}</strong>. By accessing or using our website 
