@@ -78,6 +78,13 @@ h3 {
   font-size: 2rem;
 }
 
+h4 {
+  font-size: 1.5rem;
+  font-family: 'Oxanium', sans-serif;
+  padding-bottom: 10px;
+  /* Additional styles for lg+ screens */
+}
+
 p, a {
   font-family: 'Outfit', sans-serif;
   font-size: 16px;
@@ -103,9 +110,16 @@ p, a {
     font-size: 3rem;
     /* Additional styles for lg+ screens */
   }
-  p {
+  
+  h4 {
+    font-size: 1.6rem;
+    font-family: 'Oxanium', sans-serif;
+    /* Additional styles for lg+ screens */
+  }
+
+  p, a {
     font-family: 'Outfit', sans-serif;
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   
   button {
@@ -133,8 +147,19 @@ p, a {
     /* Additional styles for lg+ screens */
   }
 
+  h4 {
+    font-size: 1.75rem;
+    font-family: 'Oxanium', sans-serif;
+    /* Additional styles for lg+ screens */
+  }
+
   p {
-    font-size: 1rem;
+    font-size: 1.1rem;
+    /* Additional styles for lg+ screens */
+  }
+
+  a {
+    font-size: 1.1rem;
     /* Additional styles for lg+ screens */
   }
 }
