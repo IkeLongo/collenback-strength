@@ -9,7 +9,7 @@ export default function TrainWithCade() {
   return (
   <>
     {/* Hero Section */}
-    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start self-center overflow-hidden pb-24 md:my-18 md:max-w-[1000px]">
+    <div id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start self-center overflow-hidden mb-24 md:my-18 md:max-w-[1000px]">
       {/* Cade background image */}
       <div className="absolute bg-grey-700 left-1/2 transform -translate-x-1/2 md:left-1/3 md:-translate-x-1/2 lg:left-10 lg:translate-x-0 top-[400px] -translate-y-1/2 max-w-[450px] w-full h-full z-2">
         <Image

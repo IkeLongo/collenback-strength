@@ -5,3 +5,4 @@ export { default as Programs } from './programs';
 export { default as Testimonials } from './testimonials';
 export { default as Faq } from './faq';
 export { default as TrainWithCade } from './train-w-cade';
+export { default as Map } from "./map"

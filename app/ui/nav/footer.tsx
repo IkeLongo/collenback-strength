@@ -6,9 +6,9 @@ export default function AppFooter() {
   return (
     <Footer
       logoSrc="/logo-noout.png"
-      businessEmail="contact@collenbackstrength.com"
+      businessEmail="cade@collenbackstrength.com"
       phoneNumber="+1 (210) 701 2655"
-      location="1378 Riggs Rd, Helotes, TX 78023"
+      location="13875 Riggs Rd, Helotes, TX 78023"
     />
   );
 }
