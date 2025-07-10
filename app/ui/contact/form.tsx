@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
 
 export function ContactForm() {
-  const [preSelectedService, setPreSelectedService] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
