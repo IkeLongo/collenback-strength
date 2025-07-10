@@ -13,7 +13,10 @@ export default function Programs() {
       subheading: "Personalized coaching with hands-on instruction.",
       description: "Train directly with Cade in a focused, supportive environment designed to push your limits safely and effectively. Each session is customized to improve strength, mobility, and overall performance.",
       buttonText: "Book Session",
-      onButtonClick: () => console.log('Personal Training clicked')
+      onButtonClick: () => {
+        // Navigate to contact page with pre-selected service
+        window.location.href = '/contact?service=personal-training';
+      }
     },
     {
       icon: "/strong-guy.svg",
@@ -21,7 +24,10 @@ export default function Programs() {
       subheading: "Tried-and-tested plans, ready to follow.",
       description: "Choose from structured, downloadable strength training plans developed by Cade to improve power, endurance, and athletic performance—ideal for self-motivated individuals at any level.",
       buttonText: "Buy Programs",
-      onButtonClick: () => console.log('Strength Programs clicked')
+      onButtonClick: () => {
+        // Navigate to contact page with pre-selected service
+        window.location.href = '/contact?service=strength-programs';
+      }
     },
     {
       icon: "/plan.svg",
@@ -29,7 +35,10 @@ export default function Programs() {
       subheading: "Flexible programs, real results—wherever you are.",
       description: "Get access to personalized workout plans, video demonstrations, and progress check-ins—perfect for athletes or clients who prefer flexibility without sacrificing results.",
       buttonText: "Get Started",
-      onButtonClick: () => console.log('Online Training clicked')
+      onButtonClick: () => {
+        // Navigate to contact page with pre-selected service
+        window.location.href = '/contact?service=online-training';
+      }
     },
     {
       icon: "/diet.svg",
@@ -37,7 +46,10 @@ export default function Programs() {
       subheading: "Train hard. Fuel right.",
       description: "Receive foundational tips, personalized macros, and meal structure recommendations that support your goals—whether you're building muscle, leaning out, or improving energy and recovery.",
       buttonText: "Learn More",
-      onButtonClick: () => console.log('Nutritional Guidance clicked')
+      onButtonClick: () => {
+        // Navigate to contact page with pre-selected service
+        window.location.href = '/contact?service=nutritional-guidance';
+      }
     }
   ];
 

@@ -2,6 +2,7 @@
 
 import { Button } from "@heroui/button";
 import Image from "next/image";
+import Link from "next/link";
 import { env } from "process";
 
 export default function Hero() {
@@ -58,12 +59,15 @@ export default function Hero() {
               As a passionate personal trainer, I believe in empowering individuals to achieve their fitness goals through personalized coaching and support.
             </h2>
             <Button
-              className="min-w-28 h-10 text-white text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px]"
+              className="min-w-28 h-10 text-grey-700 text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px]"
+              
               style={{ 
                 background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
               }}
             >
-              Get Started
+              <Link href="/contact" className="h-full flex items-center justify-center">
+                Let’s Lift
+              </Link>
             </Button>
           </div>
         </div>

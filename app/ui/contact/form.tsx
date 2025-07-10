@@ -1,15 +1,34 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image'
-import { Form, Input, Button, Textarea, CheckboxGroup, Checkbox } from '@heroui/react'
+import { Form, Input, Button, Textarea } from '@heroui/react'
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function ContactForm() {
+  const [preSelectedService, setPreSelectedService] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Map URL parameter values to your service IDs
+  const serviceMapping: { [key: string]: string } = {
+    'personal-training': 'personal-training',
+    'strength-programs': 'strength-programs',
+    'online-training': 'online-coaching',
+    'nutritional-guidance': 'nutrition-coaching',
+    'group-classes': 'group-classes',
+    'workout-plans': 'workout-plans',
+  };
+
+  // Pre-select service from URL parameters on component mount
+  useEffect(() => {
+    const serviceParam = searchParams.get('service');
+    if (serviceParam && serviceMapping[serviceParam]) {
+      setSelectedServices([serviceMapping[serviceParam]]);
+    }
+  }, [searchParams]);
   // Form data state
   const [formData, setFormData] = useState({
     firstName: '',
@@ -104,11 +123,11 @@ export function ContactForm() {
 
   const services = [
     { id: 'personal-training', label: 'Personal Training' },
+    { id: 'strength-programs', label: 'Strength Programs' },
+    { id: 'online-coaching', label: 'Online Coaching' },
     { id: 'nutrition-coaching', label: 'Nutrition Coaching' },
     { id: 'group-classes', label: 'Group Classes' },
-    { id: 'online-coaching', label: 'Online Coaching' },
     { id: 'workout-plans', label: 'Custom Workout Plans' },
-    { id: 'consultation', label: 'Initial Consultation' },
   ];
 
   const handleSubmit = async (formData: FormData) => {

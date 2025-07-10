@@ -2,6 +2,7 @@
 
 import { Button } from "@heroui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function TrainWithCade() {
 
@@ -54,7 +55,9 @@ export default function TrainWithCade() {
               background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
             }}
           >
-            Get Started
+            <Link href="/contact" className="h-full flex items-center justify-center">
+              Get Started
+            </Link>
           </Button>
         </div>
       </div>

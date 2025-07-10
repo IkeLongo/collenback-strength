@@ -50,8 +50,8 @@ export default function RootLayout({
             { name: 'FAQ', href: '#faq' },
           ]}
           showBookingButton={true}
-          bookingText="Book a Call"
-          bookingHref="/signup"
+          bookingText="Message Me"
+          bookingHref="/contact"
           backgroundColor="bg-grey-700"
         />
         {children}
