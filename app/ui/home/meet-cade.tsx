@@ -47,14 +47,13 @@ export default function MeetCade() {
           </div>
 
           {/* Centered Photo */}
-          <div className="flex justify-center mb-12 md:mb-6 md:w-1/2">
-            <div className="relative w-full h-96 md:w-[500px] md:h-[375px] lg:h-[450px] lg:w-[450px]">
+          <div className="flex justify-center items-center mb-12 md:mb-6 md:w-1/2">
+            <div className="relative w-full rounded-[20px] h-[350px] md:h-[375px] lg:h-[450px]">
               <Image
                 src="/home-cade-w-client-1.webp"
                 alt="Cade Collenback - Personal Trainer"
                 fill
-                className="object-cover rounded-lg"
-                style={{ objectPosition: "top" }}
+                className="object-cover rounded-[20px]"
               />
             </div>
           </div>

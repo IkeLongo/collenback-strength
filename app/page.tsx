@@ -20,8 +20,8 @@ export default function Home() {
           texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
           speed={15}
           className="w-full h-16 flex items-center bg-grey-700"
-          textClassName="text-xl font-semibold text-white uppercase font-oxanium"
-          gap="4rem"
+          textClassName="text-[28px] font-semibold text-white uppercase font-oxanium"
+          gap="2rem"
           highlightWords={["athlete", "champion", "limits"]}
           highlightColor="text-gold-500"
           showLottie={true}
