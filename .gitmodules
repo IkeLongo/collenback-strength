@@ -7,3 +7,4 @@
 [submodule "packages/react-component-library"]
 	path = packages/react-component-library
 	url = https://github.com/ikelongo/react-component-library.git
+	branch = collenback-strength
