@@ -85,7 +85,7 @@ h4 {
   /* Additional styles for lg+ screens */
 }
 
-p, a {
+p, a, li {
   font-family: 'Outfit', sans-serif;
   font-size: 16px;
 }

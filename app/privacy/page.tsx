@@ -20,7 +20,9 @@ import {
   California,
   Virginia,
   UpdatesToNotice,
-  ContactAboutNotice
+  ContactAboutNotice,
+  Cookies,
+  PrivacyContactForm
 } from '../ui/privacy';
 
 export const metadata: Metadata = {
@@ -135,6 +137,21 @@ export default function Privacy() {
                 <ContactAboutNotice />
               </main>
             </div>
+          </div>
+          <div className="relative flex flex-col justify-center items-center w-full h-auto px-6 md:mx-6 pb-10 bg-navy-800 overflow-visible shrink-0 md:-top-0 text-white tracking-wide">
+            <div id="cookie-policy" className="text-center py-8 max-w-[60em]">
+              <h3 className="text-center text-white !text-[24px]md:pt-8 !font-oxanium">Website Cookie Policy</h3>
+              <p className="text-white">Last updated June 11, 2025</p>
+            </div>
+            <Cookies />
+          </div>
+          <div className="relative flex flex-col justify-center self-center w-full max-w-[60em] h-auto px-4 pb-10 overflow-visible shrink-0 md:-top-0 md:mb-20 text-white font-avenir tracking-wide">
+            <div id="data-subject-request" className="text-center py-8">
+              <h4 className="text-navy-900">Data Subject Request</h4>
+            </div>
+            <section id="dpo-contact-form" className='px-4 md:px-10'>
+              <PrivacyContactForm />
+            </section>
           </div>
         </Suspense>
       </main>

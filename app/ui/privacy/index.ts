@@ -19,3 +19,5 @@ export { California } from './california';
 export { Virginia } from './virginia';
 export { UpdatesToNotice } from './updates-to-notice';
 export { ContactAboutNotice } from './contact-about-notice';
+export { default as Cookies } from './cookies';
+export { default as PrivacyContactForm } from './form'
