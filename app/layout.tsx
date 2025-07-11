@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Personal Training & Fitness Coaching in San Antonio, TX',
     description: 'Professional personal training and nutritional coaching with Cade Collenback. Athlete-focused fitness programs in San Antonio, Texas.',
-    images: ['/hero-cade.webp'], // Update with your actual social media image
+    images: ['/og-image.webp'], // Update with your actual social media image
   },
   openGraph: {
     type: 'website',
@@ -66,8 +66,8 @@ export const metadata: Metadata = {
     siteName: 'Cade Collenback Strength',
     images: [
       {
-        url: '/hero-cade.webp', // Update with your actual social media image
-        width: 1200,
+        url: '/og-image.webp', // Update with your actual social media image
+        width: 1014,
         height: 630,
         alt: 'Cade Collenback - Personal Trainer in San Antonio, Texas',
         type: 'image/webp',
