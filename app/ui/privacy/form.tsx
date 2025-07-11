@@ -379,7 +379,7 @@ export default function PrivacyContactForm() {
             classNames={{
               input: [
                 "placeholder:text-gray-700",
-                "text-grey-900",
+                "!text-grey-900",
                 "focus:rounded-[13px]",
                 "font-oxanium",
                 "pl-4",
@@ -397,6 +397,7 @@ export default function PrivacyContactForm() {
               inputWrapper: [
                 "shadow-xl",
                 "bg-white",
+                "!text-grey-900",
                 "!cursor-text",
                 "rounded-[13px]",
                 "border-2",
@@ -447,7 +448,7 @@ export default function PrivacyContactForm() {
             ],
             selectorIcon: [
               "-ml-5",
-              "text-grey-700",
+              "!text-grey-700",
             ],
             value: [
               "text-grey-900",
@@ -458,19 +459,20 @@ export default function PrivacyContactForm() {
             itemClasses: {
               base: [
                 "transition-opacity",
-                "data-[hover=true]:text-grey-900",
+                "!data-[hover=true]:text-grey-900",
                 "data-[hover=true]:bg-default-100",
                 "dark:data-[hover=true]:bg-default-50",
                 "data-[selectable=true]:focus:bg-default-50",
                 "data-[pressed=true]:opacity-70",
                 "data-[focus-visible=true]:ring-default-500",
-                "py-1"
+                "py-1",
+                "text-grey-500",
               ],
             },
           }}
           popoverProps={{
             classNames: {
-              base: "bg-white text-grey-500 rounded-[13px] font-oxanium border-2 border-grey-300",
+              base: "bg-white rounded-[13px] font-oxanium border-2 border-grey-300",
               content: "",
             },
           }}
