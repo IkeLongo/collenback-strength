@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/hero-cade.webp',
+        url: '/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'Contact Cade Collenback - Personal Trainer in San Antonio, Texas',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Contact Cade Collenback - Personal Training in San Antonio, TX',
     description: 'Ready to start your fitness journey? Contact Cade Collenback for professional personal training in San Antonio, Texas.',
-    images: ['/hero-cade.webp'],
+    images: ['/og-image.webp'],
   },
   alternates: {
     canonical: 'https://collenbackstrength.com/contact',

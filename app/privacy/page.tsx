@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/hero-cade.webp',
+        url: '/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'Cade Collenback Strength Privacy Policy',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Privacy Policy - Cade Collenback Strength',
     description: 'Learn how we protect your personal information and respect your privacy at Cade Collenback Strength.',
-    images: ['/hero-cade.webp'],
+    images: ['/og-image.webp'],
   },
   alternates: {
     canonical: 'https://collenbackstrength.com/privacy',
