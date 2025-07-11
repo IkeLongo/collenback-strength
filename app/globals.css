@@ -2,7 +2,7 @@
 
 :root {
   --background: #1A1A1A;
-  --foreground: #1A1A1A;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -40,12 +40,12 @@
   --font-outfit: Outfit, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #1A1A1A;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
