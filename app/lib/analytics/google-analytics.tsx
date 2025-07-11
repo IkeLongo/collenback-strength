@@ -4,7 +4,7 @@ import Script from 'next/script';
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { pageview } from './g-tag';
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const GA_ID = process.env.GA_ID;
 
 export default function GoogleAnalytics() {
   const pathname = usePathname();
