@@ -53,7 +53,7 @@ export default function MeetCade() {
                 src="/home-cade-w-client-1.webp"
                 alt="Cade Collenback - Personal Trainer"
                 fill
-                className="object-cover rounded-[20px]"
+                className="object-cover rounded-[20px] brightness-125 md:brightness-100"
               />
             </div>
           </div>

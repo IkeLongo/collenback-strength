@@ -16,7 +16,7 @@ export default function TrainWithCade() {
           src="/home-train-w-cade.webp"
           alt="Background weights"
           fill
-          className="object-cover object-top pointer-events-none select-none"
+          className="object-cover object-top pointer-events-none select-none brightness-125 md:brightness-100"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
         

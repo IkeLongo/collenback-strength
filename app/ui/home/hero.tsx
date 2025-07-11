@@ -17,12 +17,12 @@ export default function Hero() {
         src="/hero-weights-bg.webp"
         alt="Background weights"
         fill
-        className="absolute inset-0 w-full h-full object-cover z-1 pointer-events-none select-none"
+        className="absolute inset-0 w-full h-full object-cover z-1 pointer-events-none select-none brightness-125"
         style={{ pointerEvents: "none", userSelect: "none" }}
       />
       <div className="absolute z-0 pointer-events-none select-none
-        w-[600px] h-[600px] -bottom-20 -right-22
-        sm:w-[600px] sm:h-[600px] sm:-bottom-20 sm:-right-22
+        w-[700px] h-[700px] -bottom-24 -right-40
+        sm:w-[700px] sm:h-[700px] sm:-bottom-24 sm:-right-40
         md:w-[800px] md:h-[800px] md:-bottom-28 md:-right-22
         lg:w-[800px] lg:h-[800px] lg:-bottom-28 lg:-right-22
         xl:w-[800px] xl:h-[800px] xl:-bottom-28 xl:right-40">

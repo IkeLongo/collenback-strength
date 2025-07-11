@@ -66,7 +66,7 @@ export default function Qualifications() {
               src="/home-cade-solo-2.webp"
               alt="Cade Collenback - Personal Trainer"
               fill
-              className="object-cover rounded-lg"
+              className="object-cover rounded-lg brightness-125 md:brightness-100"
               style={{ objectPosition: "top" }}
             />
           </div>
