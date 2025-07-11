@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { pageview } from './g-tag';
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
-export default function Analytics() {
+export default function GoogleAnalytics() {
   const pathname = usePathname();
 
   useEffect(() => {

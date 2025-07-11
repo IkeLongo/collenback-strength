@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Navbar } from "../react-component-library/src";
 import CookieBanner from "@/app/ui/cookies/banner"
 import Footer from "./ui/layout/footer";
+import GoogleAnalytics from "./lib/analytics/google-analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -197,6 +198,7 @@ export default function RootLayout({
         <Footer>
         </Footer>
         <ToastContainer limit={1} theme="dark" />
+        <GoogleAnalytics />
         <CookieBanner />
       </body>
     </html>
