@@ -265,7 +265,7 @@ export function ContactForm() {
           {/* Layer 1 */}
           <div className="relative w-full bg-white max-w-[515px] md:max-w-none rounded-t-[50px] md:rounded-none md:shadow-2xl z-10 min-h-full md:min-h-0">
             <Form
-              className="w-full items-center justify-center md:min-h-screen max-w-[500px] flex flex-col mx-auto gap-4 p-8 md:pt-36 lg:pt-0"
+              className="w-full items-center justify-center md:min-h-screen max-w-[500px] flex flex-col mx-auto gap-4 p-8 md:pt-36"
               action={handleSubmit}
             >
               {/* First and Last Name - Side by side on large screens */}

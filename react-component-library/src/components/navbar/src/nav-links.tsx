@@ -68,7 +68,7 @@ export default function NavLinks({
             className={clsx(
               isActiveLink(link.href)
                 ? 'text-white font-bold'
-                : 'font-medium hover:font-bold text-grey-400'
+                : 'hover:font-bold text-grey-700'
             )}
           >
             {link.name}

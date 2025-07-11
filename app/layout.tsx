@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { Navbar } from "../react-component-library/src";
 import CookieBanner from "@/app/ui/cookies/banner"
-import Footer from "./ui/nav/footer";
+import Footer from "./ui/layout/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
