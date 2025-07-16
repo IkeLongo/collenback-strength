@@ -180,9 +180,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Navbar 
-          logoSrc="/logo-whiteout.png"
+          logoSrc="/logo-stamp.png"
           navLinks={[
-            { name: 'Home', href: '#home' },
             { name: 'About', href: '#about' },
             { name: 'Qualifications', href: '#qualifications' },
             { name: 'Programs', href: '#programs' },

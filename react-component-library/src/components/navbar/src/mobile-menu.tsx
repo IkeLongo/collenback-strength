@@ -61,15 +61,15 @@ export default function MobileMenu({
   };
 
   return (
-    (<div className='w-full align-center md:hidden'>
+    (<div className='w-full align-center lg:hidden'>
       <div className={`absolute z-20 w-full ${backgroundColor} border-x-[1px] border-grey-500`}>
         <div className='flex flex-row justify-between h-[65px] px-6 pt-[10px] items-center'>
           <Link href="/" onClick={handleLogoClick}>
             <Image
               src={logoSrc}
               alt="Logo"
-              width={100}
-              height={100}
+              width={40}
+              height={40}
               style={{
                 maxWidth: "100%",
                 height: "auto"
@@ -80,7 +80,7 @@ export default function MobileMenu({
           </div>
         </div>
       </div>
-      <div className={`absolute top-[20px] w-full h-[300px] flex flex-col justify-between px-6 py-6 ${backgroundColor} border-[1px] border-t-0 border-grey-500 rounded-b-[13px] drop-shadow-[0_14px_16.2px_rgba(0,0,0,0.25)] backdrop-blur-[7px] transition-transform duration-500 ease-in-out z-10 ${menuOpen ? 'translate-y-8' : '-translate-y-[240px]'}`}>
+      <div className={`absolute top-[20px] w-full h-[400px] flex flex-col justify-between px-6 py-6 ${backgroundColor} border-[1px] border-t-0 border-grey-500 rounded-b-[13px] drop-shadow-[0_14px_16.2px_rgba(0,0,0,0.25)] backdrop-blur-[7px] transition-transform duration-500 ease-in-out z-10 ${menuOpen ? 'translate-y-8' : '-translate-y-[340px]'}`}>
         <NavLinks
           links={links}
           onClick={toggleMenu}
@@ -88,12 +88,12 @@ export default function MobileMenu({
         {showBookingButton && (
           <Button
             onPress={toggleMenu}  // Close the menu when the button is clicked
-            className="w-full h-[50px] text-grey-700 text-[14px] font-bold rounded-[20px] mt-4"
+            className="w-full h-[50px] text-grey-700 font-bold rounded-[20px] mt-4"
             style={{ 
               background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
             }}
             >
-            <Link href={bookingHref} className="w-full h-full flex items-center justify-center font-outfit">
+            <Link href={bookingHref} className="w-full h-full flex items-center justify-center uppercase font-outfit uppercase text-[1.3rem]! hover:font-bold! text-grey-700!">
               {bookingText}
             </Link>
           </Button>

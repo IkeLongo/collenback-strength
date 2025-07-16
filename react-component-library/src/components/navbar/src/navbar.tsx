@@ -60,28 +60,32 @@ export default function Navbar({
           backgroundColor={backgroundColor}
         />
         <div className="flex items-center justify-center">
-          <div className='hidden md:w-[900px] md:flex md:flex-col md:pt-[30px] md:justify-center md:gap-[10px]'>
+          <div className='hidden lg:w-full lg:max-w-[1200px] lg:flex lg:flex-col lg:pt-[30px] lg:justify-center lg:gap-[10px]'>
             <div className={`flex py-[13px] px-[20px] justify-between items-center self-stretch rounded-[30px] border-[1px] border-grey-500 bg-grey-700/50 ${backgroundColor}/0 backdrop-blur-[3.5px]`}>
-              <Link href="/" onClick={handleLogoClick}>
+              <Link className="cursor-pointer" href="/" onClick={handleLogoClick}>
                 <Image
                   src={resolvedLogoSrc}
                   alt="Logo"
-                  width={125}
-                  height={100}/>
+                  width={60}
+                  height={60}/>
               </Link>
-              <NavLinks 
-                links={navLinks}
-                onClick={() => setMenuOpen(false)} // Close the menu when a link is clicked
-              />
+
+              <div className="max-w-[1200px] flex lg:gap-6 justify-center">
+                <NavLinks 
+                  links={navLinks}
+                  onClick={() => setMenuOpen(false)} // Close the menu when a link is clicked
+                />
+              </div>
+
               {showBookingButton && (
                 <Button
                   onPress={() => setMenuOpen(false)} // Close the menu when the button is clicked
-                  className="font-outfit text-grey-700 text-[14px] font-bold lg:font-normal rounded-[13px] bg-gradient-gold py-2 lg:text-[16px]"
+                  className="font-outfit text-grey-700 text-[14px] font-bold lg:font-normal rounded-[13px] bg-gradient-gold py-2 lg:uppercase lg:semibold"
                   style={{ 
                     background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
                   }}
                 >
-                  <Link href={bookingHref} className="h-full flex items-center justify-center">
+                  <Link href={bookingHref} className="h-full flex items-center justify-center !text-grey-700 font-semibold uppercase font-outfit text-[1.1rem]! hover:font-bold!">
                     {bookingText}
                   </Link>
                 </Button>

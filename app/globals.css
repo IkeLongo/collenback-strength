@@ -120,7 +120,7 @@ p, a {
 
   p, a {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   
   button {
@@ -134,7 +134,7 @@ p, a {
 /* Large screens and up (1024px+) */
 @media (min-width: 1024px) {
   h1 {
-    font-size: 1.7rem;
+    font-size: 2.5rem;
     /* Additional styles for lg+ screens */
   }
 
@@ -155,12 +155,12 @@ p, a {
   }
 
   p {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     /* Additional styles for lg+ screens */
   }
 
   a {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     /* Additional styles for lg+ screens */
   }
 }

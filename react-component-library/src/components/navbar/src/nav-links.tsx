@@ -62,13 +62,13 @@ export default function NavLinks({
           key={link.name}
           href={link.href}
           onClick={onClick}
-          className="flex h-[48px] grow font-outfit items-center justify-start md:justify-center gap-2 hover:font-bold md:flex-none md:justify-start md:p-2 md:px-3"
+          className="flex h-[58px] grow font-outfit items-center justify-start md:justify-center gap-2 hover:font-bold md:flex-none md:justify-start md:p-2 md:px-3"
         >
           <p
             className={clsx(
               isActiveLink(link.href)
-                ? 'text-white font-bold'
-                : 'hover:font-bold text-grey-700'
+                ? 'text-white font-bold! text-[24px]! font-outfit lg:text-[1.1rem]! uppercase!'
+                : 'font-semibold hover:font-bold hover:text-white! uppercase text-grey-300! text-[24px]! lg:font-outfit! lg:text-[1.1rem]! lg:tracking-wider'
             )}
           >
             {link.name}
