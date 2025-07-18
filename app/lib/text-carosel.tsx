@@ -112,7 +112,7 @@ export default function TextCarousel({
   const duplicatedItems = [...items, ...items];
 
   return (
-    <div className={`relative overflow-hidden my-6 ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       <div
         className="flex whitespace-nowrap animate-scroll items-center"
         style={{
