@@ -21,10 +21,10 @@ export default function Home() {
           texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
           speed={15}
           className="w-full h-16 flex items-center bg-grey-700"
-          textClassName="text-[28px] font-semibold text-white uppercase font-oxanium"
+          textClassName="text-[3.0rem] font-semibold text-white uppercase font-oxanium"
           gap="2rem"
           highlightWords={["athlete", "champion", "limits"]}
-          highlightColor="text-gold-500"
+          highlightColor="text-gold-500 italic"
           showLottie={true}
           lottieSize={{ mobile: 200, md: 200, lg: 200 }}
           lottieFiles={[

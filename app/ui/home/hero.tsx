@@ -93,7 +93,7 @@ export default function Hero() {
       <div 
         className="absolute bottom-0 left-0 right-0 w-full h-64 py-4 pb-0 z-5"
         style={{
-          background: 'linear-gradient(180deg, rgba(26, 26, 26, 0.00) 0%, rgba(26, 26, 26, 1) 60%, #1A1A1A 100%)',
+          background: 'linear-gradient(180deg, rgba(26, 26, 26, 0.00) 0%, rgba(26, 26, 26, 1) 90%, #1A1A1A 100%)',
           opacity: 1
         }}
       >
