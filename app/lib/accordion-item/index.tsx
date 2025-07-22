@@ -45,7 +45,7 @@ export default function AccordionItem({ animation, iconDescription, title, descr
       } hover:text-gold-500 ${styles.hoverBounce}`}>
         
         <div className='flex min-h-8 gap-[10px] items-center'>
-          <p className={`leading-1 !text-[18px] italic transition-colors duration-300 ${
+          <p className={`leading-1 italic transition-colors duration-300 ${
             isOpen ? 'text-gold-500' : 'hover:text-gold-500'
           }`}>
             {title}
@@ -74,7 +74,7 @@ export default function AccordionItem({ animation, iconDescription, title, descr
         style={{ maxHeight: isOpen ? 'none' : '0px' }}
       >
         <div className='flex flex-col p-[30px] gap-[30px] pt-0 justify-start border-b border-solid border-gold-500'>
-          <p className='text-left leading-relaxed'>
+          <p className='text-left leading-relaxed !text-[18px]'>
             {description}
           </p>
           {/* <Link href="/#plan" passHref scroll={false}>
