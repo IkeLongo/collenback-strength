@@ -119,7 +119,7 @@ export default function FullWidthCarousel({
         {children.map((child, index) => (
           <div
             key={index}
-            className="flex-shrink-0 snap-center"
+            className="flex-shrink-0 snap-center my-6"
             style={{ 
               width: getItemWidth(),
               marginRight: index < children.length - 1 ? gap : "0"

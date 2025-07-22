@@ -67,12 +67,12 @@ export default function Programs() {
       </div>
 
       {/* Mobile: Single Item Carousel */}
-      <div className="md:hidden">
+      <div className="md:hidden h-[500px]">
         <HorizontalCarousel
           gap="64px"
           className="mb-4"
           itemWidth="300px"
-          dotPadding='48px'
+          //dotPadding='48px'
         >
           {programs.map((program, index) => (
             <InfoGraphic3
