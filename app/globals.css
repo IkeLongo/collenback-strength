@@ -213,3 +213,16 @@ p, a {
 .pulse-glow {
   animation: pulse-glow 2s infinite;
 }
+
+/* Info Graphic 3 Hover Effect */
+
+.info-graphic3-hover {
+  transition: box-shadow 0.3s, border-color 0.3s;
+  border: 2px solid var(--color-grey-100); /* default border */
+}
+
+.info-graphic3-hover:hover {
+  border-color: var(--color-gold-500);
+  box-shadow: 0 0 24px 4px rgba(203, 159, 36, 0.5), 0 2px 8px #0002;
+  z-index: 2;
+}

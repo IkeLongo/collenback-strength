@@ -5,7 +5,7 @@ import Image from 'next/image';
 interface InfoGraphic3Props {
   icon: string;
   heading: string;
-  subheading: string;
+  //subheading: string;
   description: string;
   buttonText: string;
   onButtonClick?: () => void;
@@ -16,7 +16,7 @@ interface InfoGraphic3Props {
 export default function InfoGraphic3({
   icon,
   heading,
-  subheading,
+  //subheading,
   description,
   buttonText,
   onButtonClick,
@@ -25,7 +25,7 @@ export default function InfoGraphic3({
 }: InfoGraphic3Props) {
   return (
     <div 
-      className={`bg-grey-650 border border-grey-100 rounded-lg p-6 md:p-6 flex flex-col items-center text-center max-w-[300px] h-full gap-5 ${className}`}
+      className={`info-graphic3-hover bg-grey-700 border border-grey-100 rounded-lg p-6 md:p-6 flex flex-col items-center text-center max-w-[300px] h-full gap-5 ${className}`}
     >
       {/* Icon */}
       <div className="flex justify-center">
@@ -44,12 +44,12 @@ export default function InfoGraphic3({
       </p>
 
       {/* Subheading */}
-      <p className="text-grey-100 font-medium text-base md:text-lg font-outfit">
+      {/* <p className="text-grey-100 font-medium text-base md:text-lg font-outfit">
         {subheading}
-      </p>
+      </p> */}
 
       {/* Description - This will expand to fill available space */}
-      <p className="text-grey-100 text-sm md:text-base leading-relaxed font-outfit flex-grow">
+      <p className="text-grey-100 !text-lg md:text-base leading-relaxed font-outfit flex-grow">
         {description}
       </p>
 

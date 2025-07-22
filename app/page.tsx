@@ -20,7 +20,7 @@ export default function Home() {
         <TextCarousel 
           texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
           speed={15}
-          className="w-full h-16 flex items-center bg-grey-600 border-y-2 border-white py-16"
+          className="w-full h-16 flex items-center bg-grey-700 border-y-2 border-white py-16"
           textClassName="text-[3.0rem] font-semibold text-white uppercase font-oxanium"
           gap="2rem"
           highlightWords={["athlete", "champion", "limits"]}

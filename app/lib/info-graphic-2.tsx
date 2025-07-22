@@ -38,7 +38,7 @@ export default function InfoGraphic2({
       </div>
 
       {/* Yellow Title Bar */}
-      <div className="bg-gold-500 text-white px-4 py-2 rounded-lg mb-4 w-full lg:w-auto min-h-[64px] lg:min-h-[48px] flex items-center justify-center">
+      <div className="bg-gold-500 text-white px-4 py-2 rounded-lg mb-4 w-full lg:w-auto min-h-[64px] lg:min-h-[80px] flex items-center justify-center">
         <p className="md:text-base font-outfit font-semibold">
           {title}
         </p>

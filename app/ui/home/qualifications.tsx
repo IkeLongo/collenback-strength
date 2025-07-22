@@ -23,7 +23,7 @@ export default function Qualifications() {
   return (
     <section id="qualifications" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 md:py-18 lg:py-24">
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-center lg:items-start lg:gap-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-center lg:items-start lg:gap-0 lg:max-w-[1000px] lg:self-center">
         {/* Header Content */}
         <div className="flex flex-col mb-4 md:mb-6 md:w-1/2 md:-mr-14 lg:mr-0 lg:mt-0 z-3">
           <h3 className="md:text-left lg:text-right text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
