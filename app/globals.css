@@ -18,6 +18,7 @@
   --color-grey-500: #676666;  /* Normal */
   --color-grey-600: #3D3D3D;  /* Normal:hover */
   --color-grey-650: #303030;  /* Normal:active */
+  --color-grey-675: #222121;  /* Normal:active */
   --color-grey-700: #1A1A1A;  /* Dark */
   --color-grey-900: #000000;  /* Dark:hover */
   
@@ -67,7 +68,7 @@ h2 {
   font-weight: 300;
   color: white;
   text-align: left;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
 }
 
 h3 {
@@ -75,7 +76,7 @@ h3 {
   font-weight: 500;
   color: white;
   text-transform: uppercase;
-  font-size: 2rem;
+  font-size: 3.3rem;
 }
 
 h4 {
@@ -87,7 +88,7 @@ h4 {
 
 p, a {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 1.4rem;
   color: white;
 }
 
@@ -120,7 +121,7 @@ p, a {
 
   p, a {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
   
   button {
@@ -185,4 +186,17 @@ p, a {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Safari and Chrome */
+}
+
+/* Initial state: hidden and translated down */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Animated state: visible and in place */
+.fade-in-up.show {
+  opacity: 1;
+  transform: translateY(0);
 }

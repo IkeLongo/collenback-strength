@@ -13,7 +13,7 @@ interface InfoGraphicProps {
 export default function InfoGraphic({
   number,
   text,
-  width = "200px",
+  width = "",
   className = "",
   duration = 1500
 }: InfoGraphicProps) {
@@ -88,9 +88,8 @@ export default function InfoGraphic({
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function for smooth animation
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      const currentNumber = Math.floor(easeOutQuart * targetNumber);
+      // Linear easing - constant speed
+      const currentNumber = Math.floor(progress * targetNumber);
 
       setDisplayNumber(currentNumber);
 
@@ -107,20 +106,21 @@ export default function InfoGraphic({
   return (
     <div 
       ref={elementRef}
-      className={`bg-grey-650 rounded-[10px] p-4 flex flex-col items-center justify-center text-center ${className}`}
+      className={`bg-grey-675 rounded-[10px] p-4 flex flex-row lg:flex-col gap-4 lg:gap-0 items-center justify-center text-center ${className}`}
       style={{
         width: width,
-        boxShadow: "0px 20px 40px 0px rgba(0, 0, 0, 0.10)"
+        // Add a strong gold glow outside the component
+        boxShadow: "0px 0px 32px 8px rgba(202, 168, 53, 0.45), 0px 20px 40px 0px rgba(0, 0, 0, 0.10)"
       }}
     >
       {/* Animated Number */}
-      <div className="text-gold-500 font-anton text-[50px] md:text-5xl lg:text-[40px] lg:pb-2">
+      <div className="flex justify-end lg:justify-center text-right lg:text-center pr-4 lg:pr-0 text-gold-500 font-anton text-[100px] w-1/2">
         {formatNumber(displayNumber)}
       </div>
       
       {/* Text */}
       <p 
-        className="text-gray-100 font-outfit lg:text-[16px] md:text-base leading-relaxed"
+        className="text-gray-100 font-outfit !text-[24px] lg:text-[16px] w-1/2 lg:w-full lg:min-w-[200px] md:text-base leading-relaxed text-left lg:text-center"
         dangerouslySetInnerHTML={{ __html: text }}
       />
     </div>
