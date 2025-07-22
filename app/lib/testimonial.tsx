@@ -48,7 +48,7 @@ export function TestimonialCard({
   className = ""
 }: TestimonialCardProps) {
   return (
-    <div className={`relative w-full flex items-center justify-center min-h-[350px] ${className}`}>
+    <div className={`relative w-full flex items-center justify-center min-h-[400px] ${className}`}>
       {/* Custom HTML Background Design */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative w-full max-w-lg md:max-w-xl lg:max-w-2xl">
@@ -74,29 +74,28 @@ export function TestimonialCard({
           <div className="w-full bg-grey-700 border border-gold-500 opacity-85 rounded-[10px] min-h-[200px] relative z-10">
             
             {/* Testimonial Text Overlay */}
-            <div className="relative z-20 flex flex-col justify-between py-10 lg:py-10 px-16 md:px-18 lg:px-20 text-center min-h-[200px]">
-              <blockquote className="text-white text-left font-outfit leading-relaxed flex-grow flex items-start">
+            <div className="relative z-20 flex flex-col justify-between py-10 px-16 md:px-18 lg:px-20 text-center min-h-[200px]">
+              <blockquote className="text-white text-left font-outfit leading-relaxed flex-grow flex items-start !text-xl">
                 {quote}
               </blockquote>
               <cite className="mt-2 lg:mt-6 text-right font-semibold md:text-lg font-outfit">
                 - {author}
               </cite>
+              {/* 5 Star Rating - Bottom Center, now inside the card */}
+              <div className="flex justify-center mt-2 space-x-1">
+                {[...Array(5)].map((_, index) => (
+                  <Image
+                    key={index}
+                    src="/star.svg"
+                    alt="Star"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 md:w-5 md:h-5"
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* 5 Star Rating - Bottom Center */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-1 z-40">
-          {[...Array(5)].map((_, index) => (
-            <Image
-              key={index}
-              src="/star.svg"
-              alt="Star"
-              width={16}
-              height={16}
-              className="w-4 h-4 md:w-5 md:h-5"
-            />
-          ))}
         </div>
       </div>
     </div>

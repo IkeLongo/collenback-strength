@@ -37,11 +37,11 @@ export default function Testimonials() {
       <Testimonial>
         <div className="flex flex-col items-center text-center mb-8 md:mb-12">
           <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit mb-4">
-            REAL CLIENTS. REAL RESULTS.
+            REAL CLIENTS. <br className='md:hidden'/>REAL RESULTS.
           </h3>
 
           {/* Testimonials Carousel with Custom Width */}
-          <div className="w-full max-w-6xl">
+          <div className="w-full max-w-4xl">
             <FullWidthCarousel
               gap="10px"
               className=""
