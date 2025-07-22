@@ -48,10 +48,10 @@ export function TestimonialCard({
   className = ""
 }: TestimonialCardProps) {
   return (
-    <div className={`relative w-full flex items-center justify-center min-h-[400px] ${className}`}>
+    <div className={`relative w-full flex items-center justify-center min-h-[350px] ${className}`}>
       {/* Custom HTML Background Design */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full max-w-lg md:max-w-xl lg:max-w-2xl">
+        <div className="relative w-full max-w-lg md:max-w-xl max-w-2xl">
           
           {/* Outer Decorative Border Div - Skinnier and Taller */}
           <div className="absolute inset-0 inset-x-6 -inset-y-5 border-[2.5px] border-gold-500 rounded-[10px] bg-transparent z-11"></div>
@@ -64,7 +64,7 @@ export function TestimonialCard({
           </div>
           
           {/* Closing Quotation Mark - Lower Right - Above background div */}
-          <div className="absolute -bottom-10 right-10 w-12 h-8 md:w-10 md:h-10 bg-grey-700 rounded-full flex items-center justify-center z-30">
+          <div className="absolute -bottom-10 right-10 w-12 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center z-30">
             <span 
               className="text-gold-500 text-[50px] font-anton pt-4 md:pt-6"
             >“</span>

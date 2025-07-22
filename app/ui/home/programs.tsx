@@ -54,10 +54,10 @@ export default function Programs() {
   ];
 
   return (
-    <section id="programs" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 md:py-18 lg:py-24">
+    <section id="programs" className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 pb-20 md:py-18 lg:py-24">
       
       {/* Header Content */}
-      <div className="flex flex-col items-center text-center mb-8 md:mb-12">
+      <div className="flex flex-col items-center text-center">
         <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl font-outfit mb-4">
           Our Programs
         </h3>
@@ -72,7 +72,7 @@ export default function Programs() {
           gap="64px"
           className="mb-4"
           itemWidth="300px"
-          //dotPadding='48px'
+          dotPadding='0px'
         >
           {programs.map((program, index) => (
             <InfoGraphic3

@@ -64,6 +64,7 @@ export default function Qualifications() {
         <HorizontalCarousel
           gap="16px"
           className="mb-4"
+          dotPadding='0px'
         >
           {qualifications.map((qual, index) => (
             <InfoGraphic2

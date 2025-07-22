@@ -23,7 +23,7 @@ export default function InfoGraphic2({
 }: InfoGraphic2Props) {
   return (
     <div 
-      className={`rounded-[10px] p-6 flex flex-col items-center text-center w-full ${className}`}
+      className={`rounded-[10px] p-6 pb-0 flex flex-col items-center text-center w-full ${className}`}
       style={{
         width: fixedWidth, // Only apply fixed width if provided
       }}
