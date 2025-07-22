@@ -1,11 +1,15 @@
+"use client";
+
 import React from 'react';
-import Image from 'next/image';
+import Player from 'lottie-react';
+import dumbellAnim from '../assets/dumbell.json';
 
 interface InfoGraphic2Props {
   title: string;
   description: string;
   fixedWidth?: string; // Optional fixed width
   className?: string;
+  animation?: object; // Optional animation prop for custom animations
   iconSize?: number;
 }
 
@@ -14,6 +18,7 @@ export default function InfoGraphic2({
   description,
   fixedWidth,
   className = "",
+  animation = dumbellAnim,
   iconSize = 20
 }: InfoGraphic2Props) {
   return (
@@ -23,14 +28,12 @@ export default function InfoGraphic2({
         width: fixedWidth, // Only apply fixed width if provided
       }}
     >
-      {/* Thunder Icon */}
       <div className="flex justify-center mb-4">
-        <Image
-          src="/thunder.svg"
-          alt="Thunder icon"
-          width={iconSize}
-          height={iconSize}
-          className="object-contain"
+        <Player
+          autoplay
+          loop
+          animationData={animation}
+          style={{ width: iconSize, height: iconSize }}
         />
       </div>
 

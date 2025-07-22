@@ -200,3 +200,16 @@ p, a {
   opacity: 1;
   transform: translateY(0);
 }
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0px 0px 32px 1px rgba(202, 168, 53, 0.45), 0px 20px 40px 0px rgba(0,0,0,0.10);
+  }
+  50% {
+    box-shadow: 0px 0px 48px 8px rgba(202, 168, 53, 0.75), 0px 20px 40px 0px rgba(0,0,0,0.10);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}

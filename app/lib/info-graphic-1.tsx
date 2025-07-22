@@ -106,10 +106,9 @@ export default function InfoGraphic({
   return (
     <div 
       ref={elementRef}
-      className={`bg-grey-675 rounded-[10px] p-4 flex flex-row lg:flex-col gap-4 lg:gap-0 items-center justify-center text-center ${className}`}
+      className={`bg-grey-675 rounded-[10px] p-4 flex flex-row lg:flex-col gap-4 lg:gap-0 items-center justify-center text-center pulse-glow ${className}`}
       style={{
         width: width,
-        // Add a strong gold glow outside the component
         boxShadow: "0px 0px 32px 8px rgba(202, 168, 53, 0.45), 0px 20px 40px 0px rgba(0, 0, 0, 0.10)"
       }}
     >

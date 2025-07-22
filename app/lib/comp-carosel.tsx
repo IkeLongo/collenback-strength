@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; // Add this at the top if using Heroicons
 
 interface FullWidthCarouselProps {
   children: React.ReactNode[];
@@ -86,7 +87,29 @@ export default function FullWidthCarousel({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full relative ${className}`}>
+      {/* Left Arrow */}
+      <button
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
+        onClick={() => scrollToItem(Math.max(currentIndex - 1, 0))}
+        disabled={currentIndex === 0}
+        aria-label="Previous"
+        type="button"
+      >
+        <ChevronLeftIcon className="w-6 h-6" />
+      </button>
+
+      {/* Right Arrow */}
+      <button
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
+        onClick={() => scrollToItem(Math.min(currentIndex + 1, children.length - 1))}
+        disabled={currentIndex === children.length - 1}
+        aria-label="Next"
+        type="button"
+      >
+        <ChevronRightIcon className="w-6 h-6" />
+      </button>
+
       <div
         ref={scrollContainerRef}
         className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"

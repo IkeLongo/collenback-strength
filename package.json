@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@heroui/button": "^2.2.22",
     "@heroui/checkbox": "^2.3.21",
     "@heroui/input": "^2.4.22",
@@ -23,6 +24,7 @@
     "clsx": "^2.1.1",
     "js-cookie": "^3.0.5",
     "lottie": "^0.0.1",
+    "lottie-react": "^2.4.1",
     "lottie-web": "^5.13.0",
     "next": "15.3.4",
     "nodemailer": "^7.0.5",
