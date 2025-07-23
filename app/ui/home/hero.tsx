@@ -10,7 +10,7 @@ export default function Hero() {
   return (
   <>
     {/* Hero Section */}
-    <section id="home" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden mb-[64px] lg:mb-[96px]">
+    <section id="hero" className="relative flex flex-col w-full min-h-screen justify-start items-start overflow-hidden mb-[64px] lg:mb-[96px]">
       
       {/* Weights background image */}
       <Image

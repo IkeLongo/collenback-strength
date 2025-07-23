@@ -62,7 +62,7 @@ export default function Navbar({
         <div className="flex items-center justify-center">
           <div className='hidden lg:w-full lg:max-w-[1200px] lg:flex lg:flex-col lg:pt-[30px] lg:justify-center lg:gap-[10px]'>
             <div className={`flex py-[13px] px-[20px] justify-between items-center self-stretch rounded-[30px] border-[1px] border-grey-500 bg-grey-700/50 ${backgroundColor}/0 backdrop-blur-[3.5px]`}>
-              <Link className="cursor-pointer" href="/" onClick={handleLogoClick}>
+              <Link className="cursor-pointer" href="/#hero" onClick={handleLogoClick}>
                 <Image
                   src={resolvedLogoSrc}
                   alt="Logo"

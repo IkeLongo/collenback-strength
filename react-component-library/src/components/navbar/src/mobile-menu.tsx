@@ -64,7 +64,7 @@ export default function MobileMenu({
     (<div className='w-full align-center lg:hidden'>
       <div className={`absolute z-20 w-full ${backgroundColor} border-x-[1px] border-grey-500`}>
         <div className='flex flex-row justify-between h-[65px] px-6 pt-[10px] items-center'>
-          <Link href="/" onClick={handleLogoClick}>
+          <Link href="/#hero" onClick={handleLogoClick}>
             <Image
               src={logoSrc}
               alt="Logo"

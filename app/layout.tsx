@@ -182,11 +182,11 @@ export default function RootLayout({
         <Navbar 
           logoSrc="/logo-stamp.png"
           navLinks={[
-            { name: 'About', href: '#about' },
-            { name: 'Qualifications', href: '#qualifications' },
-            { name: 'Programs', href: '#programs' },
-            { name: 'Testimonials', href: '#testimonials' },
-            { name: 'FAQ', href: '#faq' },
+            { name: 'About', href: '/#about' },
+            { name: 'Qualifications', href: '/#qualifications' },
+            { name: 'Programs', href: '/#programs' },
+            { name: 'Testimonials', href: '/#testimonials' },
+            { name: 'FAQ', href: '/#faq' },
           ]}
           showBookingButton={true}
           bookingText="Message Me"

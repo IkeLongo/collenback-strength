@@ -251,7 +251,7 @@ export function ContactForm() {
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-grey-700 bg-opacity-30">
               <h1 className="text-4xl font-bold text-center text-white z-10">Contact Us</h1>
-              <p className="text-center pt-6 text-white text-lg">Any questions or remarks? Just write us a message!</p>
+              <p className="text-center pt-6 text-white text-lg z-10">Any questions or remarks? Just write us a message!</p>
             </div>
           </div>
         </div>
