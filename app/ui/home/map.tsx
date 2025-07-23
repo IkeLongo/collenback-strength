@@ -1,6 +1,6 @@
 export default function Map() {
   return (
-    <section className="w-full max-w-4xl mx-auto px-4 py-16">
+    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-16 md:py-18 lg:py-24">
       <div className="flex flex-col items-center gap-6">
         <h3 className="text-2xl md:text-3xl font-bold text-center">
           Where to Find Me
@@ -19,10 +19,10 @@ export default function Map() {
           />
         </div>
         <div className="text-center">
-          <p className="text-grey-100 mb-2">
+          <p className="text-grey-100 mb-2 !text-[16px]">
             13875 Riggs Rd, Helotes, TX 78023
           </p>
-          <p className="text-sm text-grey-400">
+          <p className="text-sm text-grey-400 !text-[16px]">
             (Located across from Helotes Elementary)
           </p>
         </div>
