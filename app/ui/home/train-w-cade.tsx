@@ -16,12 +16,12 @@ export default function TrainWithCade() {
           src="/home-train-w-cade.webp"
           alt="Background weights"
           fill
-          className="object-cover object-top pointer-events-none select-none brightness-125 md:brightness-100"
+          className="object-cover object-top pointer-events-none select-none brightness-125 md:brightness-100 z-2"
           style={{ pointerEvents: "none", userSelect: "none" }}
         />
         {/* Gradient fade overlay */}
         <div 
-          className="absolute inset-0 mt-40 pointer-events-none z-10"
+          className="absolute inset-0 mt-40 pointer-events-none z-1"
           style={{
             background: 'linear-gradient(180deg, rgba(28, 25, 25, 0.00) 50%, #1A1A1A 92.5%)'
           }}

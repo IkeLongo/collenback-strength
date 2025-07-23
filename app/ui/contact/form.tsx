@@ -234,7 +234,7 @@ export function ContactForm() {
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <h1 className="!text-[32px] pt-4 text-center text-white z-10">Contact Us</h1>
-          <p className="text-center pt-4 text-white">Any questions or remarks? Just write us a message!</p>
+          <p className="text-center pt-4 text-white z-10">Any questions or remarks? Just write us a message!</p>
         </div>
       </div>
 
@@ -265,7 +265,7 @@ export function ContactForm() {
           {/* Layer 1 */}
           <div className="relative w-full bg-white max-w-[515px] md:max-w-none rounded-t-[50px] md:rounded-none md:shadow-2xl z-10 min-h-full md:min-h-0">
             <Form
-              className="w-full items-center justify-center md:min-h-screen max-w-[500px] flex flex-col mx-auto gap-4 p-8 md:pt-36"
+              className="w-full items-center justify-center md:min-h-screen max-w-[600px] flex flex-col mx-auto gap-4 p-8 md:pt-36"
               action={handleSubmit}
             >
               {/* First and Last Name - Side by side on large screens */}
@@ -296,6 +296,7 @@ export function ContactForm() {
                         "focus:outline-none",
                         "ring-0",
                         "focus:ring-0",
+                        "text-[18px]",
                       ],
                       innerWrapper: [
                         "bg-white",
@@ -348,6 +349,7 @@ export function ContactForm() {
                         "focus:outline-none",
                         "ring-0",
                         "focus:ring-0",
+                        "text-[18px]",
                       ],
                       innerWrapper: [
                         "bg-white",
@@ -403,6 +405,7 @@ export function ContactForm() {
                         "focus:outline-none",
                         "ring-0",
                         "focus:ring-0",
+                        "text-[18px]",
                       ],
                       innerWrapper: [
                         "bg-white",
@@ -455,6 +458,7 @@ export function ContactForm() {
                         "focus:outline-none",
                         "ring-0",
                         "focus:ring-0",
+                        "text-[18px]",
                       ],
                       innerWrapper: [
                         "bg-white",
@@ -484,7 +488,7 @@ export function ContactForm() {
 
               {/* Custom Checkbox Section - Card Style */}
               <div className="flex flex-col gap-3 w-full ">
-                <label className="text-grey-700 font-oxanium font-medium text-sm">
+                <label className="text-grey-700 font-oxanium font-medium !text-[18px] pt-2">
                   What services are you interested in?
                 </label>
                 
@@ -493,7 +497,7 @@ export function ContactForm() {
                     <label 
                       key={service.id}
                       className={`
-                        flex items-center h-[42px] gap-3 p-3 rounded-[13px] border-2 cursor-pointer transition-all duration-200
+                        flex items-center h-auto gap-3 p-3 rounded-[13px] border-2 cursor-pointer transition-all duration-200
                         ${selectedServices.includes(service.id) 
                           ? 'bg-gold-50 border-gold-500' 
                           : 'bg-white border-grey-300 hover:border-grey-400'
@@ -534,7 +538,7 @@ export function ContactForm() {
                         </div>
                       </div>
                       
-                      <span className="text-grey-700 font-oxanium text-sm select-none">
+                      <span className="text-grey-700 font-oxanium !text-[18px] select-none">
                         {service.label}
                       </span>
                     </label>
@@ -598,6 +602,7 @@ export function ContactForm() {
                       "focus:outline-none",
                       "ring-0",
                       "focus:ring-0",
+                      "text-[18px]",
                     ],
                   }}
                 />
@@ -613,7 +618,7 @@ export function ContactForm() {
                 type="submit"
                 disabled={isSubmitting}
                 variant="solid"
-                className="w-full mt-4 text-white rounded-[13px] font-outfit font-semibold text-lg cursor-pointer"
+                className="w-full mt-4 text-grey-700 rounded-[13px] font-outfit font-semibold text-lg cursor-pointer"
                 style={{ 
                   background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
                 }}
