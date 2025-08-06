@@ -45,7 +45,7 @@ export default function AccordionItem({ animation, iconDescription, title, descr
       } hover:text-gold-500 ${styles.hoverBounce}`}>
         
         <div className='flex min-h-8 gap-[10px] items-center'>
-          <p className={`leading-1 italic transition-colors duration-300 ${
+          <p className={`leading-7 italic transition-colors duration-300 ${
             isOpen ? 'text-gold-500' : 'hover:text-gold-500'
           }`}>
             {title}

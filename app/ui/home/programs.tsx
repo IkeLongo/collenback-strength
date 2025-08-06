@@ -61,7 +61,7 @@ export default function Programs() {
         <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl font-outfit mb-4">
           Our Programs
         </h3>
-        <p className="text-grey-100 text-base md:text-lg lg:text-xl font-outfit max-w-3xl md:max-w-2xl leading-relaxed">
+        <p className="text-grey-100 md:mb-8 text-base md:text-lg lg:text-xl font-outfit max-w-3xl md:max-w-2xl leading-relaxed">
           Discover our comprehensive fitness programs designed to help you achieve your goals, whether you're just starting out or looking to take your performance to the next level.
         </p>
       </div>
