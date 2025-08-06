@@ -223,7 +223,7 @@ export function ContactForm() {
   return (
     <div className="w-full">
       {/* Top header section - only visible on mobile */}
-      <div className="md:hidden relative">
+      <div className="md:hidden relative pt-20">
         <Image
           src='/home-testimonials-bg.webp'
           alt='Yellow haze'
@@ -232,8 +232,8 @@ export function ContactForm() {
           height={300}
           className='w-full h-[300px] pt-6 -mb-6 object-cover opacity-50'
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <h1 className="!text-[32px] pt-4 text-center text-white z-10">Contact Us</h1>
+        <div className="absolute m-4 inset-0 flex flex-col items-center justify-center">
+          <h1 className="!text-[32px] pt-8 text-center text-white z-10">Contact Us</h1>
           <p className="text-center pt-4 text-white z-10">Any questions or remarks? Just write us a message!</p>
         </div>
       </div>
@@ -249,8 +249,8 @@ export function ContactForm() {
               fill
               className='object-cover opacity-50 z-1'
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-grey-700 bg-opacity-30">
-              <h1 className="text-4xl font-bold text-center text-white z-10">Contact Us</h1>
+            <div className="absolute inset-0 mx-4 flex flex-col items-center justify-center bg-grey-700 bg-opacity-30">
+              <h1 className="!text-4xl font-bold text-center text-white z-10">Contact Us</h1>
               <p className="text-center pt-6 text-white text-lg z-10">Any questions or remarks? Just write us a message!</p>
             </div>
           </div>
@@ -265,7 +265,7 @@ export function ContactForm() {
           {/* Layer 1 */}
           <div className="relative w-full bg-white max-w-[515px] md:max-w-none rounded-t-[50px] md:rounded-none md:shadow-2xl z-10 min-h-full md:min-h-0">
             <Form
-              className="w-full items-center justify-center md:min-h-screen max-w-[600px] flex flex-col mx-auto gap-4 p-8 md:pt-36"
+              className="w-full items-center justify-center md:min-h-screen max-w-[600px] flex flex-col mx-auto gap-4 p-8 pt-14 md:pt-36"
               action={handleSubmit}
             >
               {/* First and Last Name - Side by side on large screens */}
