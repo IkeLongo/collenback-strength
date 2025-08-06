@@ -88,38 +88,17 @@ export default function FullWidthCarousel({
 
   return (
     <div className={`w-full relative ${className}`}>
-      {/* Left Arrow */}
-      <button
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
-        onClick={() => scrollToItem(Math.max(currentIndex - 1, 0))}
-        disabled={currentIndex === 0}
-        aria-label="Previous"
-        type="button"
-      >
-        <ChevronLeftIcon className="w-6 h-6" />
-      </button>
-
-      {/* Right Arrow */}
-      <button
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
-        onClick={() => scrollToItem(Math.min(currentIndex + 1, children.length - 1))}
-        disabled={currentIndex === children.length - 1}
-        aria-label="Next"
-        type="button"
-      >
-        <ChevronRightIcon className="w-6 h-6" />
-      </button>
-
+      {/* Carousel Scroll Area */}
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide items-center"
         style={{ padding: getPadding() }}
         onScroll={handleScroll}
       >
         {children.map((child, index) => (
           <div
             key={index}
-            className="flex-shrink-0 snap-center my-6"
+            className="flex-shrink-0 snap-center my-6 flex flex-col items-start"
             style={{ 
               width: getItemWidth(),
               marginRight: index < children.length - 1 ? gap : "0"
@@ -130,21 +109,46 @@ export default function FullWidthCarousel({
         ))}
       </div>
 
-      {/* Dot Indicators with customizable padding */}
+      {/* Navigation: Arrows + Dots */}
       <div 
-        className="flex justify-center gap-2"
+        className="flex items-center justify-center gap-4 mt-4"
         style={{ marginTop: dotPadding }}
       >
-        {children.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => scrollToItem(index)}
-            className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-              index === currentIndex ? 'bg-gold-500' : 'bg-gray-400'
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
+        {/* Left Arrow */}
+        <button
+          className="bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
+          onClick={() => scrollToItem(Math.max(currentIndex - 1, 0))}
+          disabled={currentIndex === 0}
+          aria-label="Previous"
+          type="button"
+        >
+          <ChevronLeftIcon className="w-6 h-6" />
+        </button>
+
+        {/* Dot Indicators */}
+        <div className="flex gap-2">
+          {children.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollToItem(index)}
+              className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                index === currentIndex ? 'bg-gold-500' : 'bg-gray-400'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Right Arrow */}
+        <button
+          className="bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
+          onClick={() => scrollToItem(Math.min(currentIndex + 1, children.length - 1))}
+          disabled={currentIndex === children.length - 1}
+          aria-label="Next"
+          type="button"
+        >
+          <ChevronRightIcon className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );
