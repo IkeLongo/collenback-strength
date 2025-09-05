@@ -3,12 +3,12 @@ import { Suspense } from 'react';
 import { ContactForm } from "../ui/contact/form";
 
 export const metadata: Metadata = {
-  title: 'Contact - Get Started with Personal Training in San Antonio, TX',
-  description: 'Ready to start your fitness journey? Contact Cade Collenback for professional personal training and nutritional coaching in San Antonio, Texas. Book your consultation today.',
+  title: 'Contact - Get Started with Strength Coaching in San Antonio, TX',
+  description: 'Ready to start your fitness journey? Contact Cade Collenback for professional strength and nutritional coaching in San Antonio, Texas. Book your consultation today.',
   keywords: [
     'contact personal trainer San Antonio',
     'fitness consultation Texas',
-    'book personal training session',
+    'book strength coaching session',
     'Cade Collenback contact',
     'gym consultation San Antonio',
     'fitness coaching inquiry',
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
     'strength training consultation'
   ],
   openGraph: {
-    title: 'Contact Cade Collenback - Personal Training in San Antonio, TX',
-    description: 'Ready to transform your fitness? Contact Cade Collenback for expert personal training and nutritional coaching in San Antonio, Texas.',
+    title: 'Contact Cade Collenback - Strength Coach in San Antonio, TX',
+    description: 'Ready to transform your fitness? Contact Cade Collenback for expert strength and nutritional coaching in San Antonio, Texas.',
     url: 'https://collenbackstrength.com/contact',
     type: 'website',
     images: [
@@ -25,14 +25,14 @@ export const metadata: Metadata = {
         url: '/og-image.webp',
         width: 1200,
         height: 630,
-        alt: 'Contact Cade Collenback - Personal Trainer in San Antonio, Texas',
+        alt: 'Contact Cade Collenback - Strength Coach in San Antonio, Texas',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contact Cade Collenback - Personal Training in San Antonio, TX',
-    description: 'Ready to start your fitness journey? Contact Cade Collenback for professional personal training in San Antonio, Texas.',
+    title: 'Contact Cade Collenback - Strength Coach in San Antonio, TX',
+    description: 'Ready to start your fitness journey? Contact Cade Collenback for professional strength coaching in San Antonio, Texas.',
     images: ['/og-image.webp'],
   },
   alternates: {

@@ -1,117 +1,110 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; // Add this at the top if using Heroicons
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
-interface FullWidthCarouselProps {
+interface ThreeItemCarouselProps {
   children: React.ReactNode[];
   className?: string;
+  containerWidth: string;
   gap?: string;
   itemWidth?: string;
-  dotPadding?: string; // New optional parameter for dot indicators padding
+  dotPadding?: string;
 }
 
-export default function FullWidthCarousel({
+export default function ThreeItemCarousel({
   children,
   className = "",
+  containerWidth,
   gap = "16px",
   itemWidth,
-  dotPadding = "16px" // Default padding between carousel and dots
-}: FullWidthCarouselProps) {
+  dotPadding = "16px"
+}: ThreeItemCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Determine if we're using custom item width or full width
   const isCustomWidth = itemWidth !== undefined;
 
   const handleScroll = () => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      
+      let pageIndex = 0;
       if (isCustomWidth) {
-        // Custom width: calculate based on item width + gap
         const itemWidthNum = parseInt(itemWidth);
         const gapNum = parseInt(gap);
         const itemFullWidth = itemWidthNum + gapNum;
-        const scrollLeft = container.scrollLeft;
-        const newIndex = Math.round(scrollLeft / itemFullWidth);
-        setCurrentIndex(newIndex);
+        pageIndex = Math.round(container.scrollLeft / (itemFullWidth * 3));
       } else {
-        // Full width: use container width (existing behavior)
-        const containerWidth = container.clientWidth;
-        const scrollLeft = container.scrollLeft;
-        const newIndex = Math.round(scrollLeft / containerWidth);
-        setCurrentIndex(newIndex);
+        const itemWidth = container.clientWidth / 3;
+        pageIndex = Math.round(container.scrollLeft / (itemWidth * 3));
       }
+      setCurrentIndex(pageIndex);
     }
   };
 
-  const scrollToItem = (index: number) => {
+  const scrollToItem = (pageIndex: number) => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      
       if (isCustomWidth) {
-        // Custom width: scroll based on item width + gap
         const itemWidthNum = parseInt(itemWidth);
         const gapNum = parseInt(gap);
         const itemFullWidth = itemWidthNum + gapNum;
         container.scrollTo({
-          left: index * itemFullWidth,
+          left: pageIndex * 3 * itemFullWidth,
           behavior: 'smooth'
         });
       } else {
-        // Full width: use container width (existing behavior)
-        const containerWidth = container.clientWidth;
+        const itemWidth = container.clientWidth / 3;
         container.scrollTo({
-          left: index * containerWidth,
+          left: pageIndex * 3 * itemWidth,
           behavior: 'smooth'
         });
       }
     }
   };
 
-  // Calculate padding for centering when using custom width
-  const getPadding = () => {
-    if (isCustomWidth) {
-      return `0 calc(50vw - ${itemWidth}/2)`;
-    }
-    return `0 ${gap}`;
+  const getTotalPages = () => {
+    return Math.ceil(children.length / 3);
   };
 
-  // Calculate item width style
-  const getItemWidth = () => {
+  const getItemWidthDesktop = () => {
     if (isCustomWidth) {
       return itemWidth;
     }
-    return `100%`; // <-- Change this line;
+    return `calc(33.3333% - ${gap}/1.5)`;
   };
 
   return (
-    <div className={`w-full relative ${className}`}>
-      {/* Carousel Scroll Area */}
-      <div
-        ref={scrollContainerRef}
-        className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide items-center"
-        style={{ padding: getPadding() }}
-        onScroll={handleScroll}
-      >
-        {children.map((child, index) => (
-          <div
-            key={index}
-            className="flex-shrink-0 snap-center my-6 flex flex-col items-start"
-            style={{ 
-              width: getItemWidth(),
-              marginRight: index < children.length - 1 ? gap : "0"
-            }}
-          >
-            {child}
-          </div>
-        ))}
+    <div className={`w-full ${className}`}>
+      {/* Desktop: Centered container with explicit width */}
+      <div className="hidden lg:flex lg:justify-center">
+        <div
+          ref={scrollContainerRef}
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          style={{
+            width: containerWidth,
+            padding: `0 ${gap}`,
+            gap: gap
+          }}
+          onScroll={handleScroll}
+        >
+          {children.map((child, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 snap-start"
+              style={{
+                width: getItemWidthDesktop()
+              }}
+            >
+              {child}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Navigation: Arrows + Dots */}
-      <div 
-        className="flex items-center justify-center gap-4 mt-4"
+      <div
+        className="flex items-center justify-center gap-4 pt-8"
         style={{ marginTop: dotPadding }}
       >
         {/* Left Arrow */}
@@ -127,7 +120,7 @@ export default function FullWidthCarousel({
 
         {/* Dot Indicators */}
         <div className="flex gap-2">
-          {children.map((_, index) => (
+          {Array.from({ length: getTotalPages() }, (_, index) => (
             <button
               key={index}
               onClick={() => scrollToItem(index)}
@@ -142,8 +135,8 @@ export default function FullWidthCarousel({
         {/* Right Arrow */}
         <button
           className="bg-grey-700/80 hover:bg-grey-700 text-white rounded-full p-2 shadow transition disabled:opacity-40"
-          onClick={() => scrollToItem(Math.min(currentIndex + 1, children.length - 1))}
-          disabled={currentIndex === children.length - 1}
+          onClick={() => scrollToItem(Math.min(currentIndex + 1, getTotalPages() - 1))}
+          disabled={currentIndex === getTotalPages() - 1}
           aria-label="Next"
           type="button"
         >

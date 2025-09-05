@@ -22,10 +22,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://collenbackstrength.com'),
   title: {
-    default: 'Personal Training & Fitness Coaching in San Antonio, TX | Cade Collenback',
+    default: 'Strength & Fitness Coaching in San Antonio, TX | Cade Collenback',
     template: '%s | Cade Collenback Strength',
   },
-  description: 'Professional personal training and nutritional coaching in San Antonio, Texas. Cade Collenback offers athlete-focused fitness programs, strength training, and personalized coaching to help you achieve your goals.',
+  description: 'Professional personal training and strength coaching in San Antonio, Texas. Cade Collenback offers athlete-focused fitness programs, strength training, and personalized coaching to help you achieve your goals.',
   keywords: [
     'personal trainer San Antonio',
     'fitness coaching Texas',
@@ -54,16 +54,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Personal Training & Fitness Coaching in San Antonio, TX',
-    description: 'Professional personal training and nutritional coaching with Cade Collenback. Athlete-focused fitness programs in San Antonio, Texas.',
+    title: 'Strength & Fitness Coaching in San Antonio, TX',
+    description: 'Professional personal training and strength coaching with Cade Collenback. Athlete-focused fitness programs in San Antonio, Texas.',
     images: ['/og-image.webp'], // Update with your actual social media image
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://collenbackstrength.com',
-    title: 'Personal Training & Fitness Coaching in San Antonio, TX | Cade Collenback',
-    description: 'Professional personal training and nutritional coaching in San Antonio, Texas. Cade Collenback offers athlete-focused fitness programs, strength training, and personalized coaching.',
+    title: 'Strength & Fitness Coaching in San Antonio, TX | Cade Collenback',
+    description: 'Professional personal training and strength coaching in San Antonio, Texas. Cade Collenback offers athlete-focused fitness programs, strength training, and personalized coaching.',
     siteName: 'Cade Collenback Strength',
     images: [
       {
@@ -109,7 +109,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Gym",
               "name": "Cade Collenback Strength",
-              "description": "Professional personal training and nutritional coaching in San Antonio, Texas",
+              "description": "Professional strength and nutritional coaching in San Antonio, Texas",
               "url": "https://collenbackstrength.com",
               "telephone": "(210) 701-2655",
               "email": "contact@collenbackstrength.com",
@@ -137,8 +137,8 @@ export default function RootLayout({
                     "@type": "Offer",
                     "itemOffered": {
                       "@type": "Service",
-                      "name": "Personal Training",
-                      "description": "One-on-one personalized fitness coaching"
+                      "name": "Strength Coaching",
+                      "description": "One-on-one personalized strength coaching"
                     }
                   },
                   {

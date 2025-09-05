@@ -11,7 +11,7 @@ export default function MeetCade() {
           <div className="flex flex-col md:w-[400px] md:-ml-40 lg:ml-10 md:justify-center">
             <div className="z-3">
               <h3 className="text-left md:text-right lg:text-left text-2xl font-bold text-white mb-4 md:mb-6">
-                Meet Cade!
+                About Cade
               </h3>
               <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed"
                 style={{

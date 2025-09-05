@@ -65,13 +65,13 @@ export default function Hero() {
         {/* Main content overlay */}
         <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-20 sm:pt-36 sm:pb-20 md:pb-24 lg:pb-36 px-4 md:flex md:flex-row-reverse md:items-center md:justify-center lg:justify-end lg:left-0">
           <div className="flex flex-col h-full justify-between items-start w-full sm:max-w-[600px] lg:max-w-[600px] md:gap-6 lg:gap-8">
-            <h1 className="w-full sm:text-[2.2rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-20 z-3">
-              <span className="text-gold-500 italic">Athlete focused </span>personal training and nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
+            <h1 className="w-full sm:text-[2.2rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-10 z-3">
+              <span className="text-gold-500 italic">Athlete focused </span>strength, conditioning & nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
             </h1>
 
             <div className="flex flex-row md:flex-col items-end md:items-start justify-start md:self-start gap-2 md:gap-10 md:max-w-[500px]">
               <h2 className="flex-1 font-normal lg:text-base text-white text-right md:text-left w-auto md:w-[400px] lg:w-[400px] self-end z-6">
-                As a passionate personal trainer, I believe in empowering individuals to achieve their fitness goals through personalized coaching and support.
+                As a strength and conditioning specialist, I believe in empowering individuals to achieve all their strength goals through personalized coaching and support.
               </h2>
               <Button
                 className="min-w-28 h-10 text-grey-700 text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px] z-6"

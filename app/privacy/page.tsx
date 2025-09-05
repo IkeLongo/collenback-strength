@@ -27,7 +27,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Cade Collenback Strength | San Antonio, TX',
-  description: 'Learn how Cade Collenback Strength protects your personal information. Our privacy policy outlines data collection, usage, and security practices for our personal training services in San Antonio, Texas.',
+  description: 'Learn how Cade Collenback Strength protects your personal information. Our privacy policy outlines data collection, usage, and security practices for our strength coaching services in San Antonio, Texas.',
   keywords: [
     'privacy policy',
     'data protection',

@@ -18,12 +18,12 @@ export default function Home() {
       <main className="flex flex-col w-full h-full mx-4">
         <Hero />
         <TextCarousel 
-          texts={["Train like an athlete", "Perform like a champion", "Push your limits"]}
+          texts={["Cowards Never Start", "The Weak Never Finish", "The Strong Never Quit"]}
           speed={15}
           className="w-full h-16 flex items-center bg-grey-700 border-y-2 border-white py-16"
           textClassName="text-[3.0rem] font-semibold text-white uppercase font-oxanium"
           gap="2rem"
-          highlightWords={["athlete", "champion", "limits"]}
+          highlightWords={["Cowards", "Weak", "Strong"]}
           highlightColor="text-gold-500 italic"
           showLottie={true}
           lottieSize={{ mobile: 200, md: 200, lg: 200 }}
