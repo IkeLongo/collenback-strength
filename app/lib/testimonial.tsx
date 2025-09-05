@@ -56,24 +56,6 @@ export function TestimonialCard({
           {/* Outer Decorative Border Div - Skinnier and Taller */}
           <div className="absolute inset-0 inset-x-6 -inset-y-5 border-[2.5px] border-gold-500 rounded-[10px] bg-transparent z-11"></div>
           
-          {/* Opening Quotation Mark - Upper Left - Above background div */}
-          <div className="absolute -top-9 left-10 w-12 h-8 md:w-10 md:h-10 flex items-center justify-center z-30">
-            {/* Mask out the yellow border behind the quote */}
-            <div className="absolute inset-0 border-[2.5px] border-gold-500 bg-grey-700 rounded-full z-20"></div>
-            <span 
-              className="relative text-gold-500 text-[50px] font-anton pt-7 lg:pt-[28px] md:pt-8 z-30"
-            >“</span>
-          </div>
-          
-          {/* Closing Quotation Mark - Lower Right - Above background div */}
-          <div className="absolute -bottom-9 right-10 w-12 h-8 md:w-10 md:h-10 flex items-center justify-center z-30">
-            {/* Mask out the yellow border behind the quote */}
-            <div className="absolute inset-0 border-[2.5px] border-gold-500 bg-grey-700 rounded-full z-20"></div>
-            <span 
-              className="relative text-gold-500 text-[50px] font-anton pt-8 md:pt-[30px] md:pt-6 z-30"
-            >“</span>
-          </div>
-          
           {/* Custom Background Div with Tailwind - Now content-driven */}
           <div className="w-full bg-grey-700 border border-gold-500 opacity-85 rounded-[10px] min-h-[200px] relative z-10">
             

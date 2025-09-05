@@ -7,30 +7,31 @@ import FullWidthCarousel from '@/app/lib/comp-carosel';
 export default function Testimonials() {
   const testimonials = [
     {
-      quote: "Cade transformed my fitness journey completely. His personalized approach helped me achieve goals I never thought possible.",
-      author: "Sarah Johnson"
+      quote: "\"I increased my vertical jump to 34 inches—up an inch and a half from last time. The Sunday sessions are clearly paying off!\"",
+      author: "Luke C"
     },
     {
-      quote: "The nutrition guidance and training programs are incredible. I've never felt stronger or more confident in my abilities.",
-      author: "Mike Rodriguez"
+      quote: "\"My coach told the whole team my power clean form was perfect. Training with Cade has taken my technique to another level.\"",
+      author: "Roo H"
     },
     {
-      quote: "Working with Cade has been life-changing. His expertise and motivation pushed me beyond my limits safely and effectively.",
-      author: "Emily Chen"
+      quote: "\"You have a bright future. If I ever get the chance to be a head coach, I’d want someone like you to run my program.\"",
+      author: "Division I Football Coach"
     },
     {
-      quote: "I've tried many trainers before, but none compare to Cade's knowledge and dedication to helping his clients succeed.",
-      author: "James Wilson"
+      quote: "\"To our family, you’re the best in the business. No one ever took a chance on me like you’ve taken on my son. It’s an investment we’ll always make—thank you for being that person in his life.\"",
+      author: "Martin G"
     },
     {
-      quote: "The results speak for themselves. Cade's training methods are scientifically sound and incredibly effective.",
-      author: "Amanda Foster"
+      quote: "\"We’ve seen the strength and the difference he’s gained. The progress is undeniable.\"",
+      author: "Laura G"
     },
     {
-      quote: "From day one, Cade believed in my potential. His support and expertise helped me reach fitness goals I never imagined.",
-      author: "David Martinez"
+      quote: "\"Cade has done an amazing job taking care of my body now that I’m no longer a college athlete. I’ve never felt—or looked—better.\"",
+      author: "Chase Locke, Wyoming WR"
     }
   ];
+
 
   return (
     <section id="testimonials" className="flex flex-col w-full mx-auto py-16 pb-4 md:py-18 md:pb-4 lg:py-24 lg:pb-10">
