@@ -3,7 +3,7 @@
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { env } from "process";
+import FadeInUp from "@/app/lib/components/fade-in-up";
 
 export default function Hero() {
 
@@ -46,12 +46,12 @@ export default function Hero() {
           </div>
           
           {/* Cade hero image */}
-          <div className="absolute z-4
-            w-[90vw] min-w-[400px] max-w-[475px] h-[100vh] -bottom-32 -right-28
-            sm:w-[90vw] sm:min-w-[400px] sm:max-w-[475px] sm:h-[100vh] sm:-bottom-20 sm:-right-28
-            md:w-[90vw] md:min-w-[400px] md:max-w-[475px] md:h-[100vh] md:-bottom-20 md:-right-28
-            lg:w-[90vw] lg:min-w-[400px] lg:max-w-[475px] lg:h-[1000px] lg:-bottom-24 lg:-right-20
-            ">
+          <FadeInUp className="absolute z-4
+              w-[90vw] min-w-[400px] max-w-[475px] h-[100vh] -bottom-32 -right-28
+              sm:w-[90vw] sm:min-w-[400px] sm:max-w-[475px] sm:h-[100vh] sm:-bottom-20 sm:-right-28
+              md:w-[90vw] md:min-w-[400px] md:max-w-[475px] md:h-[100vh] md:-bottom-20 md:-right-28
+              lg:w-[90vw] lg:min-w-[400px] lg:max-w-[475px] lg:h-[1000px] lg:-bottom-24 lg:-right-20
+              ">
             <Image
               src="/hero-cade.webp"
               alt="Cade Collenback hero image"
@@ -59,31 +59,37 @@ export default function Hero() {
               className="object-contain"
               style={{ pointerEvents: "none", userSelect: "none" }}
             />
-          </div>
+          </FadeInUp>
         </div>
 
         {/* Main content overlay */}
         <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-20 sm:pt-36 sm:pb-20 md:pb-24 lg:pb-36 px-4 md:flex md:flex-row-reverse md:items-center md:justify-center lg:justify-end lg:left-0">
           <div className="flex flex-col h-full justify-between items-start w-full sm:max-w-[600px] lg:max-w-[600px] md:gap-6 lg:gap-8">
             <h1 className="w-full sm:text-[2.2rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-10 z-3">
-              <span className="text-gold-500 italic">Athlete focused </span>strength, conditioning & nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
+              <FadeInUp>
+                <span className="text-gold-500 italic">Athlete focused </span>strength, conditioning & nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
+              </FadeInUp>
             </h1>
 
             <div className="flex flex-row md:flex-col items-end md:items-start justify-start md:self-start gap-2 md:gap-10 md:max-w-[500px]">
               <h2 className="flex-1 font-normal lg:text-base text-white text-right md:text-left w-auto md:w-[400px] lg:w-[400px] self-end z-6">
-                As a strength and conditioning specialist, I believe in empowering individuals to achieve all their strength goals through personalized coaching and support.
+                <FadeInUp>
+                  As a strength and conditioning specialist, I believe in empowering individuals to achieve all their strength goals through personalized coaching and support.
+                </FadeInUp>
               </h2>
-              <Button
-                className="min-w-28 h-10 text-grey-700 text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px] z-6"
-                
-                style={{ 
-                  background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
-                }}
-              >
-                <Link href="/contact" className="h-full flex items-center justify-center text-grey-700! text-[1.1rem]!">
-                  Let's Lift
-                </Link>
-              </Button>
+              <FadeInUp className="z-7">
+                <Button
+                  className="min-w-28 h-10 text-grey-700 text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px]"
+                  
+                  style={{ 
+                    background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
+                  }}
+                >
+                  <Link href="/contact" className="h-full flex items-center justify-center text-grey-700! text-[1.1rem]!">
+                    Let's Lift
+                  </Link>
+                </Button>
+              </FadeInUp>
             </div>
           </div>
         </div>

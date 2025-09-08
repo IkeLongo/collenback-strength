@@ -8,6 +8,7 @@ import { Navbar } from "../react-component-library/src";
 import CookieBanner from "@/app/ui/cookies/banner"
 import Footer from "./ui/layout/footer";
 import GoogleAnalytics from "./lib/analytics/google-analytics";
+import FadeOverlay from "./lib/components/fade-overlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -179,6 +180,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <FadeOverlay />
         <Navbar 
           logoSrc="/logo-stamp.png"
           navLinks={[
