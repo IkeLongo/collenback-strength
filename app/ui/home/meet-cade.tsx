@@ -1,5 +1,6 @@
 import Image from "next/image";
 import InfoGraphic from "@/app/lib/info-graphic-1";
+import FadeInUp from "@/app/lib/components/fade-in-up";
 
 export default function MeetCade() {
   return (
@@ -11,42 +12,19 @@ export default function MeetCade() {
           <div className="flex flex-col md:w-[400px] md:-ml-40 lg:ml-10 md:justify-center">
             <div className="z-3">
               <h3 className="text-left md:text-right lg:text-left text-2xl font-bold text-white mb-4 md:mb-6">
-                About Cade
+                <FadeInUp>
+                  About Cade
+                </FadeInUp>
               </h3>
               <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed"
                 style={{
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
                 }}>
-                After years of playing collegiate football, Cade turned his passion for strength and performance into a mission: helping others build the mindset, discipline, and physical power needed to thrive.
+                  <FadeInUp>
+                    After years of playing collegiate football, Cade turned his passion for strength and performance into a mission: helping others build the mindset, discipline, and physical power needed to thrive.
+                  </FadeInUp>
               </p>
             </div>
-
-            {/* Three Components Container */}
-            {/* <div className="hidden justify-between items-stretch lg:flex lg:mt-6 lg:gap-4 lg:mr-10">
-              <div className="flex justify-center items-center md:w-1/3">
-                <InfoGraphic 
-                  number="6"
-                  text="Years as<br>Collegiate Athlete"
-                  className="lg:w-[175px] h-full"
-                />
-              </div>
-
-              <div className="flex justify-center items-center md:w-1/3">
-                <InfoGraphic 
-                  number="10"
-                  text="Years of<br>Experience"
-                  className="lg:w-[175px] h-full"
-                />
-              </div>
-
-              <div className="flex justify-center items-center md:w-1/3">
-                <InfoGraphic 
-                  number="15"
-                  text="Years<br>in Sports"
-                  className="lg:w-[175px] h-full"
-                />
-              </div>
-            </div> */}
           </div>
 
           {/* Centered Photo */}
@@ -55,19 +33,20 @@ export default function MeetCade() {
                             w-full h-96
                             md:w-[500px] md:h-[450px]"
             >
-              <Image
-                src="/home-cade-w-client-1.webp"
-                alt="Cade Collenback - Personal Trainer"
-                fill
-                className="object-cover rounded-[10px] brightness-75 z-2 object-top"
-                //style={{ objectPosition: "top" }}
-              />
+              <FadeInUp className="w-full h-full">
+                <Image
+                  src="/home-cade-w-client-1.webp"
+                  alt="Cade Collenback - Personal Trainer"
+                  fill
+                  className="object-cover rounded-[10px] brightness-75 z-2 object-top"
+                />
+              </FadeInUp>
             </div>
           </div>
         </div>
 
         {/* Three Components Container */}
-        <div className="flex flex-col lg:flex-row justify-center items-center gap-16 md:gap-20 md:justify-between md:pt-10 lg:max-w-[1000px] lg:self-center">
+        <FadeInUp className="flex flex-col lg:flex-row justify-center items-center gap-16 md:gap-20 md:justify-between md:pt-10 lg:max-w-[1000px] lg:self-center">
           <div className="flex flex-col justify-center items-center w-full md:w-4/6">
             <InfoGraphic 
               number="6"
@@ -91,7 +70,7 @@ export default function MeetCade() {
               className="w-full lg:px-8"
             />
           </div>
-        </div>
+        </FadeInUp>
       </div>
     </section>
   );

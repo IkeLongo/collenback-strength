@@ -2,8 +2,8 @@
 
 import React from 'react';
 import HorizontalCarousel from '@/app/lib/comp-carosel';
-import TwoItemCarousel from '@/app/lib/two-item-carousel';
 import InfoGraphic3 from '@/app/lib/info-graphic-3';
+import FadeInUp from '@/app/lib/components/fade-in-up';
 
 export default function Programs() {
   const programs = [
@@ -59,40 +59,44 @@ export default function Programs() {
       {/* Header Content */}
       <div className="flex flex-col items-center text-center">
         <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl font-outfit mb-4">
-          Our Programs
+          <FadeInUp>
+            Our Programs
+          </FadeInUp>
         </h3>
         <p className="text-grey-100 md:mb-8 text-base md:text-lg lg:text-xl font-outfit max-w-3xl md:max-w-2xl leading-relaxed">
-          Discover our comprehensive fitness programs designed to help you achieve your goals, whether you're just starting out or looking to take your performance to the next level.
+          <FadeInUp>
+            Discover our comprehensive fitness programs designed to help you achieve your goals, whether you're just starting out or looking to take your performance to the next level.
+          </FadeInUp>
         </p>
       </div>
 
       {/* Mobile: Single Item Carousel */}
       <div className="md:hidden h-[500px]">
-        <HorizontalCarousel
-          gap="64px"
-          className="mb-4"
-          itemWidth="300px"
-          dotPadding='0px'
-        >
-          {programs.map((program, index) => (
-            <InfoGraphic3
-              key={index}
-              icon={program.icon}
-              heading={program.heading}
-              //subheading={program.subheading}
-              description={program.description}
-              buttonText={program.buttonText}
-              onButtonClick={program.onButtonClick}
-              className="w-full"
-            />
-          ))}
-        </HorizontalCarousel>
+          <HorizontalCarousel
+            gap="64px"
+            className="mb-4"
+            itemWidth="300px"
+            dotPadding='0px'
+          >
+            {programs.map((program, index) => (
+              <InfoGraphic3
+                key={index}
+                icon={program.icon}
+                heading={program.heading}
+                //subheading={program.subheading}
+                description={program.description}
+                buttonText={program.buttonText}
+                onButtonClick={program.onButtonClick}
+                className="w-full"
+              />
+            ))}
+          </HorizontalCarousel>
       </div>
 
       {/* Desktop: 2x2 Grid for Programs */}
       <div className="hidden md:block md:px-16 lg:px-32">
         <div className="mx-auto max-w-2xl">
-          <div className="grid grid-cols-2 grid-rows-2 gap-12 justify-items-center">
+          <FadeInUp className="w-full h-full grid grid-cols-2 grid-rows-2 gap-12 justify-items-center">
             {programs.map((program, index) => (
               <InfoGraphic3
                 key={index}
@@ -104,7 +108,7 @@ export default function Programs() {
                 className="w-full h-full"
               />
             ))}
-          </div>
+          </FadeInUp>
         </div>
       </div>
     </section>
