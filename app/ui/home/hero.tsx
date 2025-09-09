@@ -1,11 +1,20 @@
-// "use client";
+"use client";
 
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import Link from "next/link";
 import FadeInUp from "@/app/lib/components/fade-in-up";
 
+import { useEffect, useState } from "react";
+import { useLoading } from "@/app/lib/components/loading-context";
+
 export default function Hero() {
+  const { setLoading } = useLoading();
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    if (imageLoaded) setLoading(false);
+  }, [imageLoaded, setLoading]);
 
   return (
   <>
@@ -58,6 +67,7 @@ export default function Hero() {
               fill
               className="object-contain"
               style={{ pointerEvents: "none", userSelect: "none" }}
+              onLoadingComplete={() => setImageLoaded(true)}
             />
           </FadeInUp>
         </div>
