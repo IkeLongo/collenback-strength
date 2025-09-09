@@ -75,7 +75,7 @@ export default function Hero() {
         {/* Main content overlay */}
         <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-20 sm:pt-36 sm:pb-20 md:pb-24 lg:pb-36 px-4 md:flex md:flex-row-reverse md:items-center md:justify-center lg:justify-end lg:left-0">
           <div className="flex flex-col h-full justify-between items-start w-full sm:max-w-[600px] lg:max-w-[600px] md:gap-6 lg:gap-8">
-            <h1 className="w-full sm:text-[2.2rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-10 z-3">
+            <h1 className="w-full sm:text-[1.5rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-10 z-3">
               <FadeInUp>
                 <span className="text-gold-500 italic">Athlete focused </span>strength, conditioning & nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
               </FadeInUp>
