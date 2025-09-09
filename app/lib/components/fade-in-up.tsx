@@ -30,7 +30,7 @@ export default function FadeInUp({
       const rect = ref.current.getBoundingClientRect();
       if (rect.top < window.innerHeight - 50 && rect.bottom > 0) {
         setVisible(true);
-      } else if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
+      } else if (rect.top >= window.innerHeight) {
         setVisible(false);
       }
     };
