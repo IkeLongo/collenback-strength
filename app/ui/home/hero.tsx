@@ -13,7 +13,12 @@ export default function Hero() {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    if (imageLoaded) setLoading(false);
+    if (imageLoaded) {
+      setLoading(false);
+      return;
+    }
+    const timeout = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timeout);
   }, [imageLoaded, setLoading]);
 
   return (
