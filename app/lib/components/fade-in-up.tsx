@@ -14,7 +14,7 @@ export default function FadeInUp({
   children,
   delay = 0,
   always = false,
-  as: Tag = "span",
+  as: Tag = "div",
   className = "",
 }: FadeInUpProps) {
   const [visible, setVisible] = useState(false);

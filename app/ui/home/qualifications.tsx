@@ -83,16 +83,16 @@ export default function Qualifications() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-center lg:items-start lg:gap-0 lg:max-w-[1000px] lg:self-center">
         {/* Header Content */}
         <div className="flex flex-col mb-4 md:mb-6 md:w-1/2 md:-mr-14 lg:mr-0 lg:mt-0 z-3">
-          <h3 className="md:text-left lg:text-right text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
-            <FadeInUp>
+          <FadeInUp>
+            <h3 className="md:text-left lg:text-right text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
               Qualifications
-            </FadeInUp>
-          </h3>
-          <p className="md:text-left lg:text-right text-base md:text-lg text-grey-100 max-w-3xl leading-relaxed">
-            <FadeInUp>
+            </h3>
+          </FadeInUp>
+          <FadeInUp>
+            <p className="md:text-left lg:text-right text-base md:text-lg text-grey-100 max-w-3xl leading-relaxed">
               I'm a strength professional with over 10 years of experience, specializing in personal training and nutrition. I'm passionate about helping individuals transform their lives and aim to create a welcoming environment where everyone can thrive, regardless of fitness level.
-            </FadeInUp>
-          </p>
+            </p>
+          </FadeInUp>
         </div>
 
         {/* Centered Photo */}

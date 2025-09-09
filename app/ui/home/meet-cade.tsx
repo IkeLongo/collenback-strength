@@ -11,19 +11,19 @@ export default function MeetCade() {
           {/* Header Content */}
           <div className="flex flex-col md:w-[400px] md:-ml-40 lg:ml-10 md:justify-center">
             <div className="z-3">
-              <h3 className="text-left md:text-right lg:text-left text-2xl font-bold text-white mb-4 md:mb-6">
-                <FadeInUp>
+              <FadeInUp>
+                <h3 className="text-left md:text-right lg:text-left text-2xl font-bold text-white mb-4 md:mb-6">
                   About Cade
-                </FadeInUp>
-              </h3>
-              <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed"
-                style={{
-                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
-                }}>
-                  <FadeInUp>
+                </h3>
+              </FadeInUp>
+              <FadeInUp>
+                <p className="text-left md:text-right lg:text-left md:text-[16px] text-grey-100 max-w-3xl leading-relaxed"
+                  style={{
+                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+                  }}>
                     After years of playing collegiate football, Cade turned his passion for strength and performance into a mission: helping others build the mindset, discipline, and physical power needed to thrive.
-                  </FadeInUp>
-              </p>
+                </p>
+              </FadeInUp>
             </div>
           </div>
 

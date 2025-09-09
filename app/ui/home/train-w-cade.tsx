@@ -46,16 +46,16 @@ export default function TrainWithCade() {
 
       <div className="absolute inset-0 flex flex-col w-full h-full items-center md:items-end justify-end md:justify-end sm:pb-0 md:pb-24 px-4 z-30">
         <div className="flex flex-col gap-4 md:pb-0 md:w-1/2 md:px-12">
-          <h3 className="flex-1 font-normal lg:text-base text-white text-left md:text-left w-auto">
             <FadeInUp>
+            <h3 className="flex-1 font-normal lg:text-base text-white text-left md:text-left w-auto">
               Want to train <br />with me?
-            </FadeInUp>
-          </h3>
-          <p className="flex-1 font-normal lg:text-base text-white text-left md:text-left w-auto">
-            <FadeInUp>
+            </h3>
+          </FadeInUp>
+          <FadeInUp>
+            <p className="flex-1 font-normal lg:text-base text-white text-left md:text-left w-auto">
               Let's get started meeting your goals today!
-            </FadeInUp>
-          </p>
+            </p>
+          </FadeInUp>
           <FadeInUp className="flex flex-col w-full h-full">
             <Button
               className="min-w-28 h-10 px-2 rounded-[13px] bg-gradient-gold md:max-w-[292px]"

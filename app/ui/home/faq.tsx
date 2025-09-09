@@ -5,11 +5,11 @@ export default function Faq() {
 
   return (
     <section id="faq" className="flex flex-col w-full mx-auto py-16 md:py-18 lg:py-24">
-      <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit mb-4">
-        <FadeInUp>
+      <FadeInUp>
+        <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit mb-4">
           Commonly Asked Questions
-        </FadeInUp>
-      </h3>
+        </h3>
+      </FadeInUp>
 
       <div className="flex flex-col self-center mx-4 max-w-[600px]">
         <FadeInUp className="w-full h-full">

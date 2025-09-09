@@ -58,20 +58,21 @@ export default function Programs() {
       
       {/* Header Content */}
       <div className="flex flex-col items-center text-center">
-        <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl font-outfit mb-4">
-          <FadeInUp>
+        <FadeInUp>
+          <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl font-outfit mb-4">
             Our Programs
-          </FadeInUp>
-        </h3>
-        <p className="text-grey-100 md:mb-8 text-base md:text-lg lg:text-xl font-outfit max-w-3xl md:max-w-2xl leading-relaxed">
-          <FadeInUp>
+          </h3>
+        </FadeInUp>
+        <FadeInUp>
+          <p className="text-grey-100 md:mb-8 text-base md:text-lg lg:text-xl font-outfit max-w-3xl md:max-w-2xl leading-relaxed">
             Discover our comprehensive fitness programs designed to help you achieve your goals, whether you're just starting out or looking to take your performance to the next level.
-          </FadeInUp>
-        </p>
+          </p>
+        </FadeInUp>
       </div>
 
       {/* Mobile: Single Item Carousel */}
       <div className="md:hidden h-[500px]">
+        <FadeInUp className="w-full h-full">
           <HorizontalCarousel
             gap="64px"
             className="mb-4"
@@ -91,6 +92,7 @@ export default function Programs() {
               />
             ))}
           </HorizontalCarousel>
+        </FadeInUp>
       </div>
 
       {/* Desktop: 2x2 Grid for Programs */}
