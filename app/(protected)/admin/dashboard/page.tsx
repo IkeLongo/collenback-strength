@@ -5,7 +5,7 @@ export default async function AdminDashboard() {
   const userName = session?.user?.firstName ? `${session.user.firstName}` : 'Admin';
 
   return (
-    <div className="space-y-4! sm:space-y-6!">
+    <div className="space-y-4! sm:space-y-6! overflow-x-hidden">
       <div>
         <h1 className="text-xl! sm:text-2xl! font-bold! text-grey-600!">Welcome back, {userName}!</h1>
         <p className="text-grey-500! text-sm! sm:text-base!">Manage users, coaches, and system settings.</p>

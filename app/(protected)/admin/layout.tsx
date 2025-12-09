@@ -50,8 +50,8 @@ export default function ClientDashboardLayout({
         />
 
         {/* Main content */}
-        <main className="py-4 sm:py-6">
-          <div className="px-3 sm:px-4 md:px-6 lg:px-8">
+        <main className="py-4 sm:py-6 overflow-x-hidden">
+          <div className="px-3 sm:px-4 md:px-6 lg:px-8 overflow-x-hidden">
             {children}
           </div>
         </main>
