@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLoading } from "./loading-context";
+import { useLoading } from "../load/loading-context";
 
 export default function FadeOverlay() {
   const { loading } = useLoading();

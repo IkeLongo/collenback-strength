@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Player from 'lottie-react';
-import dumbellAnim from '../assets/dumbell.json';
+import dumbellAnim from '../../../assets/dumbell.json';
 
 interface InfoGraphic2Props {
   title: string;

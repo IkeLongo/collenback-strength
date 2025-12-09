@@ -5,12 +5,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
 import { Navbar } from "../../react-component-library/src";
-import { LoadingProvider } from "../lib/components/loading-context";
+import { LoadingProvider } from "../ui/components/load/loading-context";
 import CookieBanner from "@/app/ui/cookies/banner"
 import Footer from "../ui/layout/footer";
 import GoogleAnalytics from "../lib/analytics/google-analytics";
-import FadeOverlay from "../lib/components/fade-overlay";
-import PageLoadingManager from "../lib/components/page-loading-manager";
+import FadeOverlay from "../ui/components/fade/fade-overlay";
+import PageLoadingManager from "../ui/components/load/page-loading-manager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -182,30 +182,23 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LoadingProvider>
-          <PageLoadingManager />
-          <FadeOverlay />
-          <Navbar 
-            logoSrc="/logo-stamp.png"
-            navLinks={[
-              { name: 'About', href: '/#about' },
-              { name: 'Qualifications', href: '/#qualifications' },
-              { name: 'Programs', href: '/#programs' },
-              { name: 'Testimonials', href: '/#testimonials' },
-              { name: 'FAQ', href: '/#faq' },
-            ]}
-            showBookingButton={true}
-            bookingText="Message Me"
-            bookingHref="/contact"
-            backgroundColor="bg-grey-700"
-          />
-            {children}
-          <Footer>
-          </Footer>
-          <ToastContainer limit={1} theme="dark" />
-          <GoogleAnalytics />
-          <CookieBanner />
-        </LoadingProvider>
+        <Navbar 
+          logoSrc="/logo-stamp.png"
+          navLinks={[
+            { name: 'About', href: '/#about' },
+            { name: 'Qualifications', href: '/#qualifications' },
+            { name: 'Programs', href: '/#programs' },
+            { name: 'Testimonials', href: '/#testimonials' },
+            { name: 'FAQ', href: '/#faq' },
+          ]}
+          showBookingButton={true}
+          bookingText="Message Me"
+          bookingHref="/contact"
+          backgroundColor="bg-grey-700"
+        />
+          {children}
+        <Footer>
+        </Footer>
       </body>
     </html>
   );

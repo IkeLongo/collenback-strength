@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import HorizontalCarousel from '@/app/lib/comp-carosel';
-import InfoGraphic3 from '@/app/lib/info-graphic-3';
-import FadeInUp from '@/app/lib/components/fade-in-up';
+import HorizontalCarousel from '@/app/ui/components/carousel/comp-carosel';
+import InfoGraphic3 from '@/app/ui/components/info-graphic/info-graphic-3';
+import FadeInUp from '@/app/ui/components/fade/fade-in-up';
 
 export default function Programs() {
   const programs = [

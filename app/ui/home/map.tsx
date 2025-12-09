@@ -1,4 +1,4 @@
-import FadeInUp from "@/app/lib/components/fade-in-up";
+import FadeInUp from "@/app/ui/components/fade/fade-in-up";
 
 export default function Map() {
   return (

@@ -1,9 +1,9 @@
 import Image from "next/image";
-import InfoGraphic2 from "@/app/lib/info-graphic-2";
-import HorizontalCarousel from "@/app/lib/comp-carosel";
-import TwoItemCarousel from "@/app/lib/two-item-carousel";
-import ThreeItemCarousel from "@/app/lib/three-item-carousel";
-import FadeInUp from "@/app/lib/components/fade-in-up";
+import InfoGraphic2 from "@/app/ui/components/info-graphic/info-graphic-2";
+import HorizontalCarousel from "@/app/ui/components/carousel/comp-carosel";
+import TwoItemCarousel from "@/app/ui/components/carousel/two-item-carousel";
+import ThreeItemCarousel from "@/app/ui/components/carousel/three-item-carousel";
+import FadeInUp from "@/app/ui/components/fade/fade-in-up";
 
 import gradHat from '../../assets/grad-hat.json';
 import dumbell from '../../assets/dumbell.json';

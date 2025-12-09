@@ -9,6 +9,10 @@ export const SignupFormSchema = z.object({
     .string()
     .min(2, { message: 'Last name must be at least 2 characters long.' })
     .trim(),
+  phone: z
+    .string()
+    .regex(/^\(\d{3}\) \d{3}-\d{4}$/, { message: 'Phone number must be in format (xxx) xxx-xxxx.' })
+    .trim(),
   email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
   password: z
     .string()
@@ -21,13 +25,27 @@ export const SignupFormSchema = z.object({
     .trim(),
 })
  
+export const LoginFormSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
+  password: z.string().min(1, { message: 'Password is required.' }).trim(),
+})
+
 export type FormState =
   | {
       errors?: {
-        name?: string[]
+        firstName?: string[]
+        lastName?: string[]
+        phone?: string[]
         email?: string[]
         password?: string[]
       }
       message?: string
+      status?: 'success' | 'error'
     }
   | undefined
+
+export type SessionPayload = {
+  userId: string;
+  expiresAt: Date;
+  role?: string; // Optional role field if needed
+};
