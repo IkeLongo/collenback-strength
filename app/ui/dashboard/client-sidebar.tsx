@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { cn } from '@/app/lib/utils';
-import { logout } from '@/app/actions/auth';
 
 interface ClientSidebarProps {
   mobile?: boolean;
@@ -71,6 +71,20 @@ function UserIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarOpen }: ClientSidebarProps) {
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut({ 
+        callbackUrl: '/login',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      setIsLoggingOut(false);
+    }
+  };
 
   const sidebarContent = (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-grey-900 px-6 pb-4">
@@ -120,19 +134,59 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
           {/* Bottom section */}
           <li className="mt-auto">
             <button
-              onClick={() => logout()}
-              className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-grey-400 hover:bg-grey-800 hover:text-white"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={cn(
+                "group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
+                isLoggingOut 
+                  ? "bg-grey-800 text-grey-300 cursor-not-allowed" 
+                  : "text-grey-400 hover:bg-grey-800 hover:text-white"
+              )}
             >
-              <svg
-                className="h-6 w-6 shrink-0 text-grey-400 group-hover:text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-              </svg>
-              Sign out
+              {isLoggingOut ? (
+                <>
+                  <svg
+                    className="h-6 w-6 shrink-0 text-grey-300 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span className="flex items-center">
+                    Signing out
+                    <span className="ml-1 flex">
+                      <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                      <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                      <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="h-6 w-6 shrink-0 text-grey-400 group-hover:text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                  </svg>
+                  Sign out
+                </>
+              )}
             </button>
           </li>
         </ul>
@@ -146,14 +200,14 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div className="relative z-50 lg:hidden">
-            <div className="fixed inset-0 bg-grey-900/80" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed inset-0 bg-grey-900/80" onClick={() => setSidebarOpen?.(false)} />
             <div className="fixed inset-0 flex">
               <div className="relative mr-16 flex w-full max-w-xs flex-1">
                 <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
                   <button
                     type="button"
                     className="-m-2.5 p-2.5"
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={() => setSidebarOpen?.(false)}
                   >
                     <span className="sr-only">Close sidebar</span>
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

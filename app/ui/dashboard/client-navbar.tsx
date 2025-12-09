@@ -5,10 +5,10 @@ import { logout } from '@/app/actions/auth';
 import { cn } from '@/app/lib/utils';
 
 interface ClientNavbarProps {
-  onMenuClick?: () => void;
+  setSidebarOpen?: (open: boolean) => void;
 }
 
-export function ClientNavbar({ onMenuClick }: ClientNavbarProps) {
+export function ClientNavbar({ setSidebarOpen }: ClientNavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ export function ClientNavbar({ onMenuClick }: ClientNavbarProps) {
       <button
         type="button"
         className="-m-2.5 p-2.5 text-grey-700 lg:hidden"
-        onClick={onMenuClick}
+        onClick={() => setSidebarOpen?.(true)}
       >
         <span className="sr-only">Open sidebar</span>
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

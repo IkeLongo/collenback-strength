@@ -32,6 +32,7 @@ export const LoginFormSchema = z.object({
 
 export type FormState =
   | {
+      status: 'error'
       errors?: {
         firstName?: string[]
         lastName?: string[]
@@ -40,7 +41,11 @@ export type FormState =
         password?: string[]
       }
       message?: string
-      status?: 'success' | 'error'
+    }
+  | {
+      status: 'success'
+      message?: string
+      errors?: never
     }
   | undefined
 
