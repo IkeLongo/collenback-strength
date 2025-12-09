@@ -2,6 +2,7 @@
 
 import type { Metadata } from "next";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 // import "../globals.css";
 import { ClientNavbar } from "@/app/ui/dashboard/client-navbar";
 import { ClientSidebar } from "@/app/ui/dashboard/client-sidebar";
@@ -19,6 +20,11 @@ export default function ClientDashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession();
+  
+  const userName = session?.user?.firstName && session?.user?.lastName 
+    ? `${session.user.firstName} ${session.user.lastName}` 
+    : session?.user?.firstName || 'User';
 
   return (
     <div className="min-h-screen bg-grey-100">
@@ -40,11 +46,12 @@ export default function ClientDashboardLayout({
         {/* Top navbar */}
         <ClientNavbar 
           setSidebarOpen={setSidebarOpen}
+          userName={userName}
         />
 
         {/* Main content */}
-        <main className="py-6">
-          <div className="px-4 sm:px-6 lg:px-8">
+        <main className="py-4 sm:py-6">
+          <div className="px-3 sm:px-4 md:px-6 lg:px-8">
             {children}
           </div>
         </main>

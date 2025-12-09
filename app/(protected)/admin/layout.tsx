@@ -4,17 +4,17 @@ import type { Metadata } from "next";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 // import "../globals.css";
-import { CoachNavbar } from "@/app/ui/dashboard/coach-navbar";
-import { CoachSidebar } from "@/app/ui/dashboard/coach-sidebar";
+import { AdminNavbar } from "@/app/ui/dashboard/admin-navbar";
+import { AdminSidebar } from "@/app/ui/dashboard/admin-sidebar";
 
 // Note: You'll need to move metadata to a separate metadata.ts file or handle it differently
 // since this is now a client component
 // export const metadata: Metadata = {
-//   title: "Coaching Portal | Cade Collenback Strength",
-//   description: "Manage clients, programs, and coaching sessions.",
+//   title: "Client Dashboard | Cade Collenback Strength",
+//   description: "Access your personalized fitness programs and track your progress.",
 // };
 
-export default function CoachingLayout({
+export default function ClientDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -22,18 +22,15 @@ export default function CoachingLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session } = useSession();
   
-  // Extract user name from session
   const userName = session?.user?.firstName && session?.user?.lastName 
-    ? `${session.user.firstName} ${session.user.lastName}`
-    : session?.user?.firstName 
-    ? session.user.firstName
-    : 'Coach';
+    ? `${session.user.firstName} ${session.user.lastName}` 
+    : session?.user?.firstName || 'Admin';
 
   return (
     <div className="min-h-screen bg-grey-100">
       {/* Mobile sidebar */}
       <div className="lg:hidden">
-        <CoachSidebar 
+        <AdminSidebar 
           mobile 
           sidebarOpen={sidebarOpen} 
           setSidebarOpen={setSidebarOpen} 
@@ -42,12 +39,12 @@ export default function CoachingLayout({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <CoachSidebar />
+        <AdminSidebar />
       </div>
 
       <div className="lg:pl-72">
         {/* Top navbar */}
-        <CoachNavbar 
+        <AdminNavbar 
           setSidebarOpen={setSidebarOpen}
           userName={userName}
         />

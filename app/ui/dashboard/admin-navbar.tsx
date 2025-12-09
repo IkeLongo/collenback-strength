@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/app/lib/utils';
 
-interface ClientNavbarProps {
+interface AdminNavbarProps {
   setSidebarOpen?: (open: boolean) => void;
   userName?: string;
 }
 
-export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbarProps) {
+export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
@@ -56,7 +56,7 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1 items-center">
-          <h1 className="text-xl font-semibold text-grey-900!">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-grey-900!">Admin Dashboard</h1>
         </div>
         
         {/* User menu */}

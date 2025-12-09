@@ -2,7 +2,7 @@
 
 import { SignupFormSchema, LoginFormSchema, FormState } from '@/app/lib/definitions'
 import { saltAndHashPassword } from '@/app/utils/password'
-import { createSession, deleteSession } from '@/app/lib/session'
+import { deleteSession } from '@/app/lib/session'
 import { redirect } from 'next/navigation';
 
 export async function signup(state: FormState, formData: FormData): Promise<FormState> {
@@ -57,25 +57,18 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
 
     userId = result.userId;
     
-    // 4. Create user session (separate try/catch block optional here)
-    if (userId) {
-      try {
-        await createSession(userId);
-      } catch (err) {
-        console.error('Session Error:', err);
-        return { status: 'error' as const, message: 'User created, but session could not be started.' };
-      }
-    } else {
-      return { status: 'error' as const, message: 'User ID is undefined after insertion.' };
-    }
+    // 4. User created successfully - NextAuth will handle the session
     
   } catch (err) {
     console.error('Database Error during insert:', err);
     return { status: 'error' as const, message: 'An error occurred while creating your account.' };
   }
 
-  // 5. Success - redirect to client dashboard (outside try/catch)
-  redirect('/client/dashboard');
+  // 5. Success - return success status (client-side will handle NextAuth login)
+  return { 
+    status: 'success' as const, 
+    message: 'Account created successfully! Logging you in...' 
+  };
 }
 
 export async function logout() {

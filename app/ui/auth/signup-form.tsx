@@ -3,6 +3,7 @@
 import React from 'react';
 import { signup } from '@/app/actions/auth'
 import { useActionState } from 'react'
+import { signIn } from 'next-auth/react'
 import { Label } from "@/app/ui/components/form/label";
 import { Input } from "@/app/ui/components/form/input";
 import { PhoneInput } from "@/app/ui/components/form/phone-input";
@@ -34,7 +35,7 @@ export function SignupForm() {
     }));
   };
 
-  // Handle success/error with useEffect since server actions redirect automatically
+  // Handle success/error with useEffect
   React.useEffect(() => {
     if (state?.status === 'success') {
       // Clear form data on success
@@ -46,9 +47,9 @@ export function SignupForm() {
         password: ''
       });
       
-      toast.success(state.message, {
+      toast.success(state.message || 'Account created successfully!', {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: false,
         pauseOnHover: true,
@@ -56,11 +57,32 @@ export function SignupForm() {
         progress: undefined,
         className: "bg-gray-900",
       });
+
+      // Auto-login the user after successful signup
+      setTimeout(async () => {
+        try {
+          const result = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          });
+
+          if (result?.ok) {
+            window.location.href = '/client/dashboard';
+          } else {
+            console.error('Auto-login failed:', result?.error);
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Auto-login error:', error);
+          window.location.href = '/login';
+        }
+      }, 2000);
     } else if (state?.status === 'error' && state.message) {
       toast.error(state.message);
       // Don't clear form data on error - keep user's input
     }
-  }, [state]);
+  }, [state, formData.email, formData.password]);
 
   return (
         <div className="mx-auto w-full max-w-md rounded-t-[50px] md:rounded-2xl bg-white p-4 md:p-8 relative flex flex-col h-full items-center justify-start md:justify-center z-2 pt-0 md:pt-8 md:py-10 md:shadow-input">

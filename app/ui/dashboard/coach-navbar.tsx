@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/app/lib/utils';
 
-interface ClientNavbarProps {
+interface CoachNavbarProps {
   setSidebarOpen?: (open: boolean) => void;
   userName?: string;
 }
 
-export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbarProps) {
+export function CoachNavbar({ setSidebarOpen, userName = 'Coach' }: CoachNavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   

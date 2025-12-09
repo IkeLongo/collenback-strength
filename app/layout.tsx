@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+'use client';
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LoadingProvider } from "./ui/components/load/loading-context";
@@ -7,6 +8,7 @@ import FadeOverlay from "./ui/components/fade/fade-overlay";
 import { ToastContainer } from "react-toastify";
 import GoogleAnalytics from "./lib/analytics/google-analytics";
 import CookieBanner from "./ui/cookies/banner";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +20,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Cade Collenback Strength",
-  description: "Professional strength and fitness coaching in San Antonio, Texas.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,14 +30,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LoadingProvider>
-          <PageLoadingManager />
-          <FadeOverlay />
-            {children}
-          <ToastContainer limit={1} theme="dark" />
-          <GoogleAnalytics />
-          <CookieBanner />
-        </LoadingProvider>
+        <SessionProvider>
+          <LoadingProvider>
+            <PageLoadingManager />
+            <FadeOverlay />
+              {children}
+            <ToastContainer limit={1} theme="dark" />
+            <GoogleAnalytics />
+            <CookieBanner />
+          </LoadingProvider>
+        </SessionProvider>
       </body>
     </html>
   );
