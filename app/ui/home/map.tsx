@@ -2,7 +2,7 @@ import FadeInUp from "@/app/lib/components/fade-in-up";
 
 export default function Map() {
   return (
-    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-32 pb-16 md:py-18 lg:py-24">
+    <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-4 py-32 pb-16 md:py-18 lg:py-20 lg:pt-52">
       <div className="flex flex-col items-center gap-6">
         <FadeInUp>
           <h3 className="text-2xl md:text-3xl font-bold text-center">

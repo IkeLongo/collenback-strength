@@ -230,7 +230,7 @@ export function ContactForm() {
           layout='cover'
           width={480}
           height={300}
-          className='w-full h-[300px] pt-6 -mb-6 object-cover opacity-50'
+          className='w-full h-[300px] -mb-6 object-cover opacity-50'
         />
         <div className="absolute m-4 inset-0 flex flex-col items-center justify-center">
           <h1 className="!text-[32px] pt-8 text-center text-white z-10">Contact Us</h1>
@@ -241,7 +241,7 @@ export function ContactForm() {
       {/* Main content grid - desktop layout */}
       <div className="grid md:grid-cols-2 w-full min-h-screen md:min-h-0">
         {/* Left side - desktop image */}
-        <div className="hidden md:flex md:flex-col md:justify-center md:items-center w-full h-screen">
+        <div className="hidden md:flex md:flex-col md:justify-center md:items-center w-full h-screen md:pt-24 lg:pt-32">
           <div className="w-full h-full relative flex justify-center items-center">
             <Image
               src='/home-testimonials-bg.webp'
@@ -265,7 +265,7 @@ export function ContactForm() {
           {/* Layer 1 */}
           <div className="relative w-full bg-white max-w-[515px] md:max-w-none rounded-t-[50px] md:rounded-none md:shadow-2xl z-10 min-h-full md:min-h-0">
             <Form
-              className="w-full items-center justify-center md:min-h-screen max-w-[600px] flex flex-col mx-auto gap-4 p-8 pt-14 md:pt-36"
+              className="w-full items-center justify-center md:min-h-screen max-w-[600px] flex flex-col mx-auto gap-4 p-8 pt-14 md:pt-52"
               action={handleSubmit}
             >
               {/* First and Last Name - Side by side on large screens */}

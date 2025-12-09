@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
-import { Navbar } from "../react-component-library/src";
-import { LoadingProvider } from "./lib/components/loading-context";
+import { Navbar } from "../../react-component-library/src";
+import { LoadingProvider } from "../lib/components/loading-context";
 import CookieBanner from "@/app/ui/cookies/banner"
-import Footer from "./ui/layout/footer";
-import GoogleAnalytics from "./lib/analytics/google-analytics";
-import FadeOverlay from "./lib/components/fade-overlay";
+import Footer from "../ui/layout/footer";
+import GoogleAnalytics from "../lib/analytics/google-analytics";
+import FadeOverlay from "../lib/components/fade-overlay";
+import PageLoadingManager from "../lib/components/page-loading-manager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -182,6 +183,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <LoadingProvider>
+          <PageLoadingManager />
           <FadeOverlay />
           <Navbar 
             logoSrc="/logo-stamp.png"
@@ -197,7 +199,7 @@ export default function RootLayout({
             bookingHref="/contact"
             backgroundColor="bg-grey-700"
           />
-          {children}
+            {children}
           <Footer>
           </Footer>
           <ToastContainer limit={1} theme="dark" />

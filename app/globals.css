@@ -35,6 +35,11 @@
   --color-gradient-gold: linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%);
   --color-gradient-fallback: #79DD1A;
 
+  --shadow-input:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+
   /* Font Families */
   --font-oxanium: Oxanium, sans-serif;
   --font-anton: Anton, sans-serif;

@@ -1,29 +1,6 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import {
-  PrivacyNotice,
-  Summary,
-  TableOfContents,
-  InfoWeCollect,
-  ProcessYourInfo,
-  LegalBasis,
-  SharePersonalInfo,
-  ThirdPartyWebsites,
-  CookieTrackingTech,
-  SocailLogins,
-  InfoTranIntl,
-  KeepInfo,
-  KeepInfoSafe,
-  MinorInfo,
-  PrivacyRights,
-  DoNotTrack,
-  California,
-  Virginia,
-  UpdatesToNotice,
-  ContactAboutNotice,
-  Cookies,
-  PrivacyContactForm
-} from '../ui/privacy';
+import { Terms } from '@/app/ui/terms/terms';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Cade Collenback Strength | San Antonio, TX',
@@ -106,53 +83,9 @@ function ContactFormSkeleton() {
 export default function Privacy() {
   return (
     <div className="flex flex-col items-center justify-start w-full h-auto">
-      <main className="flex flex-col w-full h-full mx-4">
+      <main className="flex flex-col w-full h-full mx-4 pt-28 lg:pt-40">
         <Suspense fallback={<ContactFormSkeleton />}>
-          <div className="relative h-auto w-full max-w-[1020px] mx-auto bg-cover bg-top overflow-x-hidden top-24 mb-24 px-4">
-            <div className="flex flex-col justify-center items-center">
-              <header className="text-center py-8">
-                <h1 className="text-navy-975">Website Privacy Policy</h1>
-                <p className="text-navy-500">Last updated July 11, 2025</p>
-              </header>
-              <main className="px-2 md:px-6 pb-8 w-full max-w-4xl">
-                <PrivacyNotice />
-                <Summary />
-                <TableOfContents />
-                <InfoWeCollect />
-                <ProcessYourInfo />
-                <LegalBasis />
-                <SharePersonalInfo />
-                <ThirdPartyWebsites />
-                <CookieTrackingTech />
-                <SocailLogins />
-                <InfoTranIntl />
-                <KeepInfo />
-                <KeepInfoSafe />
-                <MinorInfo />
-                <PrivacyRights />
-                <DoNotTrack />
-                <California />
-                <Virginia />
-                <UpdatesToNotice />
-                <ContactAboutNotice />
-              </main>
-            </div>
-          </div>
-          <div className="relative flex flex-col justify-center items-center w-full h-auto px-6 md:mx-6 pb-10 bg-navy-800 overflow-visible shrink-0 md:-top-0 text-white tracking-wide">
-            <div id="cookie-policy" className="text-center py-8 max-w-[60em]">
-              <h3 className="text-center text-white !text-[24px]md:pt-8 !font-oxanium">Website Cookie Policy</h3>
-              <p className="text-white">Last updated June 11, 2025</p>
-            </div>
-            <Cookies />
-          </div>
-          <div className="relative flex flex-col justify-center self-center w-full max-w-[60em] h-auto px-4 pb-10 overflow-visible shrink-0 md:-top-0 md:mb-20 text-white font-avenir tracking-wide">
-            <div id="data-subject-request" className="text-center py-8">
-              <h4 className="text-navy-900">Data Subject Request</h4>
-            </div>
-            <section id="dpo-contact-form" className='px-4 md:px-10'>
-              <PrivacyContactForm />
-            </section>
-          </div>
+          <Terms />
         </Suspense>
       </main>
     </div>
