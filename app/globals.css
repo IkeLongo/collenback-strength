@@ -231,3 +231,13 @@ p, a {
   box-shadow: 0 0 24px 4px rgba(203, 159, 36, 0.5), 0 2px 8px #0002;
   z-index: 2;
 }
+
+.no-visible-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+ 
+.no-visible-scrollbar::-webkit-scrollbar {
+  display: none;
+}
