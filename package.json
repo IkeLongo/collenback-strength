@@ -29,6 +29,7 @@
     "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
+    "collenback-strength": "link:",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.26",
     "jose": "^6.1.3",

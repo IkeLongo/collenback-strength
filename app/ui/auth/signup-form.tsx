@@ -15,7 +15,7 @@ import {
   IconBrandFacebook,
 } from "@tabler/icons-react";
 		
-export function SignupForm() {
+export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
   const [state, action, pending] = useActionState(signup, undefined)
   
   // Form state management
@@ -209,7 +209,16 @@ export function SignupForm() {
           </form>
           
           <p className="!text-gray-700 pt-4 !text-[15px]">
-            Already have an account? <a href="/login" className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px]">Login</a>
+            Already have an account?{' '}
+            <span
+              className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px] cursor-pointer underline"
+              onClick={onShowLogin}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onShowLogin(); }}
+            >
+              Login
+            </span>
           </p>
         </div>
   )

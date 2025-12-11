@@ -29,7 +29,7 @@ const getDashboardUrl = (role: string | undefined): string => {
   }
 };
 
-export function LoginForm() {
+export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
   const router = useRouter();
   const [pending, setPending] = React.useState(false);
   
@@ -194,7 +194,16 @@ export function LoginForm() {
           Forgot your password?
         </a>
         <p className="!text-gray-700 !text-[15px]">
-          Don't have an account? <a href="/signup" className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px]">Sign up</a>
+          Don't have an account?{' '}
+          <span
+            className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px] cursor-pointer underline"
+            onClick={onShowSignup}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onShowSignup(); }}
+          >
+            Sign up
+          </span>
         </p>
       </div>
     </div>
