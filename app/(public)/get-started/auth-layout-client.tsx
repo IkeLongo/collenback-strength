@@ -4,7 +4,7 @@ import { AuthFormProvider, useAuthForm } from "./auth-form-context";
 import GetStartedLineItem from "../../ui/components/purchase/get-started-line-item";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchServiceBySlug } from "@/sanity/lib/queries/services";
+import { fetchServiceById  } from "@/sanity/lib/queries/services";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function AuthLayoutClient({ children }: { children: React.ReactNode }) {
@@ -18,14 +18,13 @@ export default function AuthLayoutClient({ children }: { children: React.ReactNo
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { formType } = useAuthForm();
   const searchParams = useSearchParams();
-  const serviceSlug = searchParams.get("service");
+  const serviceId = searchParams.get("serviceId");
   const [service, setService] = useState<any | null>(null);
 
   useEffect(() => {
-    if (serviceSlug) {
-      fetchServiceBySlug(serviceSlug).then(setService);
-    }
-  }, [serviceSlug]);
+    if (!serviceId) return;
+    fetchServiceById(serviceId).then(setService);
+  }, [serviceId]);
 
   // Helper to format price
   const formatPrice = (cents: number, currency: string) =>
@@ -51,7 +50,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <GetStartedLineItem
               itemName="Strength Starter Pack"
               itemDescription="Kick off your journey with our starter program, including personalized coaching and resources."
-              itemImageUrl="/assets/bench-press.json"
+              itemImageUrl="/logo-stamp.png"
               price="$49.99"
             />
           )}

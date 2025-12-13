@@ -87,7 +87,7 @@ export function AdminSidebar({ mobile = false, sidebarOpen = false, setSidebarOp
     setIsLoggingOut(true);
     try {
       await signOut({ 
-        callbackUrl: '/login',
+        callbackUrl: '/auth',
         redirect: true 
       });
     } catch (error) {

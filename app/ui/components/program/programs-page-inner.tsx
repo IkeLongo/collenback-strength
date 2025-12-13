@@ -2,7 +2,7 @@
 
 import { useModal } from "@/app/ui/components/modal/programs-modal";
 import CategoryCard from "@/app/ui/components/program/programs-row";
-import ServiceModal from "@/app/ui/components/service/service-modal";
+import ServiceModalClient from "@/app/ui/components/service/service-modal-client";
 
 export default function ProgramsPageInner({
   categories,
@@ -45,7 +45,7 @@ export default function ProgramsPageInner({
         )}
       </div>
 
-      <ServiceModal
+      <ServiceModalClient
         selectedService={selectedService}
         setSelectedService={setSelectedService}
       />

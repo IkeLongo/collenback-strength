@@ -33,7 +33,7 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
     setIsLoggingOut(true);
     try {
       await signOut({ 
-        callbackUrl: '/login',
+        callbackUrl: '/auth',
         redirect: true 
       });
     } catch (error) {

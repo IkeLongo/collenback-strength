@@ -1,68 +1,24 @@
-'use client';
+import { auth } from "@/app/actions/nextauth";
+import { redirect } from "next/navigation";
+import ClientDashboardShell from "./client-dashboard-shell";
 
-import type { Metadata } from "next";
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-// import "../globals.css";
-import { ClientNavbar } from "@/app/ui/dashboard/client-navbar";
-import { ClientSidebar } from "@/app/ui/dashboard/client-sidebar";
-import Cart from "@/app/ui/components/stripe/cart";
-import { CartDrawerProvider } from "@/app/ui/components/cart/cart-drawer-context";
-import CartDrawer from "@/app/ui/components/cart/cart-drawer";
-
-// Note: You'll need to move metadata to a separate metadata.ts file or handle it differently
-// since this is now a client component
-// export const metadata: Metadata = {
-//   title: "Client Dashboard | Cade Collenback Strength",
-//   description: "Access your personalized fitness programs and track your progress.",
-// };
-
-export default function ClientDashboardLayout({
+export default async function ClientDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { data: session } = useSession();
-  
-  const userName = session?.user?.firstName && session?.user?.lastName 
-    ? `${session.user.firstName} ${session.user.lastName}` 
-    : session?.user?.firstName || 'User';
+  const session = await auth();
 
-  return (
-    <CartDrawerProvider>
-      <Cart>
-        <div className="min-h-screen bg-grey-100">
-          {/* Mobile sidebar */}
-          <div className="lg:hidden">
-            <ClientSidebar
-              mobile
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-            />
-          </div>
+  // Not logged in? send to auth (your route might be /auth or /get-started)
+  if (!session?.user) redirect("/auth");
 
-          {/* Desktop sidebar */}
-          <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-            <ClientSidebar />
-          </div>
+  // Optional role-gate
+  if (session.user.role !== "client") redirect("/post-login");
 
-          <div className="w-full lg:pl-72">
-            {/* Top navbar */}
-            <ClientNavbar setSidebarOpen={setSidebarOpen} userName={userName} />
+  const userName =
+    session.user.firstName && session.user.lastName
+      ? `${session.user.firstName} ${session.user.lastName}`
+      : session.user.firstName || "User";
 
-            {/* Main content */}
-            <main className="w-full py-4 sm:py-6">
-              <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
-                {children}
-              </div>
-            </main>
-          </div>
-
-          {/* ✅ Drawer mounted once for whole dashboard */}
-          <CartDrawer />
-        </div>
-      </Cart>
-    </CartDrawerProvider>
-  );
+  return <ClientDashboardShell userName={userName}>{children}</ClientDashboardShell>;
 }

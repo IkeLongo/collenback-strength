@@ -34,7 +34,7 @@ export default function Navbar({
   showBookingButton = true,
   showLoginButton = false,
   bookingHref = "/booking",
-  loginHref = "/login",
+  loginHref = "/auth",
   bookingText = "Book a Call",
   loginText = "Login",
   backgroundColor = "bg-grey-650"

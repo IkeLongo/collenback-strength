@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { signIn, getSession } from "next-auth/react"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Label } from "@/app/ui/components/form/label";
 import { Input } from "@/app/ui/components/form/input";
 import { cn } from "@/app/lib/utils";
@@ -31,7 +31,9 @@ const getDashboardUrl = (role: string | undefined): string => {
 
 export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [pending, setPending] = React.useState(false);
+  const serviceId = searchParams.get("serviceId"); // your intent
   
   // Form state management
   const [formData, setFormData] = React.useState({
@@ -53,64 +55,25 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
     setPending(true);
 
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
+      const callbackUrl = serviceId
+        ? `/client/checkout?serviceId=${encodeURIComponent(serviceId)}`
+        : "/client/dashboard";
+
+      // No need to check result?.error here
+      await signIn("credentials", {
+        redirect: true,
         email: formData.email,
         password: formData.password,
+        callbackUrl,
       });
-
-      if (result?.error) {
-        toast.error(result.error, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          className: "bg-gray-900",
-        });
-        // Don't clear form data on error - keep user's input
-      } else {
-        // Clear form data on success
-        setFormData({
-          email: '',
-          password: ''
-        });
-        
-        toast.success('Sign-in successful!', {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          className: "bg-gray-900",
-        });
-        
-        // Get the updated session and redirect based on user role
-        const session = await getSession();
-        const redirectUrl = getDashboardUrl(session?.user?.role);
-        router.push(redirectUrl);
-      }
+      // The page will redirect, so code below is not needed
     } catch (error) {
-      console.error('Error during sign-in:', error);
-      toast.error('An unexpected error occurred.', {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        className: "bg-gray-900",
-      });
+      // Only catch unexpected errors (e.g., network)
+      toast.error('An unexpected error occurred.');
     } finally {
       setPending(false);
     }
   };
-
 
   return (
     <div className="mx-auto w-full max-w-md rounded-t-[50px] md:rounded-2xl bg-white p-4 md:p-8 relative flex flex-col h-full items-center justify-start md:justify-center z-2 pt-0 md:pt-8 md:py-10 md:shadow-input">

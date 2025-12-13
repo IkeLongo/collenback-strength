@@ -16,7 +16,7 @@ export default async function middleware(req: any) {
   if (isProtectedRoute) {
     // No token? Redirect to login
     if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url));
+      return NextResponse.redirect(new URL('/auth', req.url));
     }
 
     // Get user role from token
@@ -49,7 +49,7 @@ export default async function middleware(req: any) {
   }
 
   // If user is authenticated and tries to access auth pages, redirect to their dashboard
-  if (token && (pathname === '/login' || pathname === '/signup')) {
+  if (token && (pathname === '/auth' || pathname === '/auth')) {
     const userRole = (token as any).role || 'client';
     return NextResponse.redirect(new URL(`/${userRole}/dashboard`, req.url));
   }

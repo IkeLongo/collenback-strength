@@ -1,14 +1,15 @@
 'use client'
 
-import React from 'react';
-import { signup } from '@/app/actions/auth'
-import { useActionState } from 'react'
-import { signIn } from 'next-auth/react'
+import React from "react";
+import { signup } from "@/app/actions/auth";
+import { useActionState } from "react";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { Label } from "@/app/ui/components/form/label";
 import { Input } from "@/app/ui/components/form/input";
 import { PhoneInput } from "@/app/ui/components/form/phone-input";
 import { cn } from "@/app/lib/utils";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import {
   IconBrandGoogle,
   IconBrandX,
@@ -16,6 +17,9 @@ import {
 } from "@tabler/icons-react";
 		
 export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
+  const searchParams = useSearchParams();
+  const serviceId = searchParams.get("serviceId");
+
   const [state, action, pending] = useActionState(signup, undefined)
   
   // Form state management
@@ -37,52 +41,46 @@ export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
 
   // Handle success/error with useEffect
   React.useEffect(() => {
-    if (state?.status === 'success') {
-      // Clear form data on success
-      setFormData({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        password: ''
-      });
-      
-      toast.success(state.message || 'Account created successfully!', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        className: "bg-gray-900",
-      });
+    if (state?.status !== "success") return;
 
-      // Auto-login the user after successful signup
-      setTimeout(async () => {
-        try {
-          const result = await signIn('credentials', {
-            email: formData.email,
-            password: formData.password,
-            redirect: false,
-          });
+    toast.success(state.message || "Account created successfully!", {
+      position: "top-right",
+      autoClose: 1500,
+      className: "bg-gray-900",
+    });
 
-          if (result?.ok) {
-            window.location.href = '/client/dashboard';
-          } else {
-            console.error('Auto-login failed:', result?.error);
-            window.location.href = '/login';
-          }
-        } catch (error) {
-          console.error('Auto-login error:', error);
-          window.location.href = '/login';
-        }
-      }, 2000);
-    } else if (state?.status === 'error' && state.message) {
+    // ✅ Same redirect logic as login
+    const callbackUrl = serviceId
+      ? `/client/checkout?serviceId=${encodeURIComponent(serviceId)}`
+      : "/client/dashboard";
+
+    // Capture credentials before we clear state (avoid races)
+    const { email, password } = formData;
+
+    // Optional: clear UI fields (doesn't affect variables above)
+    setFormData({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      password: "",
+    });
+
+    // ✅ Let NextAuth redirect for us (no setTimeout / window.location)
+    // IMPORTANT: this will navigate away, so no code after matters.
+    signIn("credentials", {
+      redirect: true,
+      email,
+      password,
+      callbackUrl,
+    });
+  }, [state?.status, state?.message, serviceId]); // 👈 intentionally NOT depending on formData
+
+  React.useEffect(() => {
+    if (state?.status === "error" && state.message) {
       toast.error(state.message);
-      // Don't clear form data on error - keep user's input
     }
-  }, [state, formData.email, formData.password]);
+  }, [state?.status, state?.message]);
 
   return (
         <div className="mx-auto w-full max-w-md rounded-t-[50px] md:rounded-2xl bg-white p-4 md:p-8 relative flex flex-col h-full items-center justify-start md:justify-center z-2 pt-0 md:pt-8 md:py-10 md:shadow-input">

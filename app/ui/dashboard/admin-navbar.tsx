@@ -28,7 +28,7 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
     setIsLoggingOut(true);
     try {
       await signOut({ 
-        callbackUrl: '/login',
+        callbackUrl: '/auth',
         redirect: true 
       });
     } catch (error) {

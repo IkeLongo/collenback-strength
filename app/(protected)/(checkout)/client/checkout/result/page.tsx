@@ -44,7 +44,11 @@ export default async function ResultPage({
 
   // Pull key info + line items
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ["payment_intent"],
+    expand: [
+      "payment_intent",
+      "subscription",
+      "subscription.latest_invoice.payment_intent"
+    ],
   });
 
   const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, {
@@ -58,8 +62,14 @@ export default async function ResultPage({
   const total = formatMoney(session.amount_total, currency);
   const createdAt = formatDate(session.created);
 
-  // PaymentIntent status (optional but useful)
-  const pi = session.payment_intent as Stripe.PaymentIntent | null;
+  // PaymentIntent status (works for both one-time and subscription)
+  const sub = session.subscription as Stripe.Subscription | null;
+  let invoicePI: Stripe.PaymentIntent | null = null;
+  if (sub?.latest_invoice && typeof sub.latest_invoice !== "string") {
+  const invoice = sub.latest_invoice as Stripe.Invoice & { payment_intent?: Stripe.PaymentIntent | string };
+    invoicePI = invoice.payment_intent as Stripe.PaymentIntent | null;
+  }
+  const pi = (session.payment_intent as Stripe.PaymentIntent | null) || invoicePI;
   const piStatus = pi?.status ?? "—";
 
   const shouldClear = session.payment_status === "paid";

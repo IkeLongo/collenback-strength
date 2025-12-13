@@ -4,10 +4,13 @@ import React from "react";
 import Link from "next/link";
 import CartLineItems from "@/app/ui/components/stripe/cart-line-items";
 import OrderSummary from "@/app/ui/components/stripe/order-summary";
+import CheckoutIntentLoader from "@/app/ui/components/stripe/checkout-intent-loader";
 
 export default function CheckoutClient() {
   return (
     <main className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+      <CheckoutIntentLoader />
+      
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl! sm:text-3xl! font-extrabold! text-gold-600!">

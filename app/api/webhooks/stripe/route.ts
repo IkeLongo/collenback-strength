@@ -1,0 +1,314 @@
+import Stripe from "stripe";
+import { NextResponse } from "next/server";
+import pool from "@/app/lib/mysql";
+
+export const runtime = "nodejs";
+
+const DEBUG_WEBHOOK = true;
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-11-17.clover",
+});
+
+export async function POST(req: Request) {
+  const sig = req.headers.get("stripe-signature");
+  if (!sig) {
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  }
+
+  // ✅ raw body required for Stripe signature verification
+  const body = await req.text();
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Invalid signature";
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
+
+  // We only handle successful checkout completion for now
+  if (event.type !== "checkout.session.completed") {
+    return NextResponse.json({ received: true });
+  }
+
+  const session = event.data.object as Stripe.Checkout.Session;
+
+  // Pull full session details (IMPORTANT: expand subscription)
+  const full = await stripe.checkout.sessions.retrieve(session.id, {
+    expand: ["line_items.data.price.product", "payment_intent", "subscription"],
+  });
+
+  if (DEBUG_WEBHOOK) {
+    console.log("🔔 checkout.session.completed received");
+    console.log("Session ID:", full.id);
+    console.log("Mode:", full.mode);
+    console.log("Payment Status:", full.payment_status);
+    console.log("Amount Total:", full.amount_total);
+    console.log("Currency:", full.currency);
+    console.log("Subscription:", full.subscription);
+  }
+
+  // ✅ Resolve user_id from client_reference_id or metadata
+  const userIdRaw = full.client_reference_id || full.metadata?.user_id;
+  if (!userIdRaw) {
+    return NextResponse.json({ error: "No user id on session" }, { status: 400 });
+  }
+  const userId = Number(userIdRaw);
+  if (!Number.isFinite(userId)) {
+    return NextResponse.json({ error: "Invalid user id on session" }, { status: 400 });
+  }
+
+  const conn = await pool.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    // 1) Idempotency for payments: don’t process same Stripe event twice
+    const [existingPayment] = await conn.query<any[]>(
+      `SELECT id FROM payments WHERE provider = ? AND provider_event_id = ? LIMIT 1`,
+      ["stripe", event.id]
+    );
+
+    if (existingPayment.length) {
+      await conn.rollback();
+      return NextResponse.json({ received: true });
+    }
+
+    // 2) Insert into payments table (works for one-time + subscription checkouts)
+    const pi = full.payment_intent as Stripe.PaymentIntent | null;
+    const status = full.payment_status === "paid" ? "succeeded" : "pending";
+    const paidAt = full.created ? new Date(full.created * 1000) : null;
+
+    if (DEBUG_WEBHOOK) {
+      console.log("💳 Payment Record Preview:", {
+        user_id: userId,
+        amount_cents: full.amount_total ?? 0,
+        currency: full.currency ?? "usd",
+        provider: "stripe",
+        provider_session_id: full.id,
+        provider_event_id: event.id,
+        provider_payment_id: pi?.id ?? null,
+        provider_customer_id: (full.customer as string) ?? null,
+        status,
+        paid_at: paidAt,
+      });
+    }
+
+    const [payRes] = await conn.query<any>(
+      `INSERT INTO payments
+        (user_id, amount_cents, currency, provider, provider_session_id, provider_event_id,
+         provider_payment_id, provider_customer_id, status, paid_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        full.amount_total ?? 0,
+        full.currency ?? "usd",
+        "stripe",
+        full.id,
+        event.id,
+        pi?.id ?? null,
+        (full.customer as string) ?? null,
+        status,
+        paidAt,
+      ]
+    );
+
+    const paymentId = payRes.insertId as number;
+
+    // 3) If this checkout created a Stripe subscription, insert into subscriptions table
+    let sub: Stripe.Subscription | null = null;
+    let subscriptionId: string | null = null;
+    if (typeof full.subscription === "string") {
+      subscriptionId = full.subscription;
+    } else if (full.subscription && typeof full.subscription === "object" && full.subscription.id) {
+      subscriptionId = full.subscription.id;
+    }
+
+    if (subscriptionId) {
+      sub = await stripe.subscriptions.retrieve(subscriptionId);
+      console.log("Full Stripe Subscription object:", sub);
+      const plan = sub.items.data[0]?.plan;
+      if (DEBUG_WEBHOOK) {
+        console.log("🧾 Stripe Subscription:", {
+          id: sub.id,
+          customer: sub.customer,
+          status: sub.status,
+          billing_cycle_anchor: sub.billing_cycle_anchor,
+          start_date: sub.start_date,
+          plan_interval: plan?.interval,
+          plan_interval_count: plan?.interval_count,
+          cancel_at_period_end: sub.cancel_at_period_end,
+        });
+      }
+    }
+
+    // 4) Insert payment_items + session_credits + subscriptions-per-service (if membership)
+    const lineItems = full.line_items?.data ?? [];
+
+    for (const li of lineItems) {
+      const quantity = li.quantity ?? 1;
+      const price = li.price;
+      const product = (price?.product as Stripe.Product) || null;
+
+      if (DEBUG_WEBHOOK) {
+        console.log("Stripe Product metadata:", product?.metadata);
+      }
+
+      const sanityServiceId = product?.metadata?.sanity_service_id || null;
+      const sanityServiceSlug = product?.metadata?.sanity_service_slug || null;
+      const category = product?.metadata?.service_category || null;
+
+      // packs use this; memberships usually have 0 here
+      const sessionsIncluded = Number(product?.metadata?.sessions_included ?? 0);
+
+      // membership metadata flags (what you’re currently sending)
+      const membershipInterval = product?.metadata?.membership_interval || null;
+
+      const unitAmount = price?.unit_amount ?? 0;
+      const currency = price?.currency ?? full.currency ?? "usd";
+      const title = product?.name ?? "Service";
+
+      const amountCents = unitAmount * quantity;
+      const sessionsPurchased = sessionsIncluded ? sessionsIncluded * quantity : null;
+
+      if (DEBUG_WEBHOOK) {
+        console.log("📦 Line Item Preview:", {
+          sanity_service_id: sanityServiceId,
+          sanity_service_slug: sanityServiceSlug,
+          service_title: title,
+          service_category: category,
+          quantity,
+          unit_amount_cents: unitAmount,
+          amount_cents: amountCents,
+          currency,
+          sessions_purchased: sessionsPurchased,
+          stripe_price_id: price?.id,
+        });
+      }
+
+      // 4a) payment_items insert (always)
+      const [itemRes] = await conn.query<any>(
+        `INSERT INTO payment_items
+          (payment_id, sanity_service_id, sanity_service_slug, service_title, service_category,
+           quantity, unit_amount_cents, amount_cents, currency, sessions_purchased)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          paymentId,
+          sanityServiceId,
+          sanityServiceSlug,
+          title,
+          category,
+          quantity,
+          unitAmount,
+          amountCents,
+          currency,
+          sessionsPurchased,
+        ]
+      );
+
+      const paymentItemId = itemRes.insertId as number;
+
+      // 4b) session_credits insert (packs)
+      const totalCredits = sessionsIncluded * quantity;
+      if (totalCredits > 0) {
+        await conn.query(
+          `INSERT INTO session_credits
+            (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
+             total_credits, credits_used, expires_at)
+           VALUES (?, ?, ?, ?, ?, ?, 0, NULL)`,
+          [userId, paymentId, paymentItemId, sanityServiceId, sanityServiceSlug, totalCredits]
+        );
+      }
+
+      // 4c) subscriptions insert (memberships)
+      // We treat it as a membership if it has membership_interval metadata AND we have a Stripe subscription.
+      const isMembershipLineItem = Boolean(membershipInterval);
+
+      if (isMembershipLineItem && sub && sanityServiceId) {
+        // Calculate current_period_start and current_period_end
+        let periodStart: Date | null = null;
+        let periodEnd: Date | null = null;
+        if (sub.billing_cycle_anchor) {
+          periodStart = new Date(sub.billing_cycle_anchor * 1000);
+          const plan = sub.items.data[0]?.plan;
+          if (plan && plan.interval) {
+            const intervalCount = plan.interval_count || 1;
+            periodEnd = new Date(periodStart);
+            if (plan.interval === 'month') {
+              periodEnd.setMonth(periodEnd.getMonth() + intervalCount);
+            } else if (plan.interval === 'week') {
+              periodEnd.setDate(periodEnd.getDate() + 7 * intervalCount);
+            } else if (plan.interval === 'year') {
+              periodEnd.setFullYear(periodEnd.getFullYear() + intervalCount);
+            } else if (plan.interval === 'day') {
+              periodEnd.setDate(periodEnd.getDate() + intervalCount);
+            }
+          }
+        } else if (sub.start_date) {
+          periodStart = new Date(sub.start_date * 1000);
+        }
+
+        const cancelAtPeriodEnd = sub.cancel_at_period_end ? 1 : 0;
+
+        // ✅ Idempotency for subscriptions: prevent duplicates on webhook retries
+        const [existingSub] = await conn.query<any[]>(
+          `SELECT id
+           FROM subscriptions
+           WHERE provider = ? AND stripe_checkout_session_id = ? AND sanity_service_id = ?
+           LIMIT 1`,
+          ["stripe", full.id, sanityServiceId]
+        );
+
+        if (!existingSub.length) {
+          if (DEBUG_WEBHOOK) {
+            console.log("🧾 Subscriptions Row Preview:", {
+              user_id: userId,
+              sanity_service_id: sanityServiceId,
+              sanity_service_slug: sanityServiceSlug,
+              provider: "stripe",
+              stripe_customer_id: String(sub.customer),
+              stripe_subscription_id: sub.id,
+              stripe_checkout_session_id: full.id,
+              status: sub.status,
+              current_period_start: periodStart,
+              current_period_end: periodEnd,
+              cancel_at_period_end: cancelAtPeriodEnd,
+            });
+          }
+
+          await conn.query(
+            `INSERT INTO subscriptions
+              (user_id, sanity_service_id, sanity_service_slug, provider,
+               stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id,
+               status, current_period_start, current_period_end, cancel_at_period_end)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              userId,
+              sanityServiceId,
+              sanityServiceSlug,
+              "stripe",
+              String(sub.customer),
+              sub.id,
+              full.id,
+              sub.status,
+              periodStart,
+              periodEnd,
+              cancelAtPeriodEnd,
+            ]
+          );
+        }
+      }
+    }
+
+    await conn.commit();
+    return NextResponse.json({ received: true });
+  } catch (err) {
+    await conn.rollback();
+    const msg = err instanceof Error ? err.message : "Webhook handler error";
+    console.error("Webhook error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  } finally {
+    conn.release();
+  }
+}

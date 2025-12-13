@@ -60,7 +60,7 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
     setIsLoggingOut(true);
     try {
       await signOut({ 
-        callbackUrl: '/login',
+        callbackUrl: '/auth',
         redirect: true 
       });
     } catch (error) {

@@ -73,5 +73,5 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
 
 export async function logout() {
   deleteSession()
-  redirect('/login')
+  redirect('/auth')
 }

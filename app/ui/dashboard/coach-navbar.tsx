@@ -28,7 +28,7 @@ export function CoachNavbar({ setSidebarOpen, userName = 'Coach' }: CoachNavbarP
     setIsLoggingOut(true);
     try {
       await signOut({ 
-        callbackUrl: '/login',
+        callbackUrl: '/auth',
         redirect: true 
       });
     } catch (error) {

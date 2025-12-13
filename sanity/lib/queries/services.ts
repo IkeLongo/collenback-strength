@@ -13,7 +13,15 @@ export async function fetchAllServices() {
       sessionsIncluded,
       priceCents,
       currency,
-      stripePriceId
+      stripePriceId,
+      pricingModel,
+      membership {
+        interval,
+        intervalCount,
+        autoRenew,
+        durationDays,
+        sessionsPerPeriod
+      }
     }`
   );
 }
@@ -31,8 +39,43 @@ export async function fetchServiceBySlug(slug: string) {
       sessionsIncluded,
       priceCents,
       currency,
-      stripePriceId
+      stripePriceId,
+      pricingModel,
+      membership {
+        interval,
+        intervalCount,
+        autoRenew,
+        durationDays,
+        sessionsPerPeriod
+      }
     }`,
     { slug }
+  );
+}
+
+export async function fetchServiceById(id: string) {
+  return client.fetch(
+    `*[_type == "service" && _id == $id && isActive == true][0]{
+      _id,
+      title,
+      slug,
+      category,
+      shortDescription,
+      longDescription,
+      image,
+      sessionsIncluded,
+      priceCents,
+      currency,
+      stripePriceId,
+      pricingModel,
+      membership {
+        interval,
+        intervalCount,
+        autoRenew,
+        durationDays,
+        sessionsPerPeriod
+      }
+    }`,
+    { id }
   );
 }
