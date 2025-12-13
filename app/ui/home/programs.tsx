@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from "@/app/ui/components/tabs/tabs";
 import FadeInUp from "../components/fade/fade-in-up";
 import {
-  ModalProvider,
   ModalBody,
   ModalContent,
-  ModalTrigger,
   useModal,
 } from "../components/modal/programs-modal";
 import Lottie from "lottie-react";

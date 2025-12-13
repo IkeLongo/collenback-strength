@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export default function AdminLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="h-screen m-0 p-0 overflow-x-hidden font-sans">
-        <div className="h-screen w-screen m-0 p-0">
+        <div className="h-screen w-full m-0 p-0">
           {children}
         </div>
       </body>

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/app/lib/utils';
+import { useCartDrawer } from "@/app/ui/components/cart/cart-drawer-context";
+import { useShoppingCart } from "use-shopping-cart";
 
 interface ClientNavbarProps {
   setSidebarOpen?: (open: boolean) => void;
@@ -12,6 +14,9 @@ interface ClientNavbarProps {
 export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { setOpen: setCartOpen } = useCartDrawer();
+  const { cartCount } = useShoppingCart();
+  const count = cartCount ?? 0;
   
   // Get first and last initial from userName
   const getInitials = (name: string) => {
@@ -38,7 +43,7 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
   };
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <div className="sticky top-0 z-40 flex w-full h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button */}
       <button
         type="button"
@@ -61,11 +66,62 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
         
         {/* User menu */}
         <div className="flex items-center gap-x-4 lg:gap-x-6">
+
           {/* Notifications */}
-          <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
+          <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500!">
             <span className="sr-only">View notifications</span>
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+          </button>
+
+          {/* Cart */}
+          <button
+            type="button"
+            className="relative -m-2.5 p-2.5 text-grey-400 hover:text-grey-500!"
+            onClick={() => setCartOpen(true)} // keep your drawer open handler
+          >
+            <span className="sr-only">View cart</span>
+
+            {/* Badge */}
+            {count > 0 && (
+              <span
+                className="
+                  absolute
+                  top-0
+                  right-0
+                  h-5!
+                  min-w-[1.25rem]!
+                  px-1!
+                  rounded-full!
+                  bg-red-600
+                  text-white!
+                  font-sans
+                  text-xs!
+                  font-extrabold!
+                  leading-5!
+                  text-center!
+                  shadow-md!
+                  border
+                  border-white
+                "
+              >
+                {count > 99 ? "99+" : count}
+              </span>
+            )}
+
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6.75 21a.75.75 0 100-1.5.75.75 0 000 1.5zm10.5 0a.75.75 0 100-1.5.75.75 0 000 1.5z"
+              />
             </svg>
           </button>
 

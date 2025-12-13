@@ -23,6 +23,7 @@
     "@sanity/client": "^7.13.1",
     "@sanity/image-url": "1",
     "@sanity/vision": "^4.20.3",
+    "@stripe/stripe-js": "^8.5.3",
     "@tabler/icons-react": "^3.35.0",
     "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -49,9 +50,12 @@
     "react-toastify": "^11.0.5",
     "resend": "^4.6.0",
     "sanity": "^4.20.3",
+    "stripe": "^20.0.0",
     "styled-components": "6",
+    "swr": "^2.3.7",
     "tailwind-merge": "^3.4.0",
     "tailwind-scrollbar": "^4.0.2",
+    "use-shopping-cart": "^2.4.3",
     "zod": "^4.1.13"
   },
   "devDependencies": {
