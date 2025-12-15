@@ -4,6 +4,8 @@ import { withTx } from "@/app/lib/mysql";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { auth } from "@/app/actions/nextauth";
 import { sendBookingConfirmationEmail } from "@/app/lib/email/sendBookingConfirmation";
+import { sendCoachBookingNotificationEmail } from "@/app/lib/email/sendCoachBookingNotification";
+import { getCoachContactById } from "@/app/lib/queries/coaches";
 
 type BookBody = {
   coachId: number | null;
@@ -174,6 +176,29 @@ export async function POST(req: Request) {
       }
     } else {
       console.warn("[book] No valid client email, skipping confirmation email.");
+    }
+
+    if (body.coachId) {
+      try {
+        const coach = await getCoachContactById(body.coachId);
+
+        if (coach?.email) {
+          sendCoachBookingNotificationEmail({
+            to: coach.email,
+            coachName: coach.name || undefined,
+            clientName: [clientName, clientLastName].filter(Boolean).join(" ") || undefined,
+            clientEmail: typeof clientEmail === "string" ? clientEmail : undefined,
+            clientPhone: session.user.phone || undefined,
+            start: body.start,
+            end: body.end,
+            serviceTitle: body.sanityServiceTitle ?? undefined,
+          }).catch((err) => console.error("[book] coach email error", err));
+        } else {
+          console.warn("[book] coach not found or missing email", { coachId: body.coachId });
+        }
+      } catch (err) {
+        console.error("[book] coach lookup/email failed", err);
+      }
     }
     
     return NextResponse.json({ ok: true, sessionId });
