@@ -46,6 +46,133 @@
   --font-outfit: Outfit, sans-serif;
 }
 
+
+.fc {
+  color: #000; /* default text color */
+}
+
+.fc .fc-toolbar-title {
+  color: #000;
+}
+
+.fc .fc-daygrid-day {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.fc .fc-daygrid-day-number {
+  color: #000;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #000;
+}
+
+.fc .fc-timegrid-slot-label,
+.fc .fc-timegrid-axis-cushion {
+  color: #000;
+}
+
+.fc .fc-event-title,
+.fc .fc-event-time {
+  color: #000;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background: rgba(191, 238, 60, 0.15); /* your lime-ish */
+}
+
+.fc-available-slot {
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* Make availability visually obvious */
+.fc .fc-event.fc-available-slot {
+  background: #e5f9eb;
+  border: 1px solid #22c55e;
+  color: #000 !important; /* your requirement */
+}
+
+/* Hover state */
+.fc .fc-event.fc-available-slot:hover {
+  filter: brightness(0.95);
+}
+
+/* Selected state */
+.fc .fc-event.fc-available-selected {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+  color: #000 !important;
+}
+
+/* Past days: muted and not clickable-looking */
+.cs-day-past {
+  opacity: 0.45;
+}
+
+/* ============================= */
+/* AVAILABLE DAY (white) */
+/* ============================= */
+.cs-day-available {
+  background-color: #ffffff;
+}
+
+/* Make sure number is readable */
+.cs-day-available .fc-daygrid-day-number {
+  color: #000000;
+}
+
+/* Hover effect for available days */
+.cs-day-available:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+/* ============================= */
+/* UNAVAILABLE DAY (light grey) */
+/* ============================= */
+.cs-day-unavailable {
+  background-color: #e5e7eb; /* Tailwind gray-200 */
+}
+
+.cs-day-unavailable .fc-daygrid-day-number {
+  color: #6b7280; /* Tailwind gray-500 */
+}
+
+/* Prevent "clickable" feel */
+.cs-day-unavailable:hover {
+  cursor: not-allowed;
+}
+
+/* ============================= */
+/* SELECTED DAY (dark grey) */
+/* ============================= */
+.cs-day-selected {
+  background-color: #374151 !important; /* Tailwind gray-700 */
+}
+
+.cs-day-selected .fc-daygrid-day-number {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* ============================= */
+/* PAST DAYS (disabled) */
+/* ============================= */
+.cs-day-past {
+  background-color: #f3f4f6; /* gray-100 */
+  opacity: 0.5;
+}
+
+.cs-day-past .fc-daygrid-day-number {
+  color: #9ca3af;
+}
+
+.cs-day-past:hover {
+  cursor: not-allowed;
+}
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --background: #1A1A1A;

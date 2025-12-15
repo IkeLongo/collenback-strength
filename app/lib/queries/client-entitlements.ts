@@ -1,4 +1,4 @@
-import pool from "@/app/lib/mysql";
+import { pool } from "@/app/lib/mysql";
 
 export type EntitlementRow = {
   sanity_service_id: string | null;

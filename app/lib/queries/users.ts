@@ -1,4 +1,4 @@
-import pool from '@/app/lib/mysql';
+import { pool } from '@/app/lib/mysql';
 import { RowDataPacket } from 'mysql2';
 
 export interface User {

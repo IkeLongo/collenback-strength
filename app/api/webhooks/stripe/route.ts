@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import pool from "@/app/lib/mysql";
+import { pool } from "@/app/lib/mysql";
 
 export const runtime = "nodejs";
 

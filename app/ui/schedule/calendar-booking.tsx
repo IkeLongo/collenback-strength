@@ -1,0 +1,468 @@
+"use client";
+
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
+import luxonPlugin from "@fullcalendar/luxon3";
+
+const TZ = "America/Chicago";
+const DURATIONS: Array<30 | 60> = [30, 60];
+
+type SlotOption = { durationMinutes: 30 | 60; end: string }; // UTC ISO
+type SlotGroup = { start: string; options: SlotOption[] };   // start UTC ISO
+
+type AvailabilityResponse = {
+  ok: boolean;
+  slots?: SlotGroup[];
+  error?: string;
+};
+
+type Props = {
+  coachId: number;  // should be 17 right now
+  clientId: number; // signed-in user id
+};
+
+type ServiceOption = { id: string; slug: string; title: string };
+
+
+// Build a Chicago-local day window from a YYYY-MM-DD date string
+function chicagoDayWindowUtcFromYmd(ymd: string) {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const localStart = new Date(y, m - 1, d, 0, 0, 0);
+  const localEnd = new Date(y, m - 1, d + 1, 0, 0, 0);
+
+  return {
+    startUtc: fromZonedTime(localStart, TZ),
+    endUtc: fromZonedTime(localEnd, TZ),
+  };
+}
+
+export default function CalendarBooking({ coachId, clientId }: Props) {
+  const calendarRef = useRef<any>(null);
+
+  const [view, setView] = useState<"month" | "day">("month");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [slots, setSlots] = useState<SlotGroup[]>([]);
+  const [activeYmd, setActiveYmd] = useState<string | null>(null); // YYYY-MM-DD (Chicago day)
+  const [activeDayUtcRange, setActiveDayUtcRange] = useState<{ start: Date; end: Date } | null>(null);
+
+  const [selectedStart, setSelectedStart] = useState<string | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<30 | 60>(60);
+
+  const [monthAvailability, setMonthAvailability] = useState<Set<string>>(new Set());
+  const lastMonthRange = useRef<{ start: string; end: string } | null>(null);
+
+  const [services, setServices] = useState<ServiceOption[]>([]);
+  const [selectedService, setSelectedService] = useState<ServiceOption | null>(null);
+
+  const selectedSlot = useMemo(
+    () => slots.find((s) => s.start === selectedStart) ?? null,
+    [slots, selectedStart]
+  );
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/services"); // you create this if you don't have it yet
+      const data = await res.json();
+      setServices(data.services ?? []);
+    })();
+  }, []);
+
+  const fetchAvailabilityForYmd = useCallback(
+    async (ymd: string) => {
+      // idempotency guard: do not refetch the same day if already loaded (unless you want refresh)
+      setError("");
+      setLoading(true);
+
+      try {
+        const { startUtc, endUtc } = chicagoDayWindowUtcFromYmd(ymd);
+        setActiveDayUtcRange({ start: startUtc, end: endUtc });
+
+        const qs = new URLSearchParams({
+          coachId: String(coachId),
+          start: startUtc.toISOString(),
+          end: endUtc.toISOString(),
+        });
+
+        const res = await fetch(`/api/availability?${qs.toString()}`);
+        const data = (await res.json()) as AvailabilityResponse;
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data?.error || "Failed to load availability");
+        }
+
+        setSlots(data.slots ?? []);
+      } catch (e: any) {
+        setSlots([]);
+        setError(e?.message ?? "Failed to load availability");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [coachId]
+  );
+
+  const fetchMonthAvailability = useCallback(async (startYmd: string, endYmd: string) => {
+    // startYmd inclusive, endYmd exclusive (FullCalendar style)
+    const qs = new URLSearchParams({
+      coachId: String(coachId),
+      start: startYmd,
+      end: endYmd,
+    });
+
+    const res = await fetch(`/api/availability/month?${qs.toString()}`);
+    const data = await res.json();
+
+    if (res.ok && data?.ok) {
+      setMonthAvailability(new Set(data.days as string[]));
+    } else {
+      setMonthAvailability(new Set());
+    }
+  }, [coachId]);
+
+  async function bookSelected() {
+    if (!selectedSlot) return;
+    const option = selectedSlot.options.find((o) => o.durationMinutes === selectedDuration);
+    if (!option) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/sessions/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId,
+          coachId,
+          start: selectedSlot.start,
+          end: option.end,
+          location: null,
+          notes: null,
+          sanityServiceId: selectedService?.id ?? null,
+          sanityServiceSlug: selectedService?.slug ?? null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.ok) {
+        if (data?.error === "slot_taken") throw new Error("That time was just taken. Pick another slot.");
+        if (data?.error === "no_credits") throw new Error("You don’t have enough credits to book.");
+        throw new Error(data?.detail ?? "Booking failed.");
+      }
+
+      // Refresh availability for the active day after booking
+      setSelectedStart(null);
+      if (activeYmd) {
+        await fetchAvailabilityForYmd(activeYmd);
+      }
+    } catch (e: any) {
+      setError(e?.message ?? "Booking failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const groupedSlots = useMemo(() => {
+    const morning: SlotGroup[] = [];
+    const afternoon: SlotGroup[] = [];
+
+    for (const s of slots) {
+      const localHour = Number(formatInTimeZone(new Date(s.start), TZ, "H")); // 0-23
+      if (localHour < 12) morning.push(s);
+      else afternoon.push(s);
+    }
+
+    return { morning, afternoon };
+  }, [slots]);
+
+  return (
+    <div className="rounded-xl border p-2">
+      <div className="flex items-start justify-between gap-3 pb-3">
+        <div>
+          <h2 className="text-xl! font-semibold! text-black!">Book a Session</h2>
+          <p className="text-sm! text-black/80!">
+            Times shown in Central Time (Chicago).
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {!loading && (
+            <button
+              type="button"
+              className="rounded-md border px-3 py-2 text-sm text-black hover:bg-slate-100"
+              onClick={() => {
+                const api = calendarRef.current?.getApi();
+                if (!api) return;
+
+                const todayYmd = formatInTimeZone(new Date(), TZ, "yyyy-MM-dd");
+
+                api.today();
+                setActiveYmd(todayYmd);
+                setSelectedStart(null);
+                setSlots([]);
+                setError("");
+                fetchAvailabilityForYmd(todayYmd);
+              }}
+              disabled={loading}
+            >
+              Today
+            </button>
+          )}
+          {loading ? <div className="text-sm text-black/70">Loading…</div> : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-[1fr_360px]">
+        {/* LEFT: Calendar and Booking Controls */}
+        <div className="flex flex-col gap-4">
+          <div className="rounded-xl border p-2">
+            <FullCalendar
+              ref={calendarRef}
+              plugins={[dayGridPlugin, interactionPlugin, luxonPlugin]}
+              initialView="dayGridMonth"
+              timeZone={TZ}
+              height="auto"
+              headerToolbar={{
+                left: "prev,next",
+                center: "title",
+                right: "",
+              }}
+              dateClick={(arg) => {
+                const todayYmd = formatInTimeZone(new Date(), TZ, "yyyy-MM-dd");
+                const ymd = arg.dateStr;
+
+                // Block past days
+                if (ymd < todayYmd) return;
+
+                // Block unavailable days
+                if (!monthAvailability.has(ymd)) return;
+
+                setSelectedStart(null);
+                setSlots([]);
+                setError("");
+                setActiveYmd(ymd);
+                fetchAvailabilityForYmd(ymd);
+              }}
+              validRange={{
+                start: formatInTimeZone(new Date(), TZ, "yyyy-MM-dd"),
+              }}
+              datesSet={(arg) => {
+                if (arg.view.type !== "dayGridMonth") return;
+
+                const startAnchor = new Date(arg.start.getTime() + 12 * 60 * 60 * 1000);
+                const endAnchor = new Date(arg.end.getTime() + 12 * 60 * 60 * 1000);
+
+                const startYmd = formatInTimeZone(startAnchor, TZ, "yyyy-MM-dd");
+                const endYmd = formatInTimeZone(endAnchor, TZ, "yyyy-MM-dd");
+
+                // Only fetch if range changed
+                if (
+                  !lastMonthRange.current ||
+                  lastMonthRange.current.start !== startYmd ||
+                  lastMonthRange.current.end !== endYmd
+                ) {
+                  lastMonthRange.current = { start: startYmd, end: endYmd };
+                  fetchMonthAvailability(startYmd, endYmd);
+                }
+              }}
+              dayCellClassNames={(arg) => {
+                const ymd = formatInTimeZone(arg.date, TZ, "yyyy-MM-dd");
+                const todayYmd = formatInTimeZone(new Date(), TZ, "yyyy-MM-dd");
+
+                const classes: string[] = [];
+
+                // selected day
+                if (ymd === activeYmd) classes.push("cs-day-selected");
+
+                // past day
+                if (ymd < todayYmd) classes.push("cs-day-past");
+
+                // availability markers (only for today+future)
+                if (ymd >= todayYmd) {
+                  if (monthAvailability.has(ymd)) classes.push("cs-day-available");
+                  else classes.push("cs-day-unavailable");
+                }
+
+                return classes;
+              }}
+            />
+          </div>
+
+          {/* Booking controls below the calendar */}
+          <div className="border-t pt-3 space-y-2">
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-black">Service</div>
+              <select
+                className="w-full border rounded-md px-2 py-2 text-sm text-black"
+                value={selectedService?.id ?? ""}
+                onChange={(e) => {
+                  const svc = services.find(s => s.id === e.target.value) ?? null;
+                  setSelectedService(svc);
+                  setSelectedStart(null);
+                }}
+              >
+                <option value="">Select a service…</option>
+                {services.map(s => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="text-sm text-black">
+              <div className="font-medium">Selected time</div>
+              <div className="text-black/80">
+                {selectedStart
+                  ? formatInTimeZone(new Date(selectedStart), TZ, "EEE MMM d, h:mm a")
+                  : "Select a time to continue."}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-black">Duration</label>
+              <select
+                className="border rounded-md px-2 py-1 text-sm text-black"
+                value={selectedDuration}
+                onChange={(e) => setSelectedDuration(Number(e.target.value) as 30 | 60)}
+                disabled={!selectedSlot}
+              >
+                {(selectedSlot?.options ?? [{ durationMinutes: 60 }, { durationMinutes: 30 }])
+                  .filter((v, i, arr) => arr.findIndex(x => x.durationMinutes === v.durationMinutes) === i)
+                  .sort((a, b) => a.durationMinutes - b.durationMinutes)
+                  .map((o: any) => (
+                    <option key={o.durationMinutes} value={o.durationMinutes}>
+                      {o.durationMinutes} minutes
+                    </option>
+                  ))}
+              </select>
+
+              <button
+                className="ml-auto rounded-md border border-black px-3 py-2 text-sm text-black disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={loading || !selectedSlot}
+                onClick={bookSelected}
+              >
+                Book
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Timeslots */}
+        <div className="rounded-xl border p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold text-black">Available times</div>
+
+            {activeYmd ? (
+              <button
+                type="button"
+                className="text-xs underline text-black/80 hover:text-black"
+                onClick={() => {
+                  setActiveYmd(null);
+                  setSlots([]);
+                  setSelectedStart(null);
+                  setError("");
+                }}
+              >
+                Clear
+              </button>
+            ) : null}
+          </div>
+
+          <div className="text-sm text-black/80">
+            {activeYmd
+              ? `Selected day: ${formatInTimeZone(new Date(`${activeYmd}T12:00:00`), TZ, "EEE MMM d, yyyy")}`
+              : "Click a day to see times."}
+          </div>
+
+          {loading ? (
+            <div className="text-sm text-black/70">Loading…</div>
+          ) : !activeYmd ? (
+            <div className="text-sm text-black/70">Pick a day on the calendar.</div>
+          ) : slots.length === 0 ? (
+            <div className="text-sm text-black/70">No times available.</div>
+          ) : (
+            <div className="space-y-4">
+              {/* Morning */}
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/70">
+                  Morning
+                </div>
+                {groupedSlots.morning.length === 0 ? (
+                  <div className="text-sm text-black/60">No morning times.</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {groupedSlots.morning.map((s) => {
+                      const label = formatInTimeZone(new Date(s.start), TZ, "h:mm a");
+                      const isSelected = s.start === selectedStart;
+
+                      return (
+                        <button
+                          key={s.start}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStart(s.start);
+                            const has60 = s.options.some((o) => o.durationMinutes === 60);
+                            setSelectedDuration(has60 ? 60 : 30);
+                          }}
+                          className={[
+                            "rounded-md border px-2 py-2 text-sm font-semibold text-black",
+                            isSelected ? "bg-lime-200 border-lime-500" : "bg-white border-black/20",
+                            "hover:bg-slate-100",
+                          ].join(" ")}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Afternoon */}
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-black/70">
+                  Afternoon
+                </div>
+                {groupedSlots.afternoon.length === 0 ? (
+                  <div className="text-sm text-black/60">No afternoon times.</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {groupedSlots.afternoon.map((s) => {
+                      const label = formatInTimeZone(new Date(s.start), TZ, "h:mm a");
+                      const isSelected = s.start === selectedStart;
+
+                      return (
+                        <button
+                          key={s.start}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStart(s.start);
+                            const has60 = s.options.some((o) => o.durationMinutes === 60);
+                            setSelectedDuration(has60 ? 60 : 30);
+                          }}
+                          className={[
+                            "rounded-md border px-2 py-2 text-sm font-semibold text-black",
+                            isSelected ? "bg-lime-200 border-lime-500" : "bg-white border-black/20",
+                            "hover:bg-slate-100",
+                          ].join(" ")}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
