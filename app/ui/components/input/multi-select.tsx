@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cn } from "@/app/lib/utils"
 import { useMotionTemplate, useMotionValue, motion } from "framer-motion"
+import { useMemo } from "react"
 
 export interface MultiSelectProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange'> {
@@ -17,11 +18,26 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
     const [visible, setVisible] = React.useState(false)
     const [isOpen, setIsOpen] = React.useState(false)
     // Always coerce value to array for internal state
-    const initialSelected = singleSelect
-      ? value && typeof value === 'string' ? [value] : Array.isArray(value) ? value : []
-      : Array.isArray(value) ? value : value ? [value] : [];
-    const [selectedValues, setSelectedValues] = React.useState<string[]>(initialSelected)
+    const initialSelected = React.useMemo(() => {
+      const arr =
+        typeof value === "string"
+          ? value ? [value] : []
+          : Array.isArray(value)
+            ? value
+            : [];
+
+      // singleSelect = keep only first, and drop "" values
+      const cleaned = arr.filter((v) => v && v.trim().length > 0);
+
+      return singleSelect ? (cleaned[0] ? [cleaned[0]] : []) : cleaned;
+    }, [value, singleSelect]);
+
+    const [selectedValues, setSelectedValues] = React.useState<string[]>(initialSelected);
     const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+    const normalizedSelectedValues = useMemo(() => {
+      return selectedValues.filter((v) => v && v.trim().length > 0);
+    }, [selectedValues]);
 
     let mouseX = useMotionValue(0)
     let mouseY = useMotionValue(0)
@@ -34,14 +50,16 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
     }
 
     React.useEffect(() => {
-      if (singleSelect) {
-        if (typeof value === 'string') setSelectedValues([value])
-        else if (Array.isArray(value) && value.length > 0) setSelectedValues([value[0]])
-        else setSelectedValues([])
-      } else {
-        setSelectedValues(Array.isArray(value) ? value : value ? [value] : [])
-      }
-    }, [value, singleSelect])
+      const arr =
+        typeof value === "string"
+          ? value ? [value] : []
+          : Array.isArray(value)
+            ? value
+            : [];
+
+      const cleaned = arr.filter((v) => v && v.trim().length > 0);
+      setSelectedValues(singleSelect ? (cleaned[0] ? [cleaned[0]] : []) : cleaned);
+    }, [value, singleSelect]);
 
     // Close dropdown when clicking outside
     React.useEffect(() => {
@@ -58,21 +76,29 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
     }, [isOpen])
 
     const toggleOption = (optionValue: string) => {
-      let newValues: string[];
       if (singleSelect) {
-        newValues = [optionValue];
-        setSelectedValues(newValues);
-        onChange?.(optionValue);
+        const isSame = selectedValues[0] === optionValue;
+
+        if (isSame) {
+          setSelectedValues([]);
+          onChange?.("");
+        } else {
+          setSelectedValues([optionValue]);
+          onChange?.(optionValue);
+        }
+
         setIsOpen(false);
-      } else {
-        newValues = selectedValues.includes(optionValue)
-          ? selectedValues.filter(v => v !== optionValue)
-          : [...selectedValues, optionValue];
-        setSelectedValues(newValues);
-        onChange?.(newValues);
-        setIsOpen(false);
+        return;
       }
-    }
+
+      // multi-select behavior (unchanged)
+      const newValues = selectedValues.includes(optionValue)
+        ? selectedValues.filter((v) => v !== optionValue)
+        : [...selectedValues, optionValue];
+
+      setSelectedValues(newValues);
+      onChange?.(newValues);
+    };
 
     const removeOption = (optionValue: string, e: React.MouseEvent) => {
       e.stopPropagation()
@@ -122,31 +148,22 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
         >
           <div
             className={cn(
-              "shadow-input flex min-h-10 w-full cursor-pointer items-center justify-between rounded-md border-transparent bg-white px-3 py-2 text-sm text-black transition duration-400 group-hover/multiselect:shadow-none placeholder:text-neutral-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-              "dark:bg-white dark:text-black dark:shadow-input dark:focus-visible:ring-neutral-400",
+              "shadow-input flex min-h-10 w-full cursor-pointer items-center justify-between rounded-2xl! border-transparent bg-white px-3 py-2 text-sm text-black transition duration-400 group-hover/multiselect:shadow-none placeholder:text-neutral-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+              // removed dark: classes, set default to what dark: was
+              // bg-white → bg-white (already set), text-black → text-black, shadow-input → shadow-input, focus-visible:ring-neutral-400 → focus-visible:ring-neutral-400
               className
             )}
             onClick={() => setIsOpen(!isOpen)}
           >
-          <div className="flex flex-1 flex-wrap gap-1">
-            {selectedValues.length === 0 ? (
-              <span className="text-neutral-400">{placeholder}</span>
+          <div className="flex flex-1 items-center gap-2 min-w-0">
+            {normalizedSelectedValues.length === 0 ? (
+              <span className="text-neutral-400 whitespace-nowrap truncate py-1">
+                {placeholder}
+              </span>
             ) : (
-              selectedValues.map((val) => {
-                const label = options.find(opt => opt.value === val)?.label || val;
-                const isActive = selectedValues.includes(val);
-                return (
-                  <span
-                    key={val}
-                    className={cn(
-                      "font-outfit text-base",
-                      isActive ? "text-black" : "text-white"
-                    )}
-                  >
-                    {label}
-                  </span>
-                );
-              })
+              <span className="font-outfit text-base text-black truncate">
+                {options.find((o) => o.value === normalizedSelectedValues[0])?.label ?? normalizedSelectedValues[0]}
+              </span>
             )}
           </div>
           <svg
@@ -165,7 +182,7 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
 
         {/* Dropdown options */}
         {isOpen && (
-          <div className="absolute z-50 mt-1 w-full bg-black rounded-2xl border border-grey-800 shadow-lg">
+          <div className="absolute z-50 mt-1 w-full bg-white rounded-2xl border border-grey-300 shadow-lg">
             <div className="max-h-60 overflow-y-auto p-1 space-y-1">
               {options.map((option) => {
                 const isActive = selectedValues.includes(option.value);
@@ -173,8 +190,10 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
                   <div
                     key={option.value}
                     className={cn(
-                      "relative flex select-none items-center rounded-xl px-4 py-2 text-base font-outfit transition-colors duration-150",
-                      isActive ? "bg-grey-500 text-white" : "bg-black text-white hover:bg-grey-900 cursor-pointer"
+                      "relative flex select-none items-center rounded-xl px-4 py-2 text-base font-outfit transition-colors duration-150 cursor-pointer border",
+                      isActive
+                        ? "bg-[var(--color-gold-100)] border-[var(--color-gold-500)] text-black font-semibold shadow-sm"
+                        : "bg-white border-transparent text-black hover:bg-grey-100"
                     )}
                     onClick={() => toggleOption(option.value)}
                   >

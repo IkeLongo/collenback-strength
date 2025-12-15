@@ -7,7 +7,6 @@ import {
   toZonedTime,
   formatInTimeZone,
 } from "date-fns-tz";
-import is from "zod/v4/locales/is.cjs";
 
 type SlotOption = {
   durationMinutes: number;
@@ -35,6 +34,10 @@ function dateToMysqlUtc(dt: Date) {
 }
 
 export async function GET(req: Request) {
+  // Get current time in Chicago timezone for filtering past slots
+  const nowChicago = toZonedTime(new Date(), TZ);
+  const todayYmdChicago = toYMD(nowChicago);
+  
   const { searchParams } = new URL(req.url);
   const coachId = Number(searchParams.get("coachId"));
   const start = searchParams.get("start"); // UTC ISO
@@ -271,6 +274,14 @@ export async function GET(req: Request) {
 
           const startNaive = makeNaiveLocal(ymd, sh, sm);
           const endNaive   = makeNaiveLocal(ymd, eh, em);
+
+          // Filter out past slots for today in Chicago time
+          if (
+            ymd === todayYmdChicago &&
+            (startNaive.getTime() < nowChicago.setSeconds(0, 0))
+          ) {
+            continue;
+          }
 
           // Convert Chicago local -> UTC (this is the ONLY place timezone conversion happens)
           const slotStartUtc = fromZonedTime(startNaive, TZ);

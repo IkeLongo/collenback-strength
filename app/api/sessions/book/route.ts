@@ -3,12 +3,14 @@ import { NextResponse } from "next/server";
 import { withTx } from "@/app/lib/mysql";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { auth } from "@/app/actions/nextauth";
+import { sendBookingConfirmationEmail } from "@/app/lib/email/sendBookingConfirmation";
 
 type BookBody = {
   coachId: number | null;
   start: string; // ISO datetime
   end: string;   // ISO datetime
   sanityServiceId?: string | null;
+  sanityServiceTitle?: string | null;
   sanityServiceSlug?: string | null;
   location?: string | null;
   notes?: string | null;
@@ -28,6 +30,13 @@ export async function POST(req: Request) {
   }
 
   const clientId = Number(session.user.id);
+  const clientEmail = session.user.email;
+  const clientName = session.user.firstName;
+  const clientLastName = session.user.lastName;
+
+  // console.log("[book] clientId", clientId);
+  // console.log("[book] clientEmail", clientEmail);
+  // console.log("[book] clientName", clientName);
 
   const body = (await req.json()) as BookBody;
 
@@ -143,6 +152,30 @@ export async function POST(req: Request) {
       return newSessionId;
     });
 
+    // Send confirmation email (do not block response on error)
+    console.log("[book] about to send email", { clientEmail, clientName });
+
+    console.log("[book] email gate", { clientName, clientEmail, type: typeof clientName });
+
+    if (typeof clientEmail === "string" && clientEmail) {
+      try {
+        const result = await sendBookingConfirmationEmail({
+          to: clientEmail,
+          firstName: clientName,
+          lastName: clientLastName,
+          start: body.start,
+          end: body.end,
+          serviceTitle: body.sanityServiceTitle || undefined,
+        });
+
+        console.log("[book] resend result", result);
+      } catch (err) {
+        console.error("[book] resend error", err);
+      }
+    } else {
+      console.warn("[book] No valid client email, skipping confirmation email.");
+    }
+    
     return NextResponse.json({ ok: true, sessionId });
   } catch (e: any) {
     console.error("[book] error", e);
