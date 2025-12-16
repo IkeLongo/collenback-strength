@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -62,6 +63,26 @@ export default function CalendarBooking() {
 
   const [coaches, setCoaches] = useState<CoachOption[]>([]);
   const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const preselectServiceId = searchParams.get("serviceId");
+
+  useEffect(() => {
+    if (!preselectServiceId) return;
+    if (!services.length) return;              // wait until services loaded
+    if (selectedService) return;               // don’t override if user already picked
+
+    const found = services.find((s) => s.id === preselectServiceId);
+    if (found) {
+      setSelectedService(found);
+
+      // Optional: clean the URL so refresh doesn’t keep forcing selection
+      const next = new URLSearchParams(searchParams.toString());
+      next.delete("serviceId");
+      router.replace(`/client/schedule?${next.toString()}`);
+    }
+  }, [preselectServiceId, services, selectedService, searchParams, router]);
 
   useEffect(() => {
     (async () => {
