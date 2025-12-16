@@ -1,16 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Dumbbell, Laptop, ListChecks, Salad } from "lucide-react";
 import type { LineItem } from "./line-item";
 import TypeTabs from "./type-tabs";
 
 export type CategoryKey = "in_person" | "online" | "program" | "nutrition";
 
 const LABEL: Record<CategoryKey, string> = {
-  in_person: "In-Person",
-  online: "Online",
+  in_person: "In-Person Coaching",
+  online: "Online Coaching",
   program: "Programs",
-  nutrition: "Nutrition",
+  nutrition: "Nutrition Coaching",
+};
+
+const ICON: Record<CategoryKey, React.ReactNode> = {
+  in_person: <Dumbbell size={16} className="mr-1.5" />,
+  online: <Laptop size={16} className="mr-1.5" />,
+  program: <ListChecks size={16} className="mr-1.5" />,
+  nutrition: <Salad size={16} className="mr-1.5" />,
 };
 
 export default function CategoryTabs({
@@ -47,7 +55,7 @@ export default function CategoryTabs({
   return (
     <div className="space-y-3">
       {/* Category tabs */}
-      <div className="bg-white rounded-2xl border border-grey-200 shadow-sm py-2 px-4 w-fit">
+      <div className="bg-white rounded-2xl border border-grey-200 shadow-sm py-2 px-4 pb-3 w-fit">
         <div className="flex">
           {(Object.keys(LABEL) as CategoryKey[]).map((k) => {
             const active = k === category;
@@ -70,7 +78,10 @@ export default function CategoryTabs({
                       : "bg-grey-50 text-grey-700 hover:text-grey-900",
                   ].join(" ")}
                 >
-                  <span>{LABEL[k]}</span>
+                  <span className="flex items-center gap-1">
+                    {ICON[k]}
+                    {LABEL[k]}
+                  </span>
                   <span
                     className={[
                       "text-xs px-2 py-0.5 rounded-full",

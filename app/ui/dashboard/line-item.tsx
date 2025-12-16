@@ -157,15 +157,27 @@ export default function LineItems({
             <div className="text-[11px] uppercase tracking-wide text-grey-500">
               Membership • {formatCategory(item.service_category)}
             </div>
-            <div className="text-sm font-semibold text-grey-900 truncate">
-              {item.service_title ?? "Membership"}
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-semibold text-grey-900 truncate">
+                {item.service_title ?? "Membership"}
+              </div>
+              <span
+                className={[
+                  "inline-block px-2 py-0.5 rounded-full text-xs font-semibold border",
+                  item.status === "active"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : item.status === "trialing"
+                    ? "bg-yellow-50 text-yellow-800 border-yellow-200"
+                    : "bg-grey-100 text-grey-700 border-grey-200"
+                ].join(" ")}
+              >
+                {statusLabel}
+              </span>
             </div>
             <div className="text-xs text-grey-600">
-              Status: <span className="font-semibold">{statusLabel}</span>
               {end ? (
                 <>
-                  {" "}
-                  • Renews <span className="font-semibold">{formatDate(end)}</span>
+                  Renews <span className="font-semibold">{formatDate(end)}</span>
                 </>
               ) : null}
             </div>
@@ -205,19 +217,28 @@ export default function LineItems({
           <div className="text-[11px] uppercase tracking-wide text-grey-500">
             Pack • {formatCategory(p.service_category)}
           </div>
-          <div className="text-sm font-semibold text-grey-900 truncate">
-            {p.service_title ?? "Service"}
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-semibold text-grey-900 truncate">
+              {p.service_title ?? "Service"}
+            </div>
+            <span
+              className={[
+                "inline-block px-2 py-0.5 rounded-full text-xs font-semibold border",
+                label === "Active"
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : label === "Fully Scheduled"
+                  ? "bg-yellow-50 text-yellow-800 border-yellow-200"
+                  : label === "Used"
+                  ? "bg-grey-200 text-grey-800 border-grey-300"
+                  : "bg-grey-100 text-grey-700 border-grey-200"
+              ].join(" ")}
+            >
+              {label}
+            </span>
           </div>
           <div className="text-xs text-grey-600">
-            <span className="font-semibold">{label}</span> •{" "}
             <span className="font-semibold">{available}</span> of{" "}
             <span className="font-semibold">{total}</span> {plural(total, "session")} available
-            {(reserved > 0 || used > 0) && (
-              <>
-                {" "}
-                • {reserved} scheduled • {used} used
-              </>
-            )}
           </div>
           <div className="text-[11px] text-grey-500">
             Purchased {formatDate(p.purchased_at)}
@@ -239,7 +260,7 @@ export default function LineItems({
   return (
     <div className="bg-white rounded-2xl">
       <div className="px-4 py-3 border-b border-grey-200 flex items-center justify-between">
-        <h2 className="text-sm! font-semibold! text-grey-700!">{title}</h2>
+        {/* <h2 className="text-sm! font-semibold! text-grey-700!">{title}</h2> */}
         <span className="text-xs text-grey-500">{sorted.length} item(s)</span>
       </div>
 

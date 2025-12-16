@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { BadgeCheck, Ticket } from "lucide-react";
 import type { LineItem } from "./line-item";
 import LineItems from "./line-item";
 
@@ -9,6 +10,11 @@ type KindKey = "membership" | "pack";
 const KIND_LABEL: Record<KindKey, string> = {
   membership: "Memberships",
   pack: "Packs",
+};
+
+const KIND_ICON: Record<KindKey, React.ReactNode> = {
+  membership: <BadgeCheck size={16} className="mr-1.5" />,
+  pack: <Ticket size={16} className="mr-1.5" />,
 };
 
 export default function TypeTabs({
@@ -65,7 +71,10 @@ export default function TypeTabs({
                     : "bg-grey-50 text-grey-700 hover:text-grey-900",
                 ].join(" ")}
               >
-                <span>{KIND_LABEL[k]}</span>
+                <span className="flex items-center">
+                  {KIND_ICON[k]}
+                  {KIND_LABEL[k]}
+                </span>
                 <span
                   className={[
                     "text-xs px-2 py-0.5 rounded-full",
