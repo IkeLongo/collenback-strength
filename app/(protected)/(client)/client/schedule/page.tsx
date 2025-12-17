@@ -1,9 +1,9 @@
-import CalendarBooking from "@/app/ui/schedule/calendar-booking";
+import ScheduleTabs from "@/app/ui/schedule/schedule-tabs";
 
 export default function SchedulePage() {
   return (
     <div className="p-6">
-      <CalendarBooking />
+      <ScheduleTabs />
     </div>
   );
 }
