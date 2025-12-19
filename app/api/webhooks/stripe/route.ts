@@ -173,6 +173,9 @@ export async function POST(req: Request) {
       const isProgramLineItem = category === "program";
       const programPdfAssetRef = product?.metadata?.program_pdf_asset_ref || null;
       const programVersion = product?.metadata?.program_version || null;
+      const programNotesSnapshot = product?.metadata?.program_notes_snapshot || null;
+      const coverImageUrlSnapshot = product?.metadata?.program_cover_image_url_snapshot || null;
+      const coverImageAltSnapshot = product?.metadata?.program_cover_image_alt_snapshot || null;
 
       // packs use this; memberships usually have 0 here
       const sessionsIncluded = Number(product?.metadata?.sessions_included ?? 0);
@@ -253,8 +256,10 @@ export async function POST(req: Request) {
         await conn.query(
           `INSERT INTO program_entitlements
             (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
-            sanity_file_asset_ref, program_version, status)
-          VALUES (?, ?, ?, ?, ?, ?, ?, 'active')`,
+            sanity_file_asset_ref, program_version,
+            program_notes_snapshot, cover_image_url_snapshot, cover_image_alt_snapshot,
+            status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
           [
             userId,
             paymentId,
@@ -263,6 +268,9 @@ export async function POST(req: Request) {
             sanityServiceSlug,
             programPdfAssetRef,
             programVersion,
+            programNotesSnapshot,
+            coverImageUrlSnapshot,
+            coverImageAltSnapshot,
           ]
         );
       }

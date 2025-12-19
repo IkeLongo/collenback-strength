@@ -198,7 +198,10 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         pe.sanity_file_asset_ref,
         pe.program_version,
         pe.payment_id,
-        pe.payment_item_id
+        pe.payment_item_id,
+        pe.program_notes_snapshot,
+        pe.cover_image_url_snapshot,
+        pe.cover_image_alt_snapshot
       FROM program_entitlements pe
       WHERE pe.user_id = ?
         AND pe.status = 'active'
@@ -303,13 +306,8 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
       const s = sanityMap.get(sid);
 
       const slug =
-        typeof s?.slug === "string"
-          ? s.slug
-          : (s?.slug as any)?.current ?? null;
-
-      const programNotes = s?.program?.notes ?? null;
-      const coverImageUrl = (s?.program as any)?.coverImageUrl ?? null;
-      const coverImageAlt = s?.program?.coverImageAlt ?? null;
+        p.sanity_service_slug ??
+        (typeof s?.slug === "string" ? s.slug : (s?.slug as any)?.current ?? null);
 
       return {
         kind: "program",
@@ -322,10 +320,11 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         service_title: s?.title ?? null,
         service_category: s?.category ?? "program",
 
-        program_version: p.program_version ?? null,          // ✅ version locked from DB
-        program_notes: programNotes,                         // ✅ from Sanity
-        cover_image_url: coverImageUrl,                      // ✅ from Sanity
-        cover_image_alt: coverImageAlt,                      // ✅ from Sanity
+        // ✅ version-locked fields now come from DB snapshots
+        program_version: p.program_version ?? null,
+        program_notes: p.program_notes_snapshot ?? null,
+        cover_image_url: p.cover_image_url_snapshot ?? null,
+        cover_image_alt: p.cover_image_alt_snapshot ?? null,
         sanity_file_asset_ref: String(p.sanity_file_asset_ref),
 
         payment_id: Number(p.payment_id),

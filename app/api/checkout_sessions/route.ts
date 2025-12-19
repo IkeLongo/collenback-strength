@@ -67,11 +67,16 @@ export async function POST(req: Request) {
 
       const isProgram = service.category === "program";
 
-      // ✅ PROGRAM METADATA
+      // ✅ PROGRAM METADATA (version-locked purchase + snapshots)
       if (isProgram) {
         const pdfAssetRef = service?.program?.pdf?.asset?._id; // from GROQ asset->_id
         const programVersion = service?.program?.version ?? "";
         const pdfFilename = service?.program?.pdf?.asset?.originalFilename ?? "";
+
+        // Snapshots (optional, but we'll store per purchase)
+        const notesSnapshot = service?.program?.notes ?? "";
+        const coverImageUrlSnapshot = service?.program?.coverImageUrl ?? "";
+        const coverImageAltSnapshot = service?.program?.coverImageAlt ?? "";
 
         if (!pdfAssetRef) {
           throw new Error(
@@ -82,6 +87,12 @@ export async function POST(req: Request) {
         baseMetadata.program_pdf_asset_ref = String(pdfAssetRef);
         baseMetadata.program_version = String(programVersion);
         baseMetadata.program_pdf_filename = String(pdfFilename);
+
+        // ✅ NEW: snapshot metadata (so future Sanity edits don't affect prior purchases)
+        // Keep these reasonably short due to Stripe metadata size limits.
+        baseMetadata.program_notes_snapshot = String(notesSnapshot).slice(0, 900);
+        baseMetadata.program_cover_image_url_snapshot = String(coverImageUrlSnapshot).slice(0, 1800);
+        baseMetadata.program_cover_image_alt_snapshot = String(coverImageAltSnapshot).slice(0, 200);
       }
 
       // ✅ MEMBERSHIP: recurring price_data (no Stripe dashboard Price needed)
