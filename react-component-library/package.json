@@ -1,57 +1,57 @@
 {
-    "name": "@ikelongo/react-component-library",
-    "version": "0.0.6",
-    "description": "A simple template for a custom React component library",
-    "scripts": {
-        "build": "pnpm run build:rollup && pnpm run build:types",
-        "build:rollup": "rollup -c",
-        "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
-        "rollup": "rollup -c",
-        "prepublishOnly": "pnpm run build",
-        "publish:patch": "pnpm version patch && pnpm publish",
-        "publish:minor": "pnpm version minor && pnpm publish",
-        "publish:major": "pnpm version major && pnpm publish",
-        "publish:npm": "npm publish --registry=https://registry.npmjs.org/",
-        "publish:github": "npm publish --registry=https://npm.pkg.github.com/",
-        "publish:npm:patch": "pnpm version patch && pnpm run publish:npm",
-        "publish:npm:minor": "pnpm version minor && pnpm run publish:npm",
-        "publish:npm:major": "pnpm version major && pnpm run publish:npm"
-    },
-    "author": "Isaac Longoria",
-    "license": "ISC",
-    "type": "module",
-    "workspaces": [
-        "packages/*",
-        "my-nextui-app"
-    ],
-    "dependencies": {
-        "@heroui/button": "^2.2.22",
-        "clsx": "^2.1.1",
-        "lottie-web": "^5.13.0"
-    },
-    "peerDependencies": {
-        "next": "^15.3.4",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0"
-    },
-    "devDependencies": {
-        "@rollup/plugin-commonjs": "^28.0.6",
-        "@rollup/plugin-json": "^6.1.0",
-        "@rollup/plugin-node-resolve": "^16.0.1",
-        "@rollup/plugin-typescript": "^12.1.3",
-        "@types/react": "^19.1.8",
-        "@types/react-dom": "^19.1.6",
-        "next": "^15.3.4",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
-        "rollup": "^4.44.0",
-        "rollup-plugin-dts": "^6.2.1",
-        "typescript": "^5.8.3"
-    },
-    "main": "dist/cjs/index.js",
-    "module": "dist/esm/index.js",
-    "files": [
-        "dist"
-    ],
-    "types": "dist/index.d.ts"
+  "name": "@ikelongo/react-component-library",
+  "version": "0.0.6",
+  "description": "A simple template for a custom React component library",
+  "scripts": {
+    "build": "pnpm run build:rollup && pnpm run build:types",
+    "build:rollup": "rollup -c",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "rollup": "rollup -c",
+    "prepublishOnly": "pnpm run build",
+    "publish:patch": "pnpm version patch && pnpm publish",
+    "publish:minor": "pnpm version minor && pnpm publish",
+    "publish:major": "pnpm version major && pnpm publish",
+    "publish:npm": "npm publish --registry=https://registry.npmjs.org/",
+    "publish:github": "npm publish --registry=https://npm.pkg.github.com/",
+    "publish:npm:patch": "pnpm version patch && pnpm run publish:npm",
+    "publish:npm:minor": "pnpm version minor && pnpm run publish:npm",
+    "publish:npm:major": "pnpm version major && pnpm run publish:npm"
+  },
+  "author": "Isaac Longoria",
+  "license": "ISC",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "my-nextui-app"
+  ],
+  "dependencies": {
+    "@heroui/button": "^2.2.22",
+    "clsx": "^2.1.1",
+    "lottie-web": "^5.13.0"
+  },
+  "peerDependencies": {
+    "next": "^15.3.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "next": "15.3.8",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "rollup": "^4.44.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "typescript": "^5.8.3"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts"
 }
