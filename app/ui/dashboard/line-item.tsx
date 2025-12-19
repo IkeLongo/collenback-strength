@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import BookCtaButton from "../components/button/BookCtaButton";
 
 export type PackLineItem = {
   kind: "pack";
@@ -208,12 +209,10 @@ export default function LineItems({
           </div>
 
           {item.is_active && (
-            <Link
+            <BookCtaButton
               href={`/client/schedule?serviceId=${encodeURIComponent(item.sanity_service_id ?? "")}`}
-              className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-700 text-white hover:opacity-90 transition"
-            >
-              Book
-            </Link>
+              label="BOOK"
+            />
           )}
         </div>
       );
@@ -271,12 +270,10 @@ export default function LineItems({
           </div>
 
           {isBookable && (
-            <Link
+            <BookCtaButton
               href={`/client/schedule?serviceId=${encodeURIComponent(p.sanity_service_id ?? "")}`}
-              className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-700 text-white hover:opacity-90 transition"
-            >
-              Book
-            </Link>
+              label="BOOK"
+            />
           )}
         </div>
       );

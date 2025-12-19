@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { ModalBody, useModal } from "@/app/ui/components/modal/programs-modal";
+import { useCartDrawer } from "@/app/ui/components/cart/cart-drawer-context";
 import Lottie from "lottie-react";
 import stripeLottie from "@/public/assets/stripe.json";
 import flexedBiceps from "@/public/assets/flexed-biceps.json";
@@ -16,6 +17,8 @@ type ServiceModalUIProps = {
   secondaryLabel?: string;           // optional
   onSecondaryAction?: (service: any) => void;
 
+  onAddToCart?: (service: any) => void;
+
   showStripeBadge?: boolean;         // always show if you want
 };
 
@@ -26,9 +29,11 @@ export default function ServiceModalUI({
   onPrimaryAction,
   secondaryLabel,
   onSecondaryAction,
+  onAddToCart,
   showStripeBadge = true,
 }: ServiceModalUIProps) {
   const { open, setOpen } = useModal();
+  const { setOpen: setCartOpen } = useCartDrawer();
 
   const formatPrice = (cents: number, currency: string) =>
     cents
@@ -170,6 +175,7 @@ export default function ServiceModalUI({
               onClick={() => {
                 onPrimaryAction(selectedService);
                 setOpen(false);
+                setCartOpen(true);
               }}
             >
               <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
