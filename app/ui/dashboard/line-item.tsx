@@ -50,7 +50,31 @@ export type MembershipLineItem = {
   current_period_end: Date | null;
 };
 
-export type LineItem = PackLineItem | MembershipLineItem;
+export type ProgramLineItem = {
+  kind: "program";
+
+  program_entitlement_id: number;
+  purchased_at: string | Date;
+  status: "active" | "refunded" | "voided";
+
+  sanity_service_id: string | null;
+  sanity_service_slug: string | null;
+  service_title: string | null;
+  service_category: string | null;
+
+  program_version: string | null;
+  program_notes: string | null;
+  cover_image_url: string | null;
+  cover_image_alt: string | null;
+
+  // this is the locked version pointer (not shown, but useful)
+  sanity_file_asset_ref: string;
+
+  payment_id: number;
+  payment_item_id: number;
+};
+
+export type LineItem = PackLineItem | MembershipLineItem | ProgramLineItem;
 
 function formatCategory(cat: string | null) {
   if (!cat) return "Service";
@@ -86,7 +110,7 @@ function packStateLabel(p: PackLineItem) {
 /** ✅ Stable key generator (no idx). */
 function getItemKey(item: LineItem) {
   if (item.kind === "pack") return `pack-${item.session_credit_id}`;
-  return `membership-${item.subscription_id}`;
+  if (item.kind === "membership") return `membership-${item.subscription_id}`;
 }
 
 export default function LineItems({
@@ -125,7 +149,7 @@ export default function LineItems({
 
   const isItemActive = (item: LineItem) => {
     if (item.kind === "membership") return item.is_active;
-    return Number(item.available_credits ?? 0) > 0; // pack active if bookable
+    if (item.kind === "pack") return Number(item.available_credits ?? 0) > 0; // pack active if bookable
   };
 
   const activeItems = sorted.filter(isItemActive);
@@ -196,65 +220,67 @@ export default function LineItems({
     }
 
     // ✅ PACK ROW
-    const p = item;
-    const total = Math.max(0, Number(p.total_credits ?? 0));
-    const available = Math.max(0, Number(p.available_credits ?? 0));
-    const reserved = Math.max(0, Number(p.credits_reserved ?? 0));
-    const used = Math.max(0, Number(p.credits_used ?? 0));
+    if (item.kind === "pack") {
+      const p = item;
+      const total = Math.max(0, Number(p.total_credits ?? 0));
+      const available = Math.max(0, Number(p.available_credits ?? 0));
+      const reserved = Math.max(0, Number(p.credits_reserved ?? 0));
+      const used = Math.max(0, Number(p.credits_used ?? 0));
 
-    const label = packStateLabel(p);
-    const isBookable = available > 0;
+      const label = packStateLabel(p);
+      const isBookable = available > 0;
 
-    return (
-      <div
-        key={getItemKey(p)}
-        className={[
-          "px-4 py-3 flex items-center justify-between gap-3",
-          isBookable ? "" : "opacity-60",
-        ].join(" ")}
-      >
-        <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-wide text-grey-500">
-            Pack • {formatCategory(p.service_category)}
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-grey-900 truncate">
-              {p.service_title ?? "Service"}
+      return (
+        <div
+          key={getItemKey(p)}
+          className={[
+            "px-4 py-3 flex items-center justify-between gap-3",
+            isBookable ? "" : "opacity-60",
+          ].join(" ")}
+        >
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-wide text-grey-500">
+              Pack • {formatCategory(p.service_category)}
             </div>
-            <span
-              className={[
-                "inline-block px-2 py-0.5 rounded-full text-xs font-semibold border",
-                label === "Active"
-                  ? "bg-green-50 text-green-700 border-green-200"
-                  : label === "Fully Scheduled"
-                  ? "bg-yellow-50 text-yellow-800 border-yellow-200"
-                  : label === "Used"
-                  ? "bg-grey-200 text-grey-800 border-grey-300"
-                  : "bg-grey-100 text-grey-700 border-grey-200"
-              ].join(" ")}
-            >
-              {label}
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-semibold text-grey-900 truncate">
+                {p.service_title ?? "Service"}
+              </div>
+              <span
+                className={[
+                  "inline-block px-2 py-0.5 rounded-full text-xs font-semibold border",
+                  label === "Active"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : label === "Fully Scheduled"
+                    ? "bg-yellow-50 text-yellow-800 border-yellow-200"
+                    : label === "Used"
+                    ? "bg-grey-200 text-grey-800 border-grey-300"
+                    : "bg-grey-100 text-grey-700 border-grey-200"
+                ].join(" ")}
+              >
+                {label}
+              </span>
+            </div>
+            <div className="text-xs text-grey-600">
+              <span className="font-semibold">{available}</span> of{" "}
+              <span className="font-semibold">{total}</span> {plural(total, "session")} available
+            </div>
+            <div className="text-[11px] text-grey-500">
+              Purchased {formatDate(p.purchased_at)}
+            </div>
           </div>
-          <div className="text-xs text-grey-600">
-            <span className="font-semibold">{available}</span> of{" "}
-            <span className="font-semibold">{total}</span> {plural(total, "session")} available
-          </div>
-          <div className="text-[11px] text-grey-500">
-            Purchased {formatDate(p.purchased_at)}
-          </div>
-        </div>
 
-        {isBookable && (
-          <Link
-            href={`/client/schedule?serviceId=${encodeURIComponent(p.sanity_service_id ?? "")}`}
-            className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-700 text-white hover:opacity-90 transition"
-          >
-            Book
-          </Link>
-        )}
-      </div>
-    );
+          {isBookable && (
+            <Link
+              href={`/client/schedule?serviceId=${encodeURIComponent(p.sanity_service_id ?? "")}`}
+              className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-700 text-white hover:opacity-90 transition"
+            >
+              Book
+            </Link>
+          )}
+        </div>
+      );
+    }
   };
 
   return (

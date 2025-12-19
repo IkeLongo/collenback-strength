@@ -2,6 +2,10 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { pool } from "@/app/lib/mysql";
 
+import { sendPurchaseConfirmationEmail } from "@/app/lib/email/sendPurchaseConfirmation";
+import { sendAdminPurchaseNotificationEmail } from "@/app/lib/email/sendAdminPurchaseNotification";
+import type { PurchaseLine } from "@/app/lib/email/sendPurchaseConfirmation";
+
 export const runtime = "nodejs";
 
 const DEBUG_WEBHOOK = true;
@@ -9,6 +13,12 @@ const DEBUG_WEBHOOK = true;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
 });
+
+function inferKind(meta: Record<string, string | undefined>) {
+  if (meta.service_category === "program") return "program" as const;
+  if (meta.membership_interval) return "membership" as const;
+  return "pack" as const;
+}
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -145,6 +155,7 @@ export async function POST(req: Request) {
 
     // 4) Insert payment_items + session_credits + subscriptions-per-service (if membership)
     const lineItems = full.line_items?.data ?? [];
+    const emailLines: PurchaseLine[] = [];
 
     for (const li of lineItems) {
       const quantity = li.quantity ?? 1;
@@ -159,6 +170,10 @@ export async function POST(req: Request) {
       const sanityServiceSlug = product?.metadata?.sanity_service_slug || null;
       const category = product?.metadata?.service_category || null;
 
+      const isProgramLineItem = category === "program";
+      const programPdfAssetRef = product?.metadata?.program_pdf_asset_ref || null;
+      const programVersion = product?.metadata?.program_version || null;
+
       // packs use this; memberships usually have 0 here
       const sessionsIncluded = Number(product?.metadata?.sessions_included ?? 0);
 
@@ -171,6 +186,24 @@ export async function POST(req: Request) {
 
       const amountCents = unitAmount * quantity;
       const sessionsPurchased = sessionsIncluded ? sessionsIncluded * quantity : null;
+
+      const meta = (product?.metadata ?? {}) as Record<string, string | undefined>;
+      const kind = inferKind(meta);
+
+      emailLines.push({
+        title,
+        category,
+        kind,
+        quantity,
+        unitAmountCents: unitAmount,
+        amountCents,
+        meta: {
+          sessionsPurchased,
+          membershipInterval: meta.membership_interval ?? null,
+          membershipIntervalCount: meta.membership_interval_count ? Number(meta.membership_interval_count) : null,
+          programVersion: programVersion ?? null,
+        },
+      });
 
       if (DEBUG_WEBHOOK) {
         console.log("📦 Line Item Preview:", {
@@ -209,9 +242,34 @@ export async function POST(req: Request) {
 
       const paymentItemId = itemRes.insertId as number;
 
+      if (isProgramLineItem) {
+        if (!sanityServiceId) throw new Error("Program line item missing sanity_service_id");
+        if (!programPdfAssetRef) {
+          throw new Error(
+            `Program line item missing program_pdf_asset_ref metadata (cannot version-lock purchase).`
+          );
+        }
+
+        await conn.query(
+          `INSERT INTO program_entitlements
+            (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
+            sanity_file_asset_ref, program_version, status)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'active')`,
+          [
+            userId,
+            paymentId,
+            paymentItemId,
+            sanityServiceId,
+            sanityServiceSlug,
+            programPdfAssetRef,
+            programVersion,
+          ]
+        );
+      }
+
       // 4b) session_credits insert (packs)
       const totalCredits = sessionsIncluded * quantity;
-      if (totalCredits > 0) {
+      if (!isProgramLineItem && totalCredits > 0) {
         await conn.query(
           `INSERT INTO session_credits
             (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
@@ -302,6 +360,72 @@ export async function POST(req: Request) {
     }
 
     await conn.commit();
+
+    // ✅ fetch buyer info (webhook has no auth session)
+    let buyer: { email: string | null; first_name: string | null; last_name: string | null; phone: string | null } | null = null;
+
+    try {
+      const [urows] = await conn.query<any[]>(
+        `SELECT email, first_name, last_name, phone FROM users WHERE id = ? LIMIT 1`,
+        [userId]
+      );
+      buyer = urows?.[0] ?? null;
+    } catch (e) {
+      console.error("[webhook] user lookup failed", e);
+    }
+
+    // ✅ build URLs + recipients
+    const dashboardUrl =
+      process.env.APP_BASE_URL
+        ? `${process.env.APP_BASE_URL}/client/dashboard`
+        : "https://collenbackstrength.com/client/dashboard";
+
+    const adminTo = process.env.ADMIN_NOTIFY_EMAIL || "";
+
+    // ✅ send emails best-effort (do NOT block Stripe)
+    queueMicrotask(async () => {
+      try {
+        if (buyer?.email) {
+          await sendPurchaseConfirmationEmail({
+            to: buyer.email,
+            firstName: buyer.first_name ?? undefined,
+            lastName: buyer.last_name ?? undefined,
+            paymentId,
+            totalCents: full.amount_total ?? 0,
+            currency: full.currency ?? "usd",
+            lines: emailLines,
+            dashboardUrl,
+          });
+        } else {
+          console.warn("[webhook] no buyer email, skipping purchase confirmation", { userId });
+        }
+      } catch (e) {
+        console.error("[webhook] purchase confirmation email failed", e);
+      }
+
+      try {
+        if (adminTo) {
+          await sendAdminPurchaseNotificationEmail({
+            to: adminTo,
+            paymentId,
+            totalCents: full.amount_total ?? 0,
+            currency: full.currency ?? "usd",
+            client: {
+              userId,
+              name: [buyer?.first_name, buyer?.last_name].filter(Boolean).join(" ") || null,
+              email: buyer?.email ?? null,
+              phone: buyer?.phone ?? null,
+            },
+            lines: emailLines,
+          });
+        } else {
+          console.warn("[webhook] ADMIN_NOTIFY_EMAIL missing; skipping admin notification");
+        }
+      } catch (e) {
+        console.error("[webhook] admin purchase notification failed", e);
+      }
+    });
+
     return NextResponse.json({ received: true });
   } catch (err) {
     await conn.rollback();

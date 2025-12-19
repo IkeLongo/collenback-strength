@@ -7,6 +7,18 @@ export async function fetchAllServices() {
       title,
       slug,
       category,
+      program {
+        version,
+        notes,
+        pdf {
+          asset->{
+            _id,
+            originalFilename
+          }
+        },
+        coverImageAlt,
+        "coverImageUrl": coverImage.asset->url
+      },
       shortDescription,
       longDescription,
       image,
@@ -33,6 +45,18 @@ export async function fetchServiceBySlug(slug: string) {
       title,
       slug,
       category,
+      program {
+        version,
+        notes,
+        pdf {
+          asset->{
+            _id,
+            originalFilename
+          }
+        },
+        coverImageAlt,
+        "coverImageUrl": coverImage.asset->url
+      },
       shortDescription,
       longDescription,
       image,
@@ -60,6 +84,18 @@ export async function fetchServiceById(id: string) {
       title,
       slug,
       category,
+      program {
+        version,
+        notes,
+        pdf {
+          asset->{
+            _id,
+            originalFilename
+          }
+        },
+        coverImageAlt,
+        "coverImageUrl": coverImage.asset->url
+      },
       shortDescription,
       longDescription,
       image,

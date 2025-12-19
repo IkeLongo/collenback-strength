@@ -2,7 +2,7 @@ import { fetchAllServices } from "@/sanity/lib/queries/services";
 import ProgramsClient from "@/app/ui/components/program/programs-client";
 
 const CATEGORY_TITLES: Record<string, string> = {
-  in_person: "In-Person Training",
+  in_person: "In-Person Coaching",
   online: "Online Coaching",
   program: "Strength Programs",
   nutrition: "Nutrition Coaching",

@@ -24,6 +24,28 @@ export type PackLineItem = {
   payment_item_id: number | null;
 };
 
+/** PROGRAM PURCHASE LINE ITEM (one per program_entitlements row) */
+export type ProgramLineItem = {
+  kind: "program";
+  program_entitlement_id: number;
+  purchased_at: Date;
+  status: "active" | "refunded" | "voided";
+
+  sanity_service_id: string | null;
+  sanity_service_slug: string | null;
+  service_title: string | null;
+  service_category: string | null;
+
+  program_version: string | null;
+  program_notes: string | null;
+  cover_image_url: string | null;
+  cover_image_alt: string | null;
+  sanity_file_asset_ref: string;
+
+  payment_id: number;
+  payment_item_id: number;
+};
+
 /** MEMBERSHIP SUMMARY LINE ITEM (one per active subscription row) */
 export type MembershipLineItem = {
   subscription_id: number;
@@ -59,7 +81,7 @@ export type MembershipLineItem = {
 };
 
 /** unified array for the UI */
-export type DashboardLineItem = PackLineItem | MembershipLineItem;
+export type DashboardLineItem = PackLineItem | MembershipLineItem | ProgramLineItem;
 
 export type PackSummaryRow = {
   sanity_service_id: string;
@@ -100,8 +122,14 @@ export type ClientDashboardEntitlements = {
 type SanityService = {
   _id: string;
   title?: string;
-  slug?: string | null;
+  slug?: { current?: string } | string | null;
   category?: string | null;
+  program?: {
+    notes?: string | null;
+    coverImageAlt?: string | null;
+    coverImage?: any; // we'll resolve url in getServicesByIds (recommended)
+    coverImageUrl?: string | null; // easiest if getServicesByIds returns this
+  } | null;
 };
 
 export async function getClientDashboardEntitlements(userId: number): Promise<ClientDashboardEntitlements> {
@@ -159,12 +187,34 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
       [userId]
     );
 
+    // 2b) PROGRAMS (version-locked entitlements)
+    const [programRows] = await conn.query<RowDataPacket[]>(
+      `
+      SELECT
+        pe.id AS program_entitlement_id,
+        pe.created_at AS purchased_at,
+        pe.status,
+        pe.sanity_service_id,
+        pe.sanity_file_asset_ref,
+        pe.program_version,
+        pe.payment_id,
+        pe.payment_item_id
+      FROM program_entitlements pe
+      WHERE pe.user_id = ?
+        AND pe.status = 'active'
+        AND pe.sanity_service_id IS NOT NULL
+      ORDER BY pe.created_at DESC, pe.id DESC
+      `,
+      [userId]
+    );
+
     // 3) Fetch Sanity info for all ids (packs + memberships)
     const ids = Array.from(
       new Set(
         [
           ...(packRows as any[]).map((r) => r.sanity_service_id).filter(Boolean),
           ...(membershipsRows as any[]).map((m) => m.sanity_service_id).filter(Boolean),
+          ...(programRows as any[]).map((p) => p.sanity_service_id).filter(Boolean),
         ] as string[]
       )
     );
@@ -173,10 +223,22 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
     const sanityMap = new Map<string, SanityService>();
     sanityServices.forEach((s) => sanityMap.set(s._id, s));
 
+    console.log("[entitlements] sanityServices(program) sample", sanityServices.map((s: any) => ({
+      id: s._id,
+      title: s.title,
+      program: s.program,
+    })).slice(0, 10));
+
+
     // 4) Build PACK line items (with Sanity fields)
     const packLineItems: PackLineItem[] = (packRows as any[]).map((r) => {
       const sid = r.sanity_service_id as string;
       const s = sanityMap.get(sid);
+
+      const slug =
+      typeof s?.slug === "string"
+        ? s.slug
+        : (s?.slug as any)?.current ?? null;
 
       return {
         kind: "pack",
@@ -186,7 +248,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         expires_at: r.expires_at ? new Date(r.expires_at) : null,
 
         sanity_service_id: sid,
-        sanity_service_slug: s?.slug ?? null,
+        sanity_service_slug: slug,
         service_title: s?.title ?? null,
         service_category: s?.category ?? null,
 
@@ -204,6 +266,10 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
     const membershipLineItems: MembershipLineItem[] = (membershipsRows as any[]).map((m) => {
       const sid = m.sanity_service_id as string;
       const s = sanityMap.get(sid);
+      const slug =
+      typeof s?.slug === "string"
+        ? s.slug
+        : (s?.slug as any)?.current ?? null;
 
       const isActive = Boolean(m.is_active);
 
@@ -212,7 +278,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         kind: "membership",
 
         sanity_service_id: sid,
-        sanity_service_slug: s?.slug ?? null,
+        sanity_service_slug: slug,
         service_title: s?.title ?? null,
         service_category: s?.category ?? null,
 
@@ -231,18 +297,65 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
       };
     });
 
+    // 5b) Build PROGRAM line items (with Sanity fields)
+    const programLineItems: ProgramLineItem[] = (programRows as any[]).map((p) => {
+      const sid = p.sanity_service_id as string;
+      const s = sanityMap.get(sid);
+
+      const slug =
+        typeof s?.slug === "string"
+          ? s.slug
+          : (s?.slug as any)?.current ?? null;
+
+      const programNotes = s?.program?.notes ?? null;
+      const coverImageUrl = (s?.program as any)?.coverImageUrl ?? null;
+      const coverImageAlt = s?.program?.coverImageAlt ?? null;
+
+      return {
+        kind: "program",
+        program_entitlement_id: Number(p.program_entitlement_id),
+        purchased_at: new Date(p.purchased_at),
+        status: p.status,
+
+        sanity_service_id: sid,
+        sanity_service_slug: slug,
+        service_title: s?.title ?? null,
+        service_category: s?.category ?? "program",
+
+        program_version: p.program_version ?? null,          // ✅ version locked from DB
+        program_notes: programNotes,                         // ✅ from Sanity
+        cover_image_url: coverImageUrl,                      // ✅ from Sanity
+        cover_image_alt: coverImageAlt,                      // ✅ from Sanity
+        sanity_file_asset_ref: String(p.sanity_file_asset_ref),
+
+        payment_id: Number(p.payment_id),
+        payment_item_id: Number(p.payment_item_id),
+      };
+    });
+
+    console.log("[entitlements] programLineItems sample", programLineItems.slice(0, 3));
+
     // 6) Unified lineItems array for the UI
-    const lineItems: DashboardLineItem[] = [...packLineItems, ...membershipLineItems].sort((a, b) => {
-      // packs first (optional), then by newest purchase / nearest expiry
-      if (a.kind !== b.kind) return a.kind === "pack" ? -1 : 1;
+    const lineItems: DashboardLineItem[] = [...packLineItems, ...membershipLineItems, ...programLineItems].sort((a, b) => {
+      // order: membership, pack, program (or whatever you prefer)
+      const order: Record<DashboardLineItem["kind"], number> = {
+        membership: 0,
+        pack: 1,
+        program: 2,
+      };
+      if (a.kind !== b.kind) return order[a.kind] - order[b.kind];
 
       if (a.kind === "pack" && b.kind === "pack") {
         return b.purchased_at.getTime() - a.purchased_at.getTime();
       }
 
+      if (a.kind === "program" && b.kind === "program") {
+        return b.purchased_at.getTime() - a.purchased_at.getTime();
+      }
+
       if (a.kind === "membership" && b.kind === "membership") {
-        const aEnd = a.current_period_end ? a.current_period_end.getTime() : 0;
-        const bEnd = b.current_period_end ? b.current_period_end.getTime() : 0;
+        const aEnd = a.current_period_end ? a.current_period_end.getTime() : Number.MAX_SAFE_INTEGER;
+        const bEnd = b.current_period_end ? b.current_period_end.getTime() : Number.MAX_SAFE_INTEGER;
         return aEnd - bEnd;
       }
 

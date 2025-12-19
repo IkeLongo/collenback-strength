@@ -8,6 +8,13 @@ type SanityService = {
   category: string | null;
   pricingModel: "one_time" | "membership" | null;
   sessionsIncluded: number | null;
+
+  program?: {
+    version?: string | null;
+    notes?: string | null;
+    coverImageAlt?: string | null;
+    coverImageUrl?: string | null;
+  } | null;
 };
 
 export async function getServicesByIds(ids: string[]): Promise<SanityService[]> {
@@ -21,7 +28,13 @@ export async function getServicesByIds(ids: string[]): Promise<SanityService[]> 
       "slug": slug.current,
       category,
       pricingModel,
-      sessionsIncluded
+      sessionsIncluded,
+      program{
+        version,
+        notes,
+        coverImageAlt,
+        "coverImageUrl": coverImage.asset->url
+      }
     }
   `;
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Dumbbell, Laptop, ListChecks, Salad } from "lucide-react";
 import type { LineItem } from "./line-item";
 import TypeTabs from "./type-tabs";
+import ProgramCards from "./program-cards";
 
 export type CategoryKey = "in_person" | "online" | "program" | "nutrition";
 
@@ -97,13 +98,20 @@ export default function CategoryTabs({
         </div>
       </div>
 
-      {/* Type tabs second */}
-      <TypeTabs
-        items={filteredByCategory}
-        title={`${title} • ${LABEL[category]}`}
-        initialKind="membership"
-        showOwnCard={false} // optional (see note below)
-      />
+      {/* Second-level content */}
+      {category === "program" ? (
+        <ProgramCards
+          items={filteredByCategory}
+          title={`${title} • ${LABEL[category]}`}
+        />
+      ) : (
+        <TypeTabs
+          items={filteredByCategory}
+          title={`${title} • ${LABEL[category]}`}
+          initialKind="membership"
+          showOwnCard={false}
+        />
+      )}
     </div>
   );
 }

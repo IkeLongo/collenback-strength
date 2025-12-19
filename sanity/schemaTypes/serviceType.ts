@@ -24,7 +24,7 @@ export const service = defineType({
       type: "string",
       options: {
         list: [
-          { title: "In-Person Training", value: "in_person" },
+          { title: "In-Person Coaching", value: "in_person" },
           { title: "Online Coaching", value: "online" },
           { title: "Strength Program", value: "program" },
           { title: "Nutrition Coaching", value: "nutrition" },
@@ -32,6 +32,55 @@ export const service = defineType({
         layout: "radio",
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "program",
+      title: "Program Delivery",
+      type: "object",
+      hidden: ({ document }) => document?.category !== "program",
+      fields: [
+        defineField({
+          name: "pdf",
+          title: "Program PDF",
+          type: "file",
+          options: { storeOriginalFilename: true },
+          validation: (Rule) =>
+            Rule.required().custom((v) => {
+              const mime = (v as any)?.asset?._ref ? null : null; // mime isn't always available here
+              return true;
+            }),
+        }),
+        defineField({
+          name: "coverImage",
+          title: "Cover Image",
+          type: "image",
+          options: { hotspot: true },
+          description: "Shown on the Programs card in the client dashboard.",
+        }),
+        defineField({
+          name: "coverImageAlt",
+          title: "Cover Image Alt Text",
+          type: "string",
+          validation: rule => rule.custom((value, context) => {
+            const parent = context?.parent as {asset?: {_ref?: string}}
+
+            return !value && parent?.asset?._ref ? 'Alt text is required when an image is present' : true
+          }),
+        }),
+        defineField({
+          name: "version",
+          title: "Version",
+          type: "string",
+          description: "Optional (e.g. v1.2). Useful if you want to communicate updates.",
+        }),
+        defineField({
+          name: "notes",
+          title: "Download Notes",
+          type: "text",
+          rows: 3,
+          description: "Optional message shown on the Programs tab + included in email.",
+        }),
+      ],
     }),
     defineField({ name: "shortDescription", title: "Short Description", type: "text", rows: 3 }),
     defineField({ name: "longDescription", title: "Detailed Description", type: "array", of: [{ type: "block" }] }),

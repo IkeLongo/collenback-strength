@@ -65,6 +65,25 @@ export async function POST(req: Request) {
         sessions_included: String(service.sessionsIncluded ?? 0),
       };
 
+      const isProgram = service.category === "program";
+
+      // ✅ PROGRAM METADATA
+      if (isProgram) {
+        const pdfAssetRef = service?.program?.pdf?.asset?._id; // from GROQ asset->_id
+        const programVersion = service?.program?.version ?? "";
+        const pdfFilename = service?.program?.pdf?.asset?.originalFilename ?? "";
+
+        if (!pdfAssetRef) {
+          throw new Error(
+            `Program "${service.title}" is missing program.pdf in Sanity (required to sell).`
+          );
+        }
+
+        baseMetadata.program_pdf_asset_ref = String(pdfAssetRef);
+        baseMetadata.program_version = String(programVersion);
+        baseMetadata.program_pdf_filename = String(pdfFilename);
+      }
+
       // ✅ MEMBERSHIP: recurring price_data (no Stripe dashboard Price needed)
       if (service.pricingModel === "membership") {
         const m = service.membership || {};
