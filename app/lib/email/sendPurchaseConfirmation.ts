@@ -9,7 +9,7 @@ export type PurchaseLine = {
   amountCents: number;
 
   // OPTIONAL: if you ever add this metadata, we can show actual thumbnails
-  // imageUrl?: string | null;
+  imageUrl?: string | null;
 
   meta?: {
     sessionsPurchased?: number | null;
@@ -110,7 +110,6 @@ function buildNextStepsHtml({
     .map(
       (s) => `
       <tr>
-        <td style="width:18px; vertical-align:top; padding:4px 0; color:#CB9F24; font-weight:700;">•</td>
         <td style="padding:4px 0; color:#1A1A1A; font-size:14px; line-height:1.5;">${s}</td>
       </tr>
     `
@@ -131,7 +130,7 @@ function buildNextStepsHtml({
 
           <div style="margin-top:14px;">
             <a href="${dashboardUrl}"
-              style="display:inline-block; background:#0c2244; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px; padding:11px 16px; border-radius:10px;">
+              style="display:inline-block; background:#CB9F24; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px; padding:11px 16px; border-radius:10px;">
               Go to Dashboard
             </a>
           </div>
@@ -201,7 +200,11 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
               <tr>
                 <!-- photo -->
                 <td style="width:56px; vertical-align:top; padding-right:12px;">
-                  <div style="width:56px; height:56px; border-radius:12px; background:#EBEAEA; border:1px solid #BEBDBD;"></div>
+                  ${l.imageUrl
+                    ? `<img src="${l.imageUrl}" width="56" height="56" alt=""
+                        style="display:block;width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #BEBDBD; background:#18181b;" />`
+                    : `<div style="width:56px;height:56px;border-radius:12px;background:#18181b;border:1px solid #BEBDBD;"></div>`
+                  }
                 </td>
 
                 <!-- name/details -->
@@ -278,7 +281,7 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
               <td style="padding:0 0 12px 0;">
                 <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                   <tr>
-                    <td style="font-size:28px; font-weight:800; color:#0c2244; line-height:1.2;">
+                    <td style="font-size:28px; font-weight:800; color:#0c2244; line-height:1.2; font-family: 'Anton', Arial, sans-serif;">
                       Order Confirmation
                     </td>
                     <td style="width:10px;"></td>

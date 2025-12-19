@@ -40,29 +40,27 @@ export default function CategoryCard({
               flex flex-col
             "
           >
-            {/* Image Section (≈65%) */}
-            <div className="relative h-44 sm:h-48 w-full overflow-hidden">
-              {/* SCALE THIS WRAPPER */}
-              <div className="absolute inset-0 transition-transform! duration-500! group-hover:scale-105!">
-                <img
-                  src={
-                    service.image?.asset?.url
-                      ? service.image.asset.url
-                      : "/logo-stamp.png"
-                  }
-                  alt={service.title}
-                  className="h-full! w-full! object-cover!"
-                />
+            {/* Image Section */}
+            <div className="relative h-44 sm:h-48 w-full rounded-t-2xl overflow-hidden">
+              {/* Scale the IMAGE, not the container */}
+              <img
+                src={service.imageUrl ?? "/logo-stamp.png"}
+                alt={service.title}
+                className="
+                  h-full w-full object-cover
+                  transition-transform duration-500
+                  group-hover:scale-105
+                "
+              />
 
-                {/* Gradient overlay (now scales with image) */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent!" />
-              </div>
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
             </div>
 
             {/* Content Section */}
             <div className="flex flex-col flex-1 gap-2 p-4">
               <div className="flex-1 flex flex-col gap-2">
-                <h3 className="text-base! font-bold! text-grey-700! leading-tight! line-clamp-2!">
+                <h3 className="text-base! text-grey-700! leading-tight! line-clamp-2!">
                   {service.title}
                 </h3>
 

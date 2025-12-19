@@ -2,26 +2,25 @@
 
 import React, { useEffect } from "react";
 import { ModalBody, useModal } from "@/app/ui/components/modal/programs-modal";
-import { useCartDrawer } from "@/app/ui/components/cart/cart-drawer-context";
+import { useCartDrawerOptional } from "@/app/ui/components/cart/cart-drawer-context";
 import Lottie from "lottie-react";
 import stripeLottie from "@/public/assets/stripe.json";
 import flexedBiceps from "@/public/assets/flexed-biceps.json";
-import { useCartDrawerOptional } from "@/app/ui/components/cart/cart-drawer-context";
 
 type ServiceModalUIProps = {
   selectedService: any | null;
   setSelectedService: (s: any | null) => void;
 
-  primaryLabel: string;              // "Get Started" | "Add to Cart"
+  primaryLabel: string; // "Get Started" | "Add to Cart"
   onPrimaryAction: (service: any) => void;
 
-  secondaryLabel?: string;           // optional
+  secondaryLabel?: string;
   onSecondaryAction?: (service: any) => void;
 
   onAddToCart?: (service: any) => void;
 
-  showStripeBadge?: boolean;         // always show if you want
-  enableAddToCart?: boolean;        // show "Add to Cart" button
+  showStripeBadge?: boolean;
+  enableAddToCart?: boolean;
 };
 
 export default function ServiceModalUI({
@@ -35,8 +34,8 @@ export default function ServiceModalUI({
   showStripeBadge = true,
   enableAddToCart = false,
 }: ServiceModalUIProps) {
-  const { open } = useModal(); // you referenced `open` but didn’t define it
-  const cartCtx = useCartDrawerOptional();
+  const { open, setOpen } = useModal();
+  const cartCtx = useCartDrawerOptional(); // null on public routes, populated on dashboard routes
 
   const formatPrice = (cents: number, currency: string) =>
     cents
@@ -44,6 +43,7 @@ export default function ServiceModalUI({
       : "Contact for pricing";
 
   useEffect(() => {
+    // when modal closes, clear selection so modal unmounts cleanly
     if (!open && selectedService) setSelectedService(null);
   }, [open, selectedService, setSelectedService]);
 
@@ -98,7 +98,10 @@ export default function ServiceModalUI({
           <div className="flex! items-center! justify-between! gap-3! -my-6">
             <div className="flex! items-center! gap-2! flex-wrap!">
               <span className="text-gold-600! font-semibold! text-base! sm:text-lg!">
-                {formatPrice(selectedService.priceCents, selectedService.currency || "USD")}
+                {formatPrice(
+                  selectedService.priceCents,
+                  selectedService.currency || "USD"
+                )}
               </span>
 
               {selectedService.sessionsIncluded && (
@@ -107,9 +110,14 @@ export default function ServiceModalUI({
                 </span>
               )}
             </div>
+
             {showStripeBadge && (
               <div className="w-24 h-20 flex items-center justify-center">
-                <Lottie animationData={stripeLottie} loop={false} className="w-full h-full" />
+                <Lottie
+                  animationData={stripeLottie}
+                  loop={false}
+                  className="w-full h-full"
+                />
               </div>
             )}
           </div>
@@ -176,17 +184,31 @@ export default function ServiceModalUI({
                 overflow-hidden!
               "
               onClick={() => {
+                // optional: add-to-cart action
+                if (enableAddToCart && onAddToCart) onAddToCart(selectedService);
+
+                // primary action
                 onPrimaryAction(selectedService);
-                if (enableAddToCart && cartCtx) {
-                  cartCtx.setOpen(true);
-                }
+
+                // open cart drawer (only if provider exists)
+                if (enableAddToCart && cartCtx) cartCtx.setOpen(true);
+
+                // ✅ CLOSE MODAL
+                setOpen(false);
+
+                // (optional but makes it feel instant)
+                setSelectedService(null);
               }}
             >
               <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
                 {primaryLabel}
               </span>
               <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
-                <Lottie animationData={flexedBiceps} loop={true} className="w-24 h-24" />
+                <Lottie
+                  animationData={flexedBiceps}
+                  loop={true}
+                  className="w-24 h-24"
+                />
               </div>
             </button>
           </div>

@@ -6,6 +6,9 @@ import { sendPurchaseConfirmationEmail } from "@/app/lib/email/sendPurchaseConfi
 import { sendAdminPurchaseNotificationEmail } from "@/app/lib/email/sendAdminPurchaseNotification";
 import type { PurchaseLine } from "@/app/lib/email/sendPurchaseConfirmation";
 
+import { urlFor } from "@/sanity/lib/image";
+import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
+
 export const runtime = "nodejs";
 
 const DEBUG_WEBHOOK = true;
@@ -38,6 +41,11 @@ function getSubscriptionPeriod(sub: Stripe.Subscription): {
     end: typeof endUnix === "number" ? new Date(endUnix * 1000) : null,
   };
 }
+
+const FALLBACK_IMAGE_URL =
+  process.env.SITE_NAME_VAR
+    ? `${process.env.SITE_NAME_VAR}/logo-stamp.png`
+    : "https://collenbackstrength.com/logo-stamp.png";
 
 /**
  * ✅ Keep subscriptions table in sync with Stripe lifecycle events.
@@ -288,6 +296,18 @@ export async function POST(req: Request) {
 
     // 4) Insert payment_items + session_credits + subscriptions-per-service (if membership)
     const lineItems = full.line_items?.data ?? [];
+    // Collect sanity service IDs once
+    const sanityIds = Array.from(
+      new Set(
+        lineItems
+          .map((li) => (li.price?.product as Stripe.Product | null)?.metadata?.sanity_service_id)
+          .filter(Boolean)
+      )
+    ) as string[];
+
+    const sanityServices = await getServicesByIds(sanityIds);
+    const sanityServiceMap = new Map(sanityServices.map((s) => [s._id, s]));
+
     const emailLines: PurchaseLine[] = [];
 
     for (const li of lineItems) {
@@ -319,6 +339,25 @@ export async function POST(req: Request) {
       const unitAmount = price?.unit_amount ?? 0;
       const currency = price?.currency ?? full.currency ?? "usd";
       const title = product?.name ?? "Service";
+      const sanityService = sanityServiceId ? sanityServiceMap.get(sanityServiceId) : null;
+
+      // pick best image source (program cover > hero image)
+      const imageSource =
+        (isProgramLineItem ? sanityService?.program?.coverImage : null) ??
+        sanityService?.image ??
+        null;
+
+      // Build optimized thumbnail OR fallback
+      const imageUrl =
+        imageSource
+          ? urlFor(imageSource)
+              .width(112)        // 2x for retina
+              .height(112)
+              .fit("crop")
+              .auto("format")
+              .quality(80)
+              .url()
+          : FALLBACK_IMAGE_URL;
 
       const amountCents = unitAmount * quantity;
       const sessionsPurchased = sessionsIncluded ? sessionsIncluded * quantity : null;
@@ -330,6 +369,7 @@ export async function POST(req: Request) {
         title,
         category,
         kind,
+        imageUrl,
         quantity,
         unitAmountCents: unitAmount,
         amountCents,
