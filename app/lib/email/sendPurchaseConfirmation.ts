@@ -94,6 +94,21 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
     })
     .join("");
 
+  const purchasedKinds = new Set(opts.lines.map((l) => l.kind));
+
+  const hasPack = purchasedKinds.has("pack");
+  const hasProgram = purchasedKinds.has("program");
+  const hasMembership = purchasedKinds.has("membership");
+
+  const nextStepsHtml = `
+  <div style="color:#292929ff; font-size:14px; line-height:1.6;">
+    <b>Next steps:</b><br/>
+    ${hasPack ? "Packs: Book sessions from your dashboard.<br/>" : ""}
+    ${hasProgram ? "Programs: Download anytime from the Programs tab.<br/>" : ""}
+    ${hasMembership ? "Memberships: Your access is active immediately. Book sessions from your dashboard.<br/>" : ""}
+  </div>
+`;
+
   const html = `
   <!DOCTYPE html>
   <html>
@@ -102,7 +117,7 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
       <div style="max-width:650px; margin:0 auto; background-color:#292929ff; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.08);">
 
         <div style="padding: 32px 24px 22px; text-align:center;">
-          <img src="https://collenbackstrength.com/logo-stamp.png" alt="${brand}" width="140"
+          <img src="https://collenbackstrength.com/logo-horizontal.png" alt="${brand}" width="140"
             style="display:block; margin:0 auto 10px; max-width:140px; height:auto; border:0;" />
           <p style="margin: 8px 0 0; color:#BEBDBD; font-size:20px;">Purchase Confirmation</p>
         </div>
@@ -142,12 +157,7 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
             </table>
 
             <div style="margin-top:18px; background:#ffffff; border-radius:6px; padding:16px; border-left:4px solid #CB9F24;">
-              <div style="color:#292929ff; font-size:14px; line-height:1.6;">
-                <b>Next steps:</b><br/>
-                • Packs: book sessions from your dashboard.<br/>
-                • Programs: download anytime from the Programs tab.<br/>
-                • Memberships: your access is active immediately.
-              </div>
+              ${nextStepsHtml}
 
               <div style="margin-top:14px;">
                 <a href="${opts.dashboardUrl}"
