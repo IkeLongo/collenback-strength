@@ -35,7 +35,15 @@ function categoryLabel(cat?: string | null) {
   return map[cat] ?? cat.replace(/_/g, " ");
 }
 
-export async function sendAdminPurchaseNotificationEmail(opts: SendAdminPurchaseNotificationOptions) {
+function kindLabel(kind: PurchaseLine["kind"]) {
+  if (kind === "pack") return "Pack";
+  if (kind === "membership") return "Membership";
+  return "Program";
+}
+
+export async function sendAdminPurchaseNotificationEmail(
+  opts: SendAdminPurchaseNotificationOptions
+) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 465,
@@ -44,72 +52,162 @@ export async function sendAdminPurchaseNotificationEmail(opts: SendAdminPurchase
   });
 
   const brand = opts.brandName || "Collenback Strength";
-  const subject = `New purchase — ${opts.client.name || opts.client.email || `User ${opts.client.userId}`}`;
+  const buyerLabel =
+    opts.client.name || opts.client.email || `User ${opts.client.userId}`;
+
+  const subject = `New order — ${buyerLabel}`;
+
+  // Email-safe absolute fallback image
+  const FALLBACK_LINE_IMAGE =
+    process.env.SITE_NAME_VAR
+      ? `${process.env.SITE_NAME_VAR}/logo-stamp.png`
+      : "https://collenbackstrength.com/logo-stamp.png";
 
   const rowsHtml = opts.lines
     .map((l) => {
+      const img = l.imageUrl || FALLBACK_LINE_IMAGE;
+
       return `
         <tr>
-          <td style="padding:10px 0; color:#fff; font-weight:700;">${l.title}</td>
-          <td style="padding:10px 0; color:#BEBDBD;">${categoryLabel(l.category)}</td>
-          <td style="padding:10px 0; color:#BEBDBD; text-align:right;">${l.quantity}</td>
-          <td style="padding:10px 0; color:#BEBDBD; text-align:right;">${formatMoney(l.amountCents, opts.currency)}</td>
+          <td style="padding:14px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
+              <tr>
+                <!-- Left: image + name -->
+                <td style="vertical-align:top;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td style="vertical-align:top; padding-right:12px;">
+                        <img
+                          src="${img}"
+                          width="56"
+                          height="56"
+                          alt=""
+                          style="display:block; width:56px; height:56px; border-radius:12px; object-fit:cover; border:1px solid rgba(0,0,0,0.12);"
+                        />
+                      </td>
+                      <td style="vertical-align:top;">
+                        <div style="color:#111827; font-size:14px; font-weight:700; line-height:1.3;">
+                          ${l.title}
+                        </div>
+                        <div style="margin-top:4px; color:#6B7280; font-size:12px; line-height:1.4;">
+                          ${kindLabel(l.kind)} • ${categoryLabel(l.category)}
+                          ${l.quantity > 1 ? ` • Qty ${l.quantity}` : ""}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Right: totals -->
+                <td style="vertical-align:top; text-align:right; white-space:nowrap;">
+                  <div style="color:#111827; font-size:14px; font-weight:700;">
+                    ${formatMoney(l.amountCents, opts.currency)}
+                  </div>
+                  <div style="margin-top:4px; color:#6B7280; font-size:12px;">
+                    ${formatMoney(l.unitAmountCents, opts.currency)} each
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
         </tr>
       `;
     })
     .join("");
 
   const html = `
-  <!DOCTYPE html>
-  <html>
-    <head><meta charset="utf-8" /></head>
-    <body style="margin:0; padding:20px; font-family: Arial, sans-serif;">
-      <div style="max-width:650px; margin:0 auto; background-color:#292929ff; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.08);">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="x-apple-disable-message-reformatting" />
+  </head>
 
-        <div style="padding: 28px 24px 18px;">
-          <p style="margin:0; color:#CB9F24; font-size:18px; font-weight:700;">New Purchase</p>
-          <p style="margin:6px 0 0; color:#BEBDBD; font-size:14px;">
-            Payment ID: ${opts.paymentId} • Total: ${formatMoney(opts.totalCents, opts.currency)}
-          </p>
+  <body style="margin:0; padding:0; font-family: Arial, sans-serif; background:#ffffff;">
+    <!-- Full-width wrapper (no colored background) -->
+    <div style="width:100%; background:#ffffff;">
+      <!-- Content container -->
+      <div style="max-width:680px; margin:0 auto; padding:24px 18px;">
+        
+        <!-- Header: logo left + title -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
+          <tr>
+            <td style="vertical-align:middle;">
+              <img
+                src="https://collenbackstrength.com/logo-stamp.png"
+                alt="${brand}"
+                width="44"
+                height="44"
+                style="display:block; width:44px; height:44px; background:#18181b; border-radius:8px;"
+              />
+            </td>
+            <td style="vertical-align:middle; padding-left:12px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#111827; font-size:26px; font-weight:800; line-height:1.1;">
+                  New Order
+                </span>
+                <!-- Inline SVG bag icon -->
+                <span style="display:inline-block; vertical-align:middle;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                    <path d="M7 7V6a5 5 0 0 1 10 0v1" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6 7h12l1 14H5L6 7Z" stroke="#111827" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+              <div style="margin-top:6px; color:#6B7280; font-size:13px; line-height:1.4;">
+                Payment ID <b style="color:#111827;">${opts.paymentId}</b> • Total <b style="color:#111827;">${formatMoney(
+                  opts.totalCents,
+                  opts.currency
+                )}</b>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Buyer block -->
+        <div style="margin-top:18px; border:1px solid rgba(0,0,0,0.10); border-radius:14px; padding:14px 14px;">
+          <div style="color:#111827; font-size:13px; font-weight:800; margin-bottom:8px;">
+            Buyer details
+          </div>
+          <div style="color:#374151; font-size:13px; line-height:1.6;">
+            <div><b>Name:</b> ${opts.client.name ?? "-"}</div>
+            <div><b>Email:</b> ${opts.client.email ?? "-"}</div>
+            <div><b>Phone:</b> ${opts.client.phone ?? "-"}</div>
+          </div>
         </div>
 
-        <div style="padding: 0 24px 24px;">
-          <div style="background:#ffffff; border-radius:6px; padding:14px; border-left:4px solid #CB9F24;">
-            <div style="color:#292929ff; font-size:14px; line-height:1.6;">
-              <b>Buyer</b><br/>
-              User ID: ${opts.client.userId}<br/>
-              Name: ${opts.client.name ?? "-"}<br/>
-              Email: ${opts.client.email ?? "-"}<br/>
-              Phone: ${opts.client.phone ?? "-"}<br/>
-            </div>
+        <!-- Items -->
+        <div style="margin-top:18px;">
+          <div style="color:#111827; font-size:16px; font-weight:800; margin:0 0 10px 0;">
+            Items
           </div>
 
-          <h3 style="margin:18px 0 10px; color:#CB9F24; font-size:16px; border-bottom:2px solid #FFE98F; padding-bottom:8px;">
-            Items
-          </h3>
-
-          <table style="width:100%; border-collapse:collapse;">
-            <thead>
-              <tr>
-                <th style="text-align:left; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Item</th>
-                <th style="text-align:left; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Category</th>
-                <th style="text-align:right; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Qty</th>
-                <th style="text-align:right; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Total</th>
-              </tr>
-            </thead>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
             <tbody>
               ${rowsHtml}
             </tbody>
           </table>
+
+          <!-- Grand total row -->
+          <div style="margin-top:12px; text-align:right;">
+            <div style="color:#6B7280; font-size:12px;">Grand Total</div>
+            <div style="color:#111827; font-size:18px; font-weight:900;">
+              ${formatMoney(opts.totalCents, opts.currency)}
+            </div>
+          </div>
         </div>
 
-        <div style="background-color:#292929ff; padding:16px; text-align:center; border-top:1px solid rgba(255,255,255,0.08);">
-          <p style="margin:0; color:#BEBDBD; font-size:13px;">${brand} • Purchase notification</p>
+        <!-- Footer -->
+        <div style="margin-top:22px; padding-top:14px; border-top:1px solid rgba(0,0,0,0.08); text-align:center;">
+          <div style="color:#6B7280; font-size:12px;">
+            ${brand} • Purchase notification
+          </div>
         </div>
       </div>
-    </body>
-  </html>
-  `;
+    </div>
+  </body>
+</html>
+`;
 
   return transporter.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,

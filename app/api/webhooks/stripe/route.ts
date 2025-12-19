@@ -4,6 +4,10 @@ import { pool } from "@/app/lib/mysql";
 
 import { sendPurchaseConfirmationEmail } from "@/app/lib/email/sendPurchaseConfirmation";
 import { sendAdminPurchaseNotificationEmail } from "@/app/lib/email/sendAdminPurchaseNotification";
+import { sendMembershipStatusEmail } from "@/app/lib/email/sendMembershipStatusEmail";
+import { sendAdminMembershipStatusEmail } from "@/app/lib/email/sendAdminMembershipStatusEmail";
+import { inferMembershipNotificationFromSubEvent } from "@/app/lib/stripe/subscriptionEventDiff";
+
 import type { PurchaseLine } from "@/app/lib/email/sendPurchaseConfirmation";
 
 import { urlFor } from "@/sanity/lib/image";
@@ -137,18 +141,109 @@ export async function POST(req: Request) {
       event.type === "customer.subscription.deleted"
     ) {
       const sub = event.data.object as Stripe.Subscription;
-      const { start: periodStart, end: periodEnd } = getSubscriptionPeriod(sub);
 
-      if (DEBUG_WEBHOOK) {
-        console.log("🔁 subscription lifecycle event:", event.type, {
-          id: sub.id,
-          status: sub.status,
-          cancel_at_period_end: sub.cancel_at_period_end,
-          current_period_end: periodEnd,
-        });
+      // keep DB in sync
+      await updateSubscriptionFromStripe(conn, sub);
+
+      // decide if this update is worth emailing about
+      const kind =
+        event.type === "customer.subscription.deleted"
+          ? "canceled"
+          : inferMembershipNotificationFromSubEvent(event, sub);
+
+      if (!kind) return NextResponse.json({ received: true });
+
+      // find our local subscription row to get user + service
+      const stripeSubId = sub.id;
+
+      const [rows] = await conn.query<any[]>(
+        `
+        SELECT
+          s.user_id,
+          s.sanity_service_id,
+          s.sanity_service_slug,
+          s.status,
+          s.current_period_end,
+          u.email,
+          u.first_name,
+          u.last_name,
+          u.phone
+        FROM subscriptions s
+        JOIN users u ON u.id = s.user_id
+        WHERE s.provider='stripe' AND s.stripe_subscription_id=?
+        LIMIT 1
+        `,
+        [stripeSubId]
+      );
+
+      const rec = rows?.[0];
+      if (!rec) {
+        if (DEBUG_WEBHOOK) console.warn("No local subscription row found for", stripeSubId);
+        return NextResponse.json({ received: true });
       }
 
-      await updateSubscriptionFromStripe(conn, sub);
+      const dashboardUrl =
+        process.env.APP_BASE_URL
+          ? `${process.env.APP_BASE_URL}/client/dashboard`
+          : "https://collenbackstrength.com/client/dashboard";
+
+      const adminTo = process.env.ADMIN_NOTIFY_EMAIL || "";
+
+      // optional: fetch service title from Sanity (nice-to-have)
+      let serviceTitle: string | null = null;
+      try {
+        if (rec.sanity_service_id) {
+          const [svc] = await getServicesByIds([rec.sanity_service_id]);
+          serviceTitle = svc?.title ?? null;
+        }
+      } catch {}
+
+      // send best-effort
+      queueMicrotask(async () => {
+        try {
+          if (rec.email) {
+            await sendMembershipStatusEmail({
+              to: rec.email,
+              firstName: rec.first_name,
+              lastName: rec.last_name,
+              kind,
+              serviceTitle,
+              serviceCategory: null,
+              periodEnd: rec.current_period_end ? new Date(rec.current_period_end) : null,
+              dashboardUrl,
+            });
+          }
+        } catch (e) {
+          console.error("[webhook] member status email failed", e);
+        }
+
+        try {
+          if (adminTo) {
+            await sendAdminMembershipStatusEmail({
+              to: adminTo,
+              kind,
+              stripeSubscriptionId: stripeSubId,
+              stripeCustomerId: typeof sub.customer === "string" ? sub.customer : sub.customer?.id,
+              user: {
+                id: rec.user_id,
+                name: [rec.first_name, rec.last_name].filter(Boolean).join(" ") || null,
+                email: rec.email,
+                phone: rec.phone,
+              },
+              service: {
+                sanityServiceId: rec.sanity_service_id,
+                sanityServiceSlug: rec.sanity_service_slug,
+                title: serviceTitle,
+              },
+              status: sub.status,
+              currentPeriodEnd: rec.current_period_end ? new Date(rec.current_period_end) : null,
+            });
+          }
+        } catch (e) {
+          console.error("[webhook] admin member status email failed", e);
+        }
+      });
+
       return NextResponse.json({ received: true });
     }
 
@@ -156,23 +251,136 @@ export async function POST(req: Request) {
      * ✅ (Optional but useful) Keep statuses accurate if payments fail/recover.
      * Requires your subscriptions table to already have stripe_subscription_id.
      */
-    if (
-      event.type === "invoice.payment_failed" ||
-      event.type === "invoice.paid"
-    ) {
+    if (event.type === "invoice.payment_failed" || event.type === "invoice.paid") {
       const inv = event.data.object as Stripe.Invoice;
 
       const subId = getSubscriptionIdFromInvoice(inv);
 
-      if (subId) {
-        const sub = await stripe.subscriptions.retrieve(subId);
-        await updateSubscriptionFromStripe(conn, sub);
-      } else {
-        if (DEBUG_WEBHOOK) console.log("🧾 invoice event has no subscription; skipping", {
-          invoice: inv.id,
-          billing_reason: (inv as any).billing_reason,
-        });
+      if (!subId) {
+        if (DEBUG_WEBHOOK)
+          console.log("🧾 invoice event has no subscription; skipping", {
+            invoice: inv.id,
+            billing_reason: (inv as any).billing_reason,
+          });
+        return NextResponse.json({ received: true });
       }
+
+      // 1) Pull the latest subscription from Stripe (source of truth)
+      const sub = await stripe.subscriptions.retrieve(subId);
+
+      // 2) Sync our subscriptions table
+      await updateSubscriptionFromStripe(conn, sub);
+
+      // 3) Decide which email event this is
+      const kind =
+        event.type === "invoice.payment_failed"
+          ? ("payment_failed" as const)
+          : ("payment_recovered" as const);
+
+      // 4) Find our local subscription row to map Stripe -> user + service
+      const [rows] = await conn.query<any[]>(
+        `
+        SELECT
+          s.user_id,
+          s.sanity_service_id,
+          s.sanity_service_slug,
+          s.status,
+          s.current_period_end,
+          u.email,
+          u.first_name,
+          u.last_name,
+          u.phone
+        FROM subscriptions s
+        JOIN users u ON u.id = s.user_id
+        WHERE s.provider='stripe' AND s.stripe_subscription_id=?
+        LIMIT 1
+        `,
+        [sub.id]
+      );
+
+      const rec = rows?.[0];
+      if (!rec) {
+        if (DEBUG_WEBHOOK)
+          console.warn("No local subscription row found for invoice event", {
+            stripe_subscription_id: sub.id,
+            invoice: inv.id,
+          });
+        return NextResponse.json({ received: true });
+      }
+
+      // 5) Build dashboard/admin targets
+      const dashboardUrl =
+        process.env.APP_BASE_URL
+          ? `${process.env.APP_BASE_URL}/client/dashboard`
+          : "https://collenbackstrength.com/client/dashboard";
+
+      const adminTo = process.env.ADMIN_NOTIFY_EMAIL || "";
+
+      // 6) (Optional) fetch service title from Sanity for a nicer email
+      let serviceTitle: string | null = null;
+      try {
+        if (rec.sanity_service_id) {
+          const [svc] = await getServicesByIds([rec.sanity_service_id]);
+          serviceTitle = svc?.title ?? null;
+        }
+      } catch {}
+
+      // 7) Send emails best-effort (don’t block Stripe)
+      queueMicrotask(async () => {
+        // user email
+        try {
+          if (rec.email) {
+            await sendMembershipStatusEmail({
+              to: rec.email,
+              firstName: rec.first_name,
+              lastName: rec.last_name,
+              kind,
+              serviceTitle,
+              periodEnd: rec.current_period_end ? new Date(rec.current_period_end) : null,
+              dashboardUrl,
+            });
+          } else {
+            if (DEBUG_WEBHOOK)
+              console.warn("[invoice] no user email found, skipping user notify", {
+                userId: rec.user_id,
+              });
+          }
+        } catch (e) {
+          console.error("[webhook] membership invoice user email failed", e);
+        }
+
+        // admin email
+        try {
+          if (adminTo) {
+            await sendAdminMembershipStatusEmail({
+              to: adminTo,
+              kind,
+              stripeSubscriptionId: sub.id,
+              stripeCustomerId:
+                typeof sub.customer === "string" ? sub.customer : sub.customer?.id,
+              user: {
+                id: rec.user_id,
+                name: [rec.first_name, rec.last_name].filter(Boolean).join(" ") || null,
+                email: rec.email,
+                phone: rec.phone,
+              },
+              service: {
+                sanityServiceId: rec.sanity_service_id,
+                sanityServiceSlug: rec.sanity_service_slug,
+                title: serviceTitle,
+              },
+              status: sub.status,
+              currentPeriodEnd: rec.current_period_end ? new Date(rec.current_period_end) : null,
+            });
+          } else {
+            if (DEBUG_WEBHOOK)
+              console.warn("[invoice] ADMIN_NOTIFY_EMAIL missing; skipping admin notify");
+          }
+        } catch (e) {
+          console.error("[webhook] membership invoice admin email failed", e);
+        }
+      });
+
       return NextResponse.json({ received: true });
     }
 

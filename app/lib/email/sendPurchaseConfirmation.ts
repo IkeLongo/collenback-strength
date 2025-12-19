@@ -129,10 +129,40 @@ function buildNextStepsHtml({
           </table>
 
           <div style="margin-top:14px;">
-            <a href="${dashboardUrl}"
-              style="display:inline-block; background:#CB9F24; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px; padding:11px 16px; border-radius:10px;">
-              Go to Dashboard
-            </a>
+            <!-- BULLETPROOF BUTTON -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">
+              <tr>
+                <td
+                  bgcolor="#CB9F24"
+                  style="
+                    background:#CB9F24;
+                    border-radius:10px;
+                    text-align:center;
+                    mso-padding-alt:12px 16px;
+                  "
+                >
+                  <a href="${dashboardUrl}"
+                    style="
+                      display:inline-block;
+                      padding:12px 16px;
+                      font-weight:800;
+                      font-size:13px;
+                      line-height:13px;
+                      text-decoration:none;
+                      color:#ffffff;
+                      background:#CB9F24;
+                      border:1px solid #CB9F24;
+                      border-radius:10px;
+                      -webkit-text-size-adjust:none;
+                      mso-hide:all;
+                    "
+                  >
+                    Go to Dashboard
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <!-- /BULLETPROOF BUTTON -->
           </div>
         </td>
       </tr>
@@ -244,6 +274,8 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light only" />
+    <meta name="supported-color-schemes" content="light" />
   </head>
 
   <body style="margin:0; padding:0; background:#ffffff; font-family: Arial, sans-serif;">
