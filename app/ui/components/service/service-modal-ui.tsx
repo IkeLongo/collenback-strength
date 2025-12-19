@@ -6,6 +6,7 @@ import { useCartDrawer } from "@/app/ui/components/cart/cart-drawer-context";
 import Lottie from "lottie-react";
 import stripeLottie from "@/public/assets/stripe.json";
 import flexedBiceps from "@/public/assets/flexed-biceps.json";
+import { useCartDrawerOptional } from "@/app/ui/components/cart/cart-drawer-context";
 
 type ServiceModalUIProps = {
   selectedService: any | null;
@@ -20,6 +21,7 @@ type ServiceModalUIProps = {
   onAddToCart?: (service: any) => void;
 
   showStripeBadge?: boolean;         // always show if you want
+  enableAddToCart?: boolean;        // show "Add to Cart" button
 };
 
 export default function ServiceModalUI({
@@ -31,9 +33,10 @@ export default function ServiceModalUI({
   onSecondaryAction,
   onAddToCart,
   showStripeBadge = true,
+  enableAddToCart = false,
 }: ServiceModalUIProps) {
-  const { open, setOpen } = useModal();
-  const { setOpen: setCartOpen } = useCartDrawer();
+  const { open } = useModal(); // you referenced `open` but didn’t define it
+  const cartCtx = useCartDrawerOptional();
 
   const formatPrice = (cents: number, currency: string) =>
     cents
@@ -174,8 +177,9 @@ export default function ServiceModalUI({
               "
               onClick={() => {
                 onPrimaryAction(selectedService);
-                setOpen(false);
-                setCartOpen(true);
+                if (enableAddToCart && cartCtx) {
+                  cartCtx.setOpen(true);
+                }
               }}
             >
               <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">

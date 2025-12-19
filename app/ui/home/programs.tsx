@@ -3,13 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from "@/app/ui/components/tabs/tabs";
 import FadeInUp from "../components/fade/fade-in-up";
 import {
-  ModalBody,
-  ModalContent,
   useModal,
 } from "../components/modal/programs-modal";
-import Lottie from "lottie-react";
-import { useRouter } from "next/navigation";
-import flexedBiceps from "@/public/assets/flexed-biceps.json";
 import { fetchServiceCategories } from "@/sanity/lib/queries/categories";
 import { fetchAllServices } from "@/sanity/lib/queries/services";
 import ServiceModalPublic from "@/app/ui/components/service/service-modal-public"
@@ -116,83 +111,3 @@ function ServiceCard({ service, setSelectedService }: { service: any; setSelecte
     </div>
   );
 }
-
-// ServiceModal component to show modal for selected service
-// function ServiceModal({ selectedService, setSelectedService }: { selectedService: any; setSelectedService: (s: any) => void }) {
-//   const { open, setOpen } = useModal();
-//   const router = useRouter();
-//   if (!selectedService) return null;
-
-//   // Helper to format price
-//   const formatPrice = (cents: number, currency: string) =>
-//     cents ? `${(cents / 100).toLocaleString(undefined, { style: 'currency', currency })}` : 'Contact for pricing';
-
-//   // Handler for Get Started button
-//   const handleGetStarted = () => {
-//     // Use slug if available, fallback to _id
-//     const serviceSlug = selectedService.slug?.current || selectedService._id;
-//     router.push(`/get-started?service=${serviceSlug}`);
-//     setOpen(false);
-//   };
-
-//   return (
-//     <ModalBody>
-//       {open && (
-//         <ModalContent>
-//           <div className="relative flex flex-col! h-full! flex-1! bg-gradient-to-br! from-grey-950! via-grey-900! to-gold-500! rounded-2xl! shadow-2xl! border-4! border-gold-500! p-6! overflow-hidden! gap-y-3! justify-start!">
-//             {/* Decorative geometric shape */}
-//             <div className="absolute top-0 right-0 w-32! h-32! bg-gold-500! opacity-20! rounded-bl-full! pointer-events-none!" />
-//             {selectedService.image && (
-//               <img
-//                 src={selectedService.image.asset?.url}
-//                 alt={selectedService.title}
-//                 className="w-full! max-h-48! object-cover! rounded-xl! mb-4! shadow-lg! border-2! border-gold-500!"
-//                 style={{ transition: 'transform 0.3s', transform: 'scale(1.05)' }}
-//               />
-//             )}
-//             <h2 className="text-3xl! font-extrabold! mb-2! text-gold-500! font-[oxanium]! drop-shadow-lg! tracking-wide! animate-pulse">{selectedService.title}</h2>
-//             <div className="mb-2! text-grey-200! text-left! font-[outfit]! text-lg! italic!">{selectedService.shortDescription}</div>
-//             <div className="mb-2! text-white! font-bold! font-[outfit]! text-xl! flex! items-center! gap-2!">
-//               <span className="bg-gold-500! text-black! px-3! py-1! rounded-full! shadow-md!">
-//                 {formatPrice(selectedService.priceCents, selectedService.currency || 'USD')}
-//               </span>
-//               {selectedService.sessionsIncluded && (
-//                 <span className="bg-grey-800! text-gold-500! px-2! py-1! rounded-full! text-sm!">
-//                   {selectedService.sessionsIncluded} Sessions
-//                 </span>
-//               )}
-//             </div>
-//             <div className="mb-4! text-grey-200! text-base! leading-relaxed!">
-//               {selectedService.longDescription?.map((block: any, idx: number) =>
-//                 block.children?.map((child: any) => (
-//                   <p key={child._key} className="mb-2!">{child.text}</p>
-//                 ))
-//               )}
-//             </div>
-//             {/* Stripe badge or other info */}
-//             {selectedService.stripePriceId && (
-//               <div className="mt-auto! text-xs! text-gold-500! bg-grey-900! px-2! py-1! rounded-lg! self-end!">
-//                 Stripe Enabled
-//               </div>
-//             )}
-//             {/* Get Started button at the bottom */}
-//             <div className="mt-8 flex justify-center relative">
-//               <button
-//                 type="button"
-//                 className="bg-black dark:bg-white dark:text-black text-white flex justify-center group/modal-btn px-6 py-3 rounded-lg font-semibold text-lg relative overflow-hidden"
-//                 onClick={handleGetStarted}
-//               >
-//                 <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
-//                   Get Started
-//                 </span>
-//                 <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
-//                   <Lottie animationData={flexedBiceps} loop={true} className="w-24 h-24" />
-//                 </div>
-//               </button>
-//             </div>
-//           </div>
-//         </ModalContent>
-//       )}
-//     </ModalBody>
-//   );
-// }

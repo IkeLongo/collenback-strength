@@ -29,6 +29,7 @@ export default function ServiceModalClient({
         });
       }}
       showStripeBadge={true}
+      enableAddToCart={true}
     />
   );
 }

@@ -21,6 +21,7 @@ export default function ServiceModalPublic({
         router.push(`/get-started?serviceId=${encodeURIComponent(service._id)}`);
       }}
       showStripeBadge={true}
+      enableAddToCart={false}
     />
   );
 }

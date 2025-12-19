@@ -18,8 +18,14 @@ export function CartDrawerProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
+/** Strict: throws if provider missing (dashboard/protected routes) */
 export function useCartDrawer() {
   const ctx = useContext(CartDrawerContext);
   if (!ctx) throw new Error("useCartDrawer must be used within CartDrawerProvider");
   return ctx;
+}
+
+/** Optional: returns null if provider missing (public/shared components) */
+export function useCartDrawerOptional() {
+  return useContext(CartDrawerContext);
 }

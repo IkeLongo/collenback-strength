@@ -7,6 +7,10 @@ export type PurchaseLine = {
   quantity: number;
   unitAmountCents: number;
   amountCents: number;
+
+  // OPTIONAL: if you ever add this metadata, we can show actual thumbnails
+  // imageUrl?: string | null;
+
   meta?: {
     sessionsPurchased?: number | null;
     membershipInterval?: string | null;
@@ -26,8 +30,8 @@ export type SendPurchaseConfirmationOptions = {
 
   lines: PurchaseLine[];
 
-  dashboardUrl: string; // e.g. https://collenbackstrength.com/client/dashboard
-  brandName?: string;   // optional override
+  dashboardUrl: string;
+  brandName?: string;
 };
 
 function formatMoney(cents: number, currency: string) {
@@ -52,6 +56,91 @@ function kindLabel(kind: PurchaseLine["kind"]) {
   return "Program";
 }
 
+function buildMotivationCopy({
+  hasPack,
+  hasMembership,
+  hasProgram,
+  name,
+}: {
+  hasPack: boolean;
+  hasMembership: boolean;
+  hasProgram: boolean;
+  name: string;
+}) {
+  // priority: membership > pack > program > mixed
+  if ((hasMembership || hasPack) && hasProgram) {
+    return `You’re officially locked in — training + structure in your pocket. Your next step is simple: pick your first session (or download your program) and let’s build momentum.`;
+  }
+  if (hasMembership) {
+    return `Welcome in — you’re set up for real progress. Book your first session this week and let’s get a win on the board early. Consistency starts now.`;
+  }
+  if (hasPack) {
+    return `You just took the hardest step — committing. Your sessions are ready, and your strength & athletic goals are officially in motion. Book your first session and let’s get to work.`;
+  }
+  if (hasProgram) {
+    return `Your program is ready. Download it from your dashboard and start today — small, consistent reps turn into big results.`;
+  }
+  return `Your order is confirmed.`;
+}
+
+function buildNextStepsHtml({
+  hasPack,
+  hasMembership,
+  hasProgram,
+  dashboardUrl,
+}: {
+  hasPack: boolean;
+  hasMembership: boolean;
+  hasProgram: boolean;
+  dashboardUrl: string;
+}) {
+  const steps: string[] = [];
+
+  if (hasMembership || hasPack) {
+    steps.push(`Book your first session from your dashboard.`);
+  }
+  if (hasProgram) {
+    steps.push(`Download your program anytime from the Programs tab.`);
+  }
+  if (hasMembership) {
+    steps.push(`Your membership access is active immediately.`);
+  }
+
+  const bulletsHtml = steps
+    .map(
+      (s) => `
+      <tr>
+        <td style="width:18px; vertical-align:top; padding:4px 0; color:#CB9F24; font-weight:700;">•</td>
+        <td style="padding:4px 0; color:#1A1A1A; font-size:14px; line-height:1.5;">${s}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <tr>
+        <td style="padding:16px; border:1px solid #EBEAEA; border-radius:12px;">
+          <div style="font-size:14px; color:#1A1A1A; font-weight:700; margin:0 0 8px;">
+            Next steps
+          </div>
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            ${bulletsHtml}
+          </table>
+
+          <div style="margin-top:14px;">
+            <a href="${dashboardUrl}"
+              style="display:inline-block; background:#0c2244; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px; padding:11px 16px; border-radius:10px;">
+              Go to Dashboard
+            </a>
+          </div>
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
 export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmationOptions) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -64,14 +153,35 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
   const name =
     [opts.firstName, opts.lastName].filter(Boolean).join(" ") || "Valued Client";
 
-  const subject = `Purchase confirmed — ${brand}`;
+  const subject = `Order confirmation — ${brand}`;
 
-  const rowsHtml = opts.lines
+  const purchasedKinds = new Set(opts.lines.map((l) => l.kind));
+  const hasPack = purchasedKinds.has("pack");
+  const hasProgram = purchasedKinds.has("program");
+  const hasMembership = purchasedKinds.has("membership");
+
+  const motivation = buildMotivationCopy({
+    hasPack,
+    hasMembership,
+    hasProgram,
+    name,
+  });
+
+  const nextStepsBlock = buildNextStepsHtml({
+    hasPack,
+    hasMembership,
+    hasProgram,
+    dashboardUrl: opts.dashboardUrl,
+  });
+
+  // Line items: Photo + name left, totals right
+  // NOTE: Since you don't currently pass an image URL, we render a nice placeholder thumbnail box.
+  const lineItemsHtml = opts.lines
     .map((l) => {
       const details: string[] = [];
 
       if (l.kind === "pack" && l.meta?.sessionsPurchased) {
-        details.push(`${l.meta.sessionsPurchased} session(s) added`);
+        details.push(`${l.meta.sessionsPurchased} session(s)`);
       }
       if (l.kind === "membership" && l.meta?.membershipInterval) {
         const c = l.meta.membershipIntervalCount ?? 1;
@@ -81,107 +191,181 @@ export async function sendPurchaseConfirmationEmail(opts: SendPurchaseConfirmati
         details.push(`Version ${l.meta.programVersion}`);
       }
 
+      const detailsText =
+        details.length ? ` • ${details.join(" • ")}` : "";
+
       return `
         <tr>
-          <td style="padding:10px 0; color:#fff; font-weight:700;">${l.title}</td>
-          <td style="padding:10px 0; color:#BEBDBD;">${kindLabel(l.kind)} • ${categoryLabel(l.category)}${
-            details.length ? ` • ${details.join(" • ")}` : ""
-          }</td>
-          <td style="padding:10px 0; color:#BEBDBD; text-align:right;">${l.quantity}</td>
-          <td style="padding:10px 0; color:#BEBDBD; text-align:right;">${formatMoney(l.amountCents, opts.currency)}</td>
+          <td style="padding:14px 0; border-bottom:1px solid #EBEAEA;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+              <tr>
+                <!-- photo -->
+                <td style="width:56px; vertical-align:top; padding-right:12px;">
+                  <div style="width:56px; height:56px; border-radius:12px; background:#EBEAEA; border:1px solid #BEBDBD;"></div>
+                </td>
+
+                <!-- name/details -->
+                <td style="vertical-align:top;">
+                  <div style="font-size:14px; font-weight:700; color:#1A1A1A; margin:0;">
+                    ${l.title}
+                  </div>
+                  <div style="font-size:12px; color:#676666; margin-top:4px;">
+                    ${kindLabel(l.kind)} • ${categoryLabel(l.category)}${detailsText}
+                  </div>
+                  <div style="font-size:12px; color:#676666; margin-top:2px;">
+                    Qty: ${l.quantity}
+                  </div>
+                </td>
+
+                <!-- price -->
+                <td style="width:140px; vertical-align:top; text-align:right;">
+                  <div style="font-size:12px; color:#676666; margin:0;">Total</div>
+                  <div style="font-size:14px; font-weight:700; color:#1A1A1A; margin-top:4px;">
+                    ${formatMoney(l.amountCents, opts.currency)}
+                  </div>
+                  <div style="font-size:12px; color:#676666; margin-top:4px;">
+                    ${formatMoney(l.unitAmountCents, opts.currency)} each
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
         </tr>
       `;
     })
     .join("");
 
-  const purchasedKinds = new Set(opts.lines.map((l) => l.kind));
-
-  const hasPack = purchasedKinds.has("pack");
-  const hasProgram = purchasedKinds.has("program");
-  const hasMembership = purchasedKinds.has("membership");
-
-  const nextStepsHtml = `
-  <div style="color:#292929ff; font-size:14px; line-height:1.6;">
-    <b>Next steps:</b><br/>
-    ${hasPack ? "Packs: Book sessions from your dashboard.<br/>" : ""}
-    ${hasProgram ? "Programs: Download anytime from the Programs tab.<br/>" : ""}
-    ${hasMembership ? "Memberships: Your access is active immediately. Book sessions from your dashboard.<br/>" : ""}
-  </div>
-`;
-
   const html = `
-  <!DOCTYPE html>
-  <html>
-    <head><meta charset="utf-8" /></head>
-    <body style="margin:0; padding:20px; font-family: Arial, sans-serif;">
-      <div style="max-width:650px; margin:0 auto; background-color:#292929ff; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.08);">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+  </head>
 
-        <div style="padding: 32px 24px 22px; text-align:center;">
-          <img src="https://collenbackstrength.com/logo-horizontal.png" alt="${brand}" width="140"
-            style="display:block; margin:0 auto 10px; max-width:140px; height:auto; border:0;" />
-          <p style="margin: 8px 0 0; color:#BEBDBD; font-size:20px;">Purchase Confirmation</p>
-        </div>
+  <body style="margin:0; padding:0; background:#ffffff; font-family: Arial, sans-serif;">
+    <!-- full-width wrapper -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; background:#ffffff;">
+      <tr>
+        <td style="padding:24px 14px;">
+          <!-- container -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; max-width:720px; margin:0 auto;">
+            
+            <!-- header row -->
+            <tr>
+              <td style="padding:0 0 18px 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <!-- logo upper-left -->
+                    <td style="vertical-align:middle;">
+                      <img
+                        src="https://collenbackstrength.com/logo-horizontal.png"
+                        alt="${brand}"
+                        width="160"
+                        style="display:block; max-width:160px; height:auto; border:0;"
+                      />
+                    </td>
+                    <td style="text-align:right; vertical-align:middle; font-size:12px; color:#676666;">
+                      Receipt ID: ${opts.paymentId}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-        <div style="padding: 28px 24px;">
-          <p style="margin:0 0 14px; color:#fff; font-size:16px;">
-            Hi <span style="color:#CB9F24; font-weight:700;">${name}</span> — your payment was successful.
-          </p>
+            <!-- title -->
+            <tr>
+              <td style="padding:0 0 12px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="font-size:28px; font-weight:800; color:#0c2244; line-height:1.2;">
+                      Order Confirmation
+                    </td>
+                    <td style="width:10px;"></td>
+                    <!-- shopping bag icon (inline SVG) -->
+                    <td style="vertical-align:middle;">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                        <path d="M7 9V7a5 5 0 0 1 10 0v2" stroke="#0c2244" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M6 9h12l-1 12H7L6 9Z" stroke="#0c2244" stroke-width="2" stroke-linejoin="round"/>
+                      </svg>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-          <div style="margin-top:18px;">
-            <h2 style="color:#CB9F24; margin:0 0 12px 0; font-size:18px; border-bottom:2px solid #FFE98F; padding-bottom:8px; font-weight:600;">
-              Order Summary
-            </h2>
+            <!-- greeting -->
+            <tr>
+              <td style="padding:0 0 18px 0; font-size:14px; color:#1A1A1A; line-height:1.6;">
+                <div style="margin:0 0 8px 0;">
+                  Hi <span style="font-weight:700; color:#0c2244;">${name}</span>,
+                </div>
+                <div style="margin:0;">
+                  Thank you for shopping with us! ${motivation}
+                </div>
+              </td>
+            </tr>
 
-            <table style="width:100%; border-collapse:collapse;">
-              <thead>
-                <tr>
-                  <th style="text-align:left; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Item</th>
-                  <th style="text-align:left; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Details</th>
-                  <th style="text-align:right; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Qty</th>
-                  <th style="text-align:right; padding:8px 0; color:#fff; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-                <tr>
-                  <td colspan="4" style="border-top:1px solid rgba(255,255,255,0.12); padding-top:12px;"></td>
-                </tr>
-                <tr>
-                  <td colspan="3" style="padding:10px 0; color:#fff; font-weight:700; text-align:right;">Grand Total</td>
-                  <td style="padding:10px 0; color:#fff; font-weight:700; text-align:right;">${formatMoney(
-                    opts.totalCents,
-                    opts.currency
-                  )}</td>
-                </tr>
-              </tbody>
-            </table>
+            <!-- line items -->
+            <tr>
+              <td style="padding:0 0 10px 0;">
+                <div style="font-size:14px; font-weight:800; color:#1A1A1A; margin:0 0 8px 0;">
+                  Your items
+                </div>
 
-            <div style="margin-top:18px; background:#ffffff; border-radius:6px; padding:16px; border-left:4px solid #CB9F24;">
-              ${nextStepsHtml}
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  ${lineItemsHtml}
+                </table>
+              </td>
+            </tr>
 
-              <div style="margin-top:14px;">
-                <a href="${opts.dashboardUrl}"
-                  style="display:inline-block; background:#292929ff; color:#fff; text-decoration:none; font-weight:700; font-size:13px; padding:10px 14px; border-radius:8px;">
-                  Go to Dashboard
-                </a>
-              </div>
-            </div>
+            <!-- totals -->
+            <tr>
+              <td style="padding:14px 0 22px 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td></td>
+                    <td style="width:220px; text-align:right;">
+                      <div style="font-size:12px; color:#676666;">Grand Total</div>
+                      <div style="font-size:18px; font-weight:900; color:#1A1A1A; margin-top:6px;">
+                        ${formatMoney(opts.totalCents, opts.currency)}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-            <p style="margin:16px 0 0; color:#BEBDBD; font-size:12px;">
-              Receipt ID: ${opts.paymentId}
-            </p>
-          </div>
-        </div>
+            <!-- next steps -->
+            <tr>
+              <td style="padding:0 0 22px 0;">
+                ${nextStepsBlock}
+              </td>
+            </tr>
 
-        <div style="background-color:#292929ff; padding:18px; text-align:center; border-top:1px solid rgba(255,255,255,0.08);">
-          <p style="margin:0; color:#CB9F24; font-size:14px;">This email was sent from ${brand}.</p>
-          <p style="margin:5px 0 0; color:#BEBDBD; font-size:14px;">
-            Questions? <a href="tel:${process.env.BUSINESS_PHONE}" style="color:#CB9F24; text-decoration:none; font-weight:600;">${process.env.BUSINESS_PHONE}</a>
-          </p>
-        </div>
-      </div>
-    </body>
-  </html>
+            <!-- footer (kept simple, can match your existing one) -->
+            <tr>
+              <td style="padding:16px 0 0 0; border-top:1px solid #EBEAEA; text-align:center;">
+                <div style="font-size:12px; color:#676666; line-height:1.6;">
+                  This email was sent from ${brand}.
+                </div>
+                <div style="font-size:12px; color:#676666; line-height:1.6;">
+                  Questions?
+                  <a href="tel:${process.env.BUSINESS_PHONE}" style="color:#0c2244; text-decoration:none; font-weight:700;">
+                    ${process.env.BUSINESS_PHONE}
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+          </table>
+          <!-- /container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
   `;
 
   return transporter.sendMail({
