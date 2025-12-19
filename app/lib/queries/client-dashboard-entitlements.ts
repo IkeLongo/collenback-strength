@@ -72,6 +72,7 @@ export type MembershipLineItem = {
   state: "active" | "expired";
 
   current_period_end: Date | null;
+  cancel_at_period_end: boolean;
 
   /** Keep parity with pack rows */
   total_credits: null;
@@ -111,6 +112,7 @@ export type MembershipSummaryRow = {
     | "incomplete_expired"
     | "paused";
   current_period_end: Date | null;
+  cancel_at_period_end: boolean;
 };
 
 export type ClientDashboardEntitlements = {
@@ -173,7 +175,10 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         CASE
           WHEN s.current_period_end IS NOT NULL
           AND s.current_period_end > NOW()
-          AND s.status IN ('active','trialing')
+          AND (
+            s.status IN ('active','trialing')
+            OR (s.cancel_at_period_end = 1)
+          )
           THEN 1 ELSE 0
         END AS is_active
       FROM subscriptions s
@@ -292,6 +297,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         current_period_end: m.current_period_end
           ? new Date(m.current_period_end)
           : null,
+        cancel_at_period_end: Boolean(m.cancel_at_period_end),
 
         total_credits: null,
         credits_used: null,
@@ -407,6 +413,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
           memberships_count: 1,
           status: m.status,
           current_period_end: m.current_period_end,
+          cancel_at_period_end: m.cancel_at_period_end,
         });
       } else {
         existing.memberships_count += 1;
@@ -416,6 +423,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         if (mEnd < existingEnd) {
           existing.current_period_end = m.current_period_end;
           existing.status = m.status;
+          existing.cancel_at_period_end = m.cancel_at_period_end;
         }
       }
     }

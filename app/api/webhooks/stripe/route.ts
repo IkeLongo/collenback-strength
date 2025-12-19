@@ -20,6 +20,82 @@ function inferKind(meta: Record<string, string | undefined>) {
   return "pack" as const;
 }
 
+function getSubscriptionPeriod(sub: Stripe.Subscription): {
+  start: Date | null;
+  end: Date | null;
+} {
+  // Some Stripe typings/versions put these on the subscription object
+  const anySub = sub as any;
+
+  const startUnix: number | undefined =
+    anySub.current_period_start ?? sub.items?.data?.[0]?.current_period_start;
+
+  const endUnix: number | undefined =
+    anySub.current_period_end ?? sub.items?.data?.[0]?.current_period_end;
+
+  return {
+    start: typeof startUnix === "number" ? new Date(startUnix * 1000) : null,
+    end: typeof endUnix === "number" ? new Date(endUnix * 1000) : null,
+  };
+}
+
+/**
+ * ✅ Keep subscriptions table in sync with Stripe lifecycle events.
+ * Relies on your unique key: (provider, stripe_subscription_id)
+ */
+async function updateSubscriptionFromStripe(conn: any, sub: Stripe.Subscription) {
+  const stripeSubId = sub.id;
+  const stripeCustomerId =
+    typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+
+  const status = sub.status as any;
+  const cancelAtPeriodEnd = sub.cancel_at_period_end ? 1 : 0;
+
+  const { start: currentPeriodStart, end: currentPeriodEnd } = getSubscriptionPeriod(sub);
+
+  await conn.query(
+    `
+    UPDATE subscriptions
+    SET
+      stripe_customer_id = COALESCE(stripe_customer_id, ?),
+      status = ?,
+      current_period_start = ?,
+      current_period_end = ?,
+      cancel_at_period_end = ?
+    WHERE provider = 'stripe'
+      AND stripe_subscription_id = ?
+    `,
+    [
+      stripeCustomerId ?? null,
+      status,
+      currentPeriodStart,
+      currentPeriodEnd,
+      cancelAtPeriodEnd,
+      stripeSubId,
+    ]
+  );
+}
+
+function getSubscriptionIdFromInvoice(inv: Stripe.Invoice): string | null {
+  const anyInv = inv as any;
+
+  // 1) Most subscription invoices: inv.subscription is a string
+  const direct = anyInv.subscription;
+  if (typeof direct === "string" && direct) return direct;
+
+  // 2) Fallback: look for subscription id on invoice line items
+  const lines = anyInv.lines?.data;
+  if (Array.isArray(lines)) {
+    for (const line of lines) {
+      const s = line?.subscription;
+      if (typeof s === "string" && s) return s;
+      if (s && typeof s === "object" && typeof s.id === "string") return s.id;
+    }
+  }
+
+  return null;
+}
+
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
@@ -31,47 +107,101 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Invalid signature";
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 
-  // We only handle successful checkout completion for now
-  if (event.type !== "checkout.session.completed") {
-    return NextResponse.json({ received: true });
-  }
-
-  const session = event.data.object as Stripe.Checkout.Session;
-
-  // Pull full session details (IMPORTANT: expand subscription)
-  const full = await stripe.checkout.sessions.retrieve(session.id, {
-    expand: ["line_items.data.price.product", "payment_intent", "subscription"],
-  });
-
-  if (DEBUG_WEBHOOK) {
-    console.log("🔔 checkout.session.completed received");
-    console.log("Session ID:", full.id);
-    console.log("Mode:", full.mode);
-    console.log("Payment Status:", full.payment_status);
-    console.log("Amount Total:", full.amount_total);
-    console.log("Currency:", full.currency);
-    console.log("Subscription:", full.subscription);
-  }
-
-  // ✅ Resolve user_id from client_reference_id or metadata
-  const userIdRaw = full.client_reference_id || full.metadata?.user_id;
-  if (!userIdRaw) {
-    return NextResponse.json({ error: "No user id on session" }, { status: 400 });
-  }
-  const userId = Number(userIdRaw);
-  if (!Number.isFinite(userId)) {
-    return NextResponse.json({ error: "Invalid user id on session" }, { status: 400 });
-  }
-
   const conn = await pool.getConnection();
 
   try {
+    /**
+     * ✅ Handle subscription lifecycle events (status changes, cancel completion, etc.)
+     * These happen long after checkout and are required to keep DB in sync.
+     */
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      const sub = event.data.object as Stripe.Subscription;
+      const { start: periodStart, end: periodEnd } = getSubscriptionPeriod(sub);
+
+      if (DEBUG_WEBHOOK) {
+        console.log("🔁 subscription lifecycle event:", event.type, {
+          id: sub.id,
+          status: sub.status,
+          cancel_at_period_end: sub.cancel_at_period_end,
+          current_period_end: periodEnd,
+        });
+      }
+
+      await updateSubscriptionFromStripe(conn, sub);
+      return NextResponse.json({ received: true });
+    }
+
+    /**
+     * ✅ (Optional but useful) Keep statuses accurate if payments fail/recover.
+     * Requires your subscriptions table to already have stripe_subscription_id.
+     */
+    if (
+      event.type === "invoice.payment_failed" ||
+      event.type === "invoice.paid"
+    ) {
+      const inv = event.data.object as Stripe.Invoice;
+
+      const subId = getSubscriptionIdFromInvoice(inv);
+
+      if (subId) {
+        const sub = await stripe.subscriptions.retrieve(subId);
+        await updateSubscriptionFromStripe(conn, sub);
+      } else {
+        if (DEBUG_WEBHOOK) console.log("🧾 invoice event has no subscription; skipping", {
+          invoice: inv.id,
+          billing_reason: (inv as any).billing_reason,
+        });
+      }
+      return NextResponse.json({ received: true });
+    }
+
+    /**
+     * ✅ Checkout completion (your existing logic)
+     */
+    if (event.type !== "checkout.session.completed") {
+      return NextResponse.json({ received: true });
+    }
+
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    // Pull full session details (IMPORTANT: expand subscription)
+    const full = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ["line_items.data.price.product", "payment_intent", "subscription"],
+    });
+
+    if (DEBUG_WEBHOOK) {
+      console.log("🔔 checkout.session.completed received");
+      console.log("Session ID:", full.id);
+      console.log("Mode:", full.mode);
+      console.log("Payment Status:", full.payment_status);
+      console.log("Amount Total:", full.amount_total);
+      console.log("Currency:", full.currency);
+      console.log("Subscription:", full.subscription);
+    }
+
+    // ✅ Resolve user_id from client_reference_id or metadata
+    const userIdRaw = full.client_reference_id || full.metadata?.user_id;
+    if (!userIdRaw) {
+      return NextResponse.json({ error: "No user id on session" }, { status: 400 });
+    }
+    const userId = Number(userIdRaw);
+    if (!Number.isFinite(userId)) {
+      return NextResponse.json({ error: "Invalid user id on session" }, { status: 400 });
+    }
+
     await conn.beginTransaction();
 
     // 1) Idempotency for payments: don’t process same Stripe event twice
@@ -128,24 +258,27 @@ export async function POST(req: Request) {
 
     // 3) If this checkout created a Stripe subscription, insert into subscriptions table
     let sub: Stripe.Subscription | null = null;
-    let subscriptionId: string | null = null;
+    let stripeSubscriptionId: string | null = null;
+    let periodStart: Date | null = null;
+    let periodEnd: Date | null = null;
+
     if (typeof full.subscription === "string") {
-      subscriptionId = full.subscription;
+      stripeSubscriptionId = full.subscription;
     } else if (full.subscription && typeof full.subscription === "object" && full.subscription.id) {
-      subscriptionId = full.subscription.id;
+      stripeSubscriptionId = full.subscription.id;
     }
 
-    if (subscriptionId) {
-      sub = await stripe.subscriptions.retrieve(subscriptionId);
-      console.log("Full Stripe Subscription object:", sub);
+    if (stripeSubscriptionId) {
+      sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+
       const plan = sub.items.data[0]?.plan;
       if (DEBUG_WEBHOOK) {
         console.log("🧾 Stripe Subscription:", {
           id: sub.id,
           customer: sub.customer,
           status: sub.status,
-          billing_cycle_anchor: sub.billing_cycle_anchor,
-          start_date: sub.start_date,
+          current_period_start: periodStart,
+          current_period_end: periodEnd,
           plan_interval: plan?.interval,
           plan_interval_count: plan?.interval_count,
           cancel_at_period_end: sub.cancel_at_period_end,
@@ -180,7 +313,7 @@ export async function POST(req: Request) {
       // packs use this; memberships usually have 0 here
       const sessionsIncluded = Number(product?.metadata?.sessions_included ?? 0);
 
-      // membership metadata flags (what you’re currently sending)
+      // membership metadata flags
       const membershipInterval = product?.metadata?.membership_interval || null;
 
       const unitAmount = price?.unit_amount ?? 0;
@@ -203,7 +336,9 @@ export async function POST(req: Request) {
         meta: {
           sessionsPurchased,
           membershipInterval: meta.membership_interval ?? null,
-          membershipIntervalCount: meta.membership_interval_count ? Number(meta.membership_interval_count) : null,
+          membershipIntervalCount: meta.membership_interval_count
+            ? Number(meta.membership_interval_count)
+            : null,
           programVersion: programVersion ?? null,
         },
       });
@@ -256,10 +391,10 @@ export async function POST(req: Request) {
         await conn.query(
           `INSERT INTO program_entitlements
             (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
-            sanity_file_asset_ref, program_version,
-            program_notes_snapshot, cover_image_url_snapshot, cover_image_alt_snapshot,
-            status)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
+             sanity_file_asset_ref, program_version,
+             program_notes_snapshot, cover_image_url_snapshot, cover_image_alt_snapshot,
+             status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
           [
             userId,
             paymentId,
@@ -288,32 +423,12 @@ export async function POST(req: Request) {
       }
 
       // 4c) subscriptions insert (memberships)
-      // We treat it as a membership if it has membership_interval metadata AND we have a Stripe subscription.
+      // membership if it has membership_interval metadata AND we have a Stripe subscription.
       const isMembershipLineItem = Boolean(membershipInterval);
 
       if (isMembershipLineItem && sub && sanityServiceId) {
-        // Calculate current_period_start and current_period_end
-        let periodStart: Date | null = null;
-        let periodEnd: Date | null = null;
-        if (sub.billing_cycle_anchor) {
-          periodStart = new Date(sub.billing_cycle_anchor * 1000);
-          const plan = sub.items.data[0]?.plan;
-          if (plan && plan.interval) {
-            const intervalCount = plan.interval_count || 1;
-            periodEnd = new Date(periodStart);
-            if (plan.interval === 'month') {
-              periodEnd.setMonth(periodEnd.getMonth() + intervalCount);
-            } else if (plan.interval === 'week') {
-              periodEnd.setDate(periodEnd.getDate() + 7 * intervalCount);
-            } else if (plan.interval === 'year') {
-              periodEnd.setFullYear(periodEnd.getFullYear() + intervalCount);
-            } else if (plan.interval === 'day') {
-              periodEnd.setDate(periodEnd.getDate() + intervalCount);
-            }
-          }
-        } else if (sub.start_date) {
-          periodStart = new Date(sub.start_date * 1000);
-        }
+        // ✅ Use Stripe-provided timestamps (authoritative)
+        const { start: periodStart, end: periodEnd } = getSubscriptionPeriod(sub);
 
         const cancelAtPeriodEnd = sub.cancel_at_period_end ? 1 : 0;
 
@@ -363,6 +478,9 @@ export async function POST(req: Request) {
               cancelAtPeriodEnd,
             ]
           );
+        } else {
+          // ✅ Optional: on checkout completion, also ensure our row reflects latest Stripe state
+          await updateSubscriptionFromStripe(conn, sub);
         }
       }
     }
@@ -370,7 +488,9 @@ export async function POST(req: Request) {
     await conn.commit();
 
     // ✅ fetch buyer info (webhook has no auth session)
-    let buyer: { email: string | null; first_name: string | null; last_name: string | null; phone: string | null } | null = null;
+    let buyer:
+      | { email: string | null; first_name: string | null; last_name: string | null; phone: string | null }
+      | null = null;
 
     try {
       const [urows] = await conn.query<any[]>(
@@ -436,7 +556,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ received: true });
   } catch (err) {
-    await conn.rollback();
+    try {
+      // Only rollback if a transaction began (checkout flow)
+      await conn.query("ROLLBACK");
+    } catch {}
     const msg = err instanceof Error ? err.message : "Webhook handler error";
     console.error("Webhook error:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });

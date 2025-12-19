@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import BookCtaButton from "../components/button/BookCtaButton";
+import CancelMembershipModal from "../components/modal/CancelMembershipModal";
+import RenewMembershipModal from "../components/modal/RenewMembershipModal";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export type PackLineItem = {
   kind: "pack";
@@ -49,6 +52,7 @@ export type MembershipLineItem = {
   is_active: boolean;
   state: "active" | "expired";
   current_period_end: Date | null;
+  cancel_at_period_end: boolean;
 };
 
 export type ProgramLineItem = {
@@ -114,6 +118,18 @@ function getItemKey(item: LineItem) {
   if (item.kind === "membership") return `membership-${item.subscription_id}`;
 }
 
+function isMembershipCurrentlyActive(m: MembershipLineItem) {
+  const end = m.current_period_end ? new Date(m.current_period_end).getTime() : null;
+  const now = Date.now();
+
+  if (m.status === "active" || m.status === "trialing") return true;
+
+  // ✅ If they canceled but still have time left, keep "Active"
+  if (m.cancel_at_period_end && end && now < end) return true;
+
+  return false;
+}
+
 export default function LineItems({
   items,
   title = "Your Services",
@@ -121,6 +137,20 @@ export default function LineItems({
   items: LineItem[];
   title?: string;
 }) {
+  const router = useRouter();
+
+  // ✅ Cancel modal state
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<MembershipLineItem | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+
+  // ✅ Renew modal state (NEW)
+  const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [renewTarget, setRenewTarget] = useState<MembershipLineItem | null>(null);
+  const [renewLoading, setRenewLoading] = useState(false);
+  const [renewError, setRenewError] = useState("");
+
   // ✅ Always render from sorted (not items)
   const sorted = [...items].sort((a, b) => {
     // memberships first
@@ -149,9 +179,102 @@ export default function LineItems({
   });
 
   const isItemActive = (item: LineItem) => {
-    if (item.kind === "membership") return item.is_active;
-    if (item.kind === "pack") return Number(item.available_credits ?? 0) > 0; // pack active if bookable
+    if (item.kind === "membership") return isMembershipCurrentlyActive(item);
+    if (item.kind === "pack") return Number(item.available_credits ?? 0) > 0;
+    return false;
   };
+
+  async function confirmCancelMembership() {
+    if (!cancelTarget) return;
+
+    setCancelLoading(true);
+    setCancelError("");
+
+    const name = cancelTarget.service_title ?? "membership";
+    const toastId = toast.loading(`Canceling ${name}...`);
+
+    try {
+      const res = await fetch("/api/subscriptions/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription_id: cancelTarget.subscription_id }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Failed to cancel membership");
+
+      toast.update(toastId, {
+        render: `Canceled ${name}. You’ll keep access until the end of the period.`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      setCancelModalOpen(false);
+      setCancelTarget(null);
+
+      // ✅ pulls fresh entitlements from server component
+      router.refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      setCancelError(msg);
+
+      toast.update(toastId, {
+        render: msg,
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    } finally {
+      setCancelLoading(false);
+    }
+  }
+
+  async function confirmRenewMembership() {
+    if (!renewTarget) return;
+
+    setRenewLoading(true);
+    setRenewError("");
+
+    const name = renewTarget.service_title ?? "membership";
+    const toastId = toast.loading(`Resuming ${name}...`);
+
+    try {
+      const res = await fetch("/api/subscriptions/resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription_id: renewTarget.subscription_id }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Failed to resume renewal");
+
+      toast.update(toastId, {
+        render: `Renewal resumed for ${name}.`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      setRenewModalOpen(false);
+      setRenewTarget(null);
+
+      // ✅ refresh server-rendered dashboard data
+      router.refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      setRenewError(msg);
+
+      toast.update(toastId, {
+        render: msg,
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    } finally {
+      setRenewLoading(false);
+    }
+  }
 
   const activeItems = sorted.filter(isItemActive);
   const inactiveItems = sorted.filter((i) => !isItemActive(i));
@@ -162,6 +285,46 @@ export default function LineItems({
     // ✅ MEMBERSHIP ROW
     if (item.kind === "membership") {
       const end = item.current_period_end ? new Date(item.current_period_end) : null;
+      const currentlyActive = isMembershipCurrentlyActive(item);
+
+      const footerContent = end ? (
+        <div className="flex items-baseline gap-2">
+          <span className="text-xs text-grey-600">
+            {item.cancel_at_period_end ? "Active until " : "Renews "}
+            <span className="font-semibold">{formatDate(end)}</span>
+          </span>
+
+          {/* ✅ Cancel */}
+          {currentlyActive && !item.cancel_at_period_end && (
+            <button
+              type="button"
+              onClick={() => {
+                setCancelTarget(item);
+                setCancelModalOpen(true);
+                setCancelError("");
+              }}
+              className="text-xs! font-semibold! text-red-600 hover:text-red-700"
+            >
+              Cancel
+            </button>
+          )}
+
+          {/* ✅ Renew */}
+          {currentlyActive && item.cancel_at_period_end && (
+            <button
+              type="button"
+              onClick={() => {
+                setRenewTarget(item);
+                setRenewModalOpen(true);
+                setRenewError("");
+              }}
+              className="text-xs! font-semibold! text-green-700 hover:text-green-800"
+            >
+              Renew
+            </button>
+          )}
+        </div>
+      ) : null;
 
       const statusLabel =
         item.status === "active"
@@ -199,13 +362,7 @@ export default function LineItems({
                 {statusLabel}
               </span>
             </div>
-            <div className="text-xs text-grey-600">
-              {end ? (
-                <>
-                  Renews <span className="font-semibold">{formatDate(end)}</span>
-                </>
-              ) : null}
-            </div>
+            {footerContent}
           </div>
 
           {item.is_active && (
@@ -330,7 +487,28 @@ export default function LineItems({
           )}
         </div>
       )}
+      <CancelMembershipModal
+        open={cancelModalOpen}
+        target={cancelTarget}
+        loading={cancelLoading}
+        error={cancelError}
+        onClose={() => {
+          setCancelModalOpen(false);
+          setCancelTarget(null);
+        }}
+        onConfirm={confirmCancelMembership}
+      />;
+      <RenewMembershipModal
+        open={renewModalOpen}
+        target={renewTarget}
+        loading={renewLoading}
+        error={renewError}
+        onClose={() => {
+          setRenewModalOpen(false);
+          setRenewTarget(null);
+        }}
+        onConfirm={confirmRenewMembership}
+      />
     </div>
   );
 }
-
