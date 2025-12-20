@@ -1,6 +1,7 @@
 import { auth } from "@/app/actions/nextauth";
 import { getClientDashboardEntitlements } from "@/app/lib/queries/client-dashboard-entitlements";
 import CategoryTabs from "@/app/ui/dashboard/category-tabs";
+import CategoryTabsMobile from "@/app/ui/dashboard/category-tabs-mobile";
 
 export default async function ClientDashboard() {
   const session = await auth();
@@ -19,8 +20,15 @@ export default async function ClientDashboard() {
           Browse your services by category, then by type.
         </p>
       </div>
+      {/* tablet & smaller */}
+      <div className="lg:hidden">
+        <CategoryTabsMobile items={data.lineItems} title="Your Services" initialCategory="in_person" />
+      </div>
 
-      <CategoryTabs items={data.lineItems} title="Your Services" initialCategory="in_person" />
+      {/* desktop */}
+      <div className="hidden lg:block">
+        <CategoryTabs items={data.lineItems} title="Your Services" initialCategory="in_person" />
+      </div>
     </div>
   );
 }
