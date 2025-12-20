@@ -59,18 +59,30 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
         ? `/client/checkout?serviceId=${encodeURIComponent(serviceId)}`
         : "/client/dashboard";
 
-      // No need to check result?.error here
-      await signIn("credentials", {
-        redirect: true,
+      const result = await signIn("credentials", {
+        redirect: false, // IMPORTANT
         email: formData.email,
         password: formData.password,
         callbackUrl,
       });
-      // The page will redirect, so code below is not needed
+
+      if (!result) {
+        toast.error("Unable to sign in. Please try again.");
+        setPending(false);
+        return;
+      }
+
+      if (result.error) {
+        // NextAuth commonly returns "CredentialsSignin" for invalid creds
+        toast.error("Invalid email or password.");
+        setPending(false);
+        return;
+      }
+
+      // Success
+      router.push(result.url ?? callbackUrl);
     } catch (error) {
-      // Only catch unexpected errors (e.g., network)
-      toast.error('An unexpected error occurred.');
-    } finally {
+      toast.error("An unexpected error occurred.");
       setPending(false);
     }
   };
@@ -102,15 +114,68 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
             onChange={(e) => handleInputChange('password', e.target.value)}
             required 
           />
+          <a 
+            href="/forgot-password" 
+            className="!text-grey-600 hover:!text-red-700 !no-underline !text-sm"
+          >
+            Forgot your password?
+          </a>
         </LabelInputContainer>
 
         <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-grey-700 to-grey-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] hover:cursor-pointer"
+          className={cn(
+            "group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-grey-700 to-grey-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] hover:cursor-pointer",
+            pending ? "opacity-90 cursor-not-allowed" : ""
+          )}
           type="submit"
           disabled={pending}
         >
-          {pending ? 'Signing In...' : 'Sign In'} &rarr;
-          <BottomGradient />
+          {pending ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg
+                className="h-5 w-5 animate-spin text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+
+              <span className="flex items-center">
+                Signing in
+                <span className="ml-1 flex">
+                  <span className="animate-bounce" style={{ animationDelay: "0ms" }}>
+                    .
+                  </span>
+                  <span className="animate-bounce" style={{ animationDelay: "150ms" }}>
+                    .
+                  </span>
+                  <span className="animate-bounce" style={{ animationDelay: "300ms" }}>
+                    .
+                  </span>
+                </span>
+              </span>
+            </span>
+          ) : (
+            <>
+              Sign In &rarr;
+              <BottomGradient />
+            </>
+          )}
+
+          {/* keep gradient for hover when not pending */}
+          {!pending && <BottomGradient />}
         </button>
 
         <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-grey-300 to-transparent" />
@@ -150,16 +215,10 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
       </form>
       
       <div className="flex flex-col items-center space-y-2">
-        <a 
-          href="/forgot-password" 
-          className="!text-grey-600 hover:!text-grey-800 !no-underline !text-sm"
-        >
-          Forgot your password?
-        </a>
         <p className="!text-gray-700 !text-[15px]">
           Don't have an account?{' '}
           <span
-            className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px] cursor-pointer underline"
+            className="!text-gold-600 hover:!text-gold-500 !no-underline text-[18px]! cursor-pointer underline"
             onClick={onShowSignup}
             role="button"
             tabIndex={0}

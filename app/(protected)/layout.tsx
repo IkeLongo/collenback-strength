@@ -15,15 +15,10 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full m-0 p-0">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body className="h-screen m-0 p-0 overflow-x-hidden font-sans">
-        <div className="h-screen w-full m-0 p-0">
-          {children}
-        </div>
-      </body>
-    </html>
+    <div className="h-screen m-0 p-0 overflow-x-hidden font-sans">
+      <div className="h-screen w-full m-0 p-0">
+        {children}
+      </div>
+    </div>
   );
 }
