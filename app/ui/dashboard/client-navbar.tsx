@@ -7,6 +7,7 @@ import { useCartDrawer } from "@/app/ui/components/cart/cart-drawer-context";
 import { useShoppingCart } from "use-shopping-cart";
 import { UserAvatar } from "@/app/ui/components/user/user-avatar";
 import { useSession } from 'next-auth/react';
+import { usePathname } from "next/navigation";
 
 interface ClientNavbarProps {
   setSidebarOpen?: (open: boolean) => void;
@@ -40,6 +41,22 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
     }
   };
 
+  const pathname = usePathname();
+
+  const NAV_TITLES: Array<{ href: string; title: string }> = [
+    { href: "/client/dashboard", title: "Dashboard" },
+    { href: "/client/schedule", title: "Schedule" },
+    { href: "/client/programs", title: "Programs" },
+    { href: "/client/profile", title: "Profile" },
+  ];
+
+  // Pick the best match (supports subroutes like /client/programs/123)
+  const currentTitle =
+    NAV_TITLES
+      .sort((a, b) => b.href.length - a.href.length)
+      .find((x) => pathname === x.href || pathname.startsWith(x.href + "/"))
+      ?.title ?? "Dashboard";
+
   return (
     <div className="sticky top-0 z-40 flex w-full h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button */}
@@ -59,7 +76,9 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1 items-center">
-          <h1 className="text-xl font-semibold text-grey-900!">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-grey-900!">
+            {currentTitle}
+          </h1>
         </div>
         
         {/* User menu */}
