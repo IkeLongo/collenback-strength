@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -52,16 +52,38 @@ function UserIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarOpen }: ClientSidebarProps) {
+export function ClientSidebar({
+  mobile = false,
+  sidebarOpen = false,
+  setSidebarOpen,
+}: ClientSidebarProps) {
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // NEW: allow close animation before unmount
+  const [isVisible, setIsVisible] = useState(sidebarOpen);
+
+  useEffect(() => {
+    if (sidebarOpen) setIsVisible(true);
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (!mobile) return;
+
+    if (sidebarOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen, mobile]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await signOut({ 
+      await signOut({
         callbackUrl: '/auth',
-        redirect: true 
+        redirect: true,
       });
     } catch (error) {
       console.error('Logout error:', error);
@@ -72,12 +94,8 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
   const sidebarContent = (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-grey-900 px-6 pb-4">
       {/* Logo */}
-      <div className="flex h-16 shrink-0 items-center">
-        <img
-          className="h-8 w-auto"
-          src="/logo-stamp.png"
-          alt="Cade Collenback Strength"
-        />
+      <div className="flex h-16 shrink-0 items-center pt-6">
+        <img className="h-12 w-auto" src="/logo-horizontal.png" alt="Cade Collenback Strength" />
       </div>
 
       {/* Navigation */}
@@ -92,11 +110,10 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
                     <Link
                       href={item.href}
                       className={cn(
-                        isActive
-                          ? 'bg-grey-800 text-white'
-                          : 'text-grey-400 hover:text-white hover:bg-grey-800',
+                        isActive ? 'bg-grey-800 text-white' : 'text-grey-400 hover:text-white hover:bg-grey-800',
                         'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                       )}
+                      onClick={() => setSidebarOpen?.(false)} // optional: close on nav click (mobile)
                     >
                       <item.icon
                         className={cn(
@@ -112,7 +129,7 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
               })}
             </ul>
           </li>
-          
+
           {/* Bottom section */}
           <li className="mt-auto">
             <button
@@ -120,26 +137,16 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
               disabled={isLoggingOut}
               className={cn(
                 "group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 hover:cursor-pointer",
-                isLoggingOut 
-                  ? "bg-grey-800 text-grey-300 cursor-not-allowed" 
+                isLoggingOut
+                  ? "bg-grey-800 text-grey-300 cursor-not-allowed"
                   : "text-grey-400 hover:bg-grey-800 hover:text-white"
               )}
             >
+              {/* ... keep your logout button UI exactly as-is */}
               {isLoggingOut ? (
                 <>
-                  <svg
-                    className="h-6 w-6 shrink-0 text-grey-300 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
+                  <svg className="h-6 w-6 shrink-0 text-grey-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path
                       className="opacity-75"
                       fill="currentColor"
@@ -157,13 +164,7 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
                 </>
               ) : (
                 <>
-                  <svg
-                    className="h-6 w-6 shrink-0 text-grey-400 group-hover:text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                  >
+                  <svg className="h-6 w-6 shrink-0 text-grey-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                   </svg>
                   Sign out
@@ -177,32 +178,51 @@ export function ClientSidebar({ mobile = false, sidebarOpen = false, setSidebarO
   );
 
   if (mobile) {
+    if (!isVisible) return null;
+
     return (
-      <>
-        {/* Mobile sidebar overlay */}
-        {sidebarOpen && (
-          <div className="relative z-50 lg:hidden">
-            <div className="fixed inset-0 bg-grey-900/80" onClick={() => setSidebarOpen?.(false)} />
-            <div className="fixed inset-0 flex">
-              <div className="relative mr-16 flex w-full max-w-xs flex-1">
-                <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                  <button
-                    type="button"
-                    className="-m-2.5 p-2.5"
-                    onClick={() => setSidebarOpen?.(false)}
-                  >
-                    <span className="sr-only">Close sidebar</span>
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                {sidebarContent}
-              </div>
-            </div>
+      <div className="relative z-50 lg:hidden">
+        {/* Backdrop */}
+        <div
+          className={cn(
+            "fixed inset-0 bg-grey-900/80 transition-opacity duration-300",
+            sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          )}
+          onClick={() => setSidebarOpen?.(false)}
+        />
+
+        {/* Slide-over container (IMPORTANT pointer-events toggle) */}
+        <div
+          className={cn(
+            "fixed inset-0 flex",
+            sidebarOpen ? "pointer-events-auto" : "pointer-events-none"
+          )}
+        >
+          {/* Animated panel wrapper */}
+          <div
+            className={cn(
+              "relative flex h-full w-full max-w-xs flex-1 transform transition-transform duration-300 ease-out",
+              sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            {sidebarContent}
+
+            {/* Exit button only when open */}
+            {sidebarOpen && (
+              <button
+                type="button"
+                className="absolute left-full top-5 ml-3 rounded-md p-2 text-white hover:bg-white/10"
+                onClick={() => setSidebarOpen?.(false)}
+              >
+                <span className="sr-only">Close sidebar</span>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
-        )}
-      </>
+        </div>
+      </div>
     );
   }
 
