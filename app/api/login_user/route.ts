@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     }
 
     const user = users[0];
+    console.log(user.avatar_key)
 
     // Verify password
     const isPasswordValid = await bcryptjs.compare(password, user.password_hash);
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
         firstName: user.first_name,
         lastName: user.last_name,
         phone: user.phone,
+        avatarKey: user.avatar_key ?? null, // ✅ add this
       }
     });
 

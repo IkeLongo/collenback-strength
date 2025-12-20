@@ -1,8 +1,6 @@
 import { LoginFormSchema } from '@/app/lib/definitions'
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { comparePassword } from '@/app/utils/password'
-import { User } from '@/app/types/types';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -50,6 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             phone: result.user.phone,
             role: result.role,
             roleId: result.roleId,
+            avatarKey: result.user.avatarKey ?? null,
           };
         } catch (err) {
           console.error('Error fetching user:', err);
@@ -70,6 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           firstName: token.firstName as string,
           lastName: token.lastName as string,
           phone: token.phone as string,
+          avatarKey: (token as any).avatarKey ?? null,
         };
       }
       return session;
@@ -82,6 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (token as any).firstName = (user as any).firstName;
         (token as any).lastName = (user as any).lastName;
         (token as any).phone = (user as any).phone;
+        (token as any).avatarKey = (user as any).avatarKey ?? null;
       }
       return token;
     },

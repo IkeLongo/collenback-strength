@@ -8,6 +8,7 @@ export interface User {
   first_name: string;
   last_name: string;
   phone: string;
+  avatar_key?: string | null;
 }
 
 export interface UserWithRole extends User {
@@ -30,6 +31,7 @@ export async function getUserByEmailWithRole(email: string): Promise<UserWithRol
       u.first_name, 
       u.last_name, 
       u.phone,
+      u.avatar_key,
       ur.role_id,
       r.name as role_name,
       r.description as role_description
