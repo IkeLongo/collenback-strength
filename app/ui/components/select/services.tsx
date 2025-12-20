@@ -15,7 +15,7 @@ type ServiceSelectProps = {
 
 export function ServiceSelect({ services, value, onChange, loading, className }: ServiceSelectProps) {
   return (
-    <LabelInputContainer className="mb-4">
+    <LabelInputContainer className="mb-4 max-w-94">
       <Label className="text-grey-700!" htmlFor="tab-select">
         Select a Service:
       </Label>

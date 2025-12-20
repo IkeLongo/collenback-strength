@@ -138,42 +138,41 @@ export default function MySchedule() {
 
   return (
     <div className="rounded-xl border p-4 space-y-4 bg-white">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div>
           <h2 className="text-xl! font-semibold! text-black!">My Schedule</h2>
           <p className="text-sm! text-black/70!">Times shown in Central Time (Chicago).</p>
         </div>
 
-        <div className="flex flex-col gap-2 items-end">
-          <div 
+        <div className="flex flex-col gap-2 sm:items-end">
+          <div
             className={[
-                "flex items-center text-sm transition",
-                bucket === "upcoming"
-                  ? ""
-                  : "bg-grey-50 text-grey-700 hover:text-grey-900",
-              ].join(" ")}
-            >
+              "flex flex-row text-sm transition",
+              bucket === "upcoming"
+                ? ""
+                : "bg-grey-50 text-grey-700 hover:text-grey-900",
+            ].join(" ")}
+          >
             <button
               type="button"
               onClick={() => setBucket("upcoming")}
               className={cx(
                 "px-3 py-1.5 text-sm font-semibold transition border-b-[2px] border-b-grey-100",
-                bucket === "upcoming" 
-                ? "text-grey-700 font-semibold! border-b-[3px] border-b-grey-500"
-                : "bg-grey-50 text-grey-700 hover:text-grey-900",
+                bucket === "upcoming"
+                  ? "text-grey-700 font-semibold! border-b-[3px] border-b-grey-500"
+                  : "bg-grey-50 text-grey-700 hover:text-grey-900",
               )}
             >
               Upcoming
             </button>
-
             <button
               type="button"
               onClick={() => setBucket("past")}
               className={cx(
                 "px-3 py-1.5 text-sm font-semibold transition border-b-[2px] border-b-grey-100",
                 bucket === "past"
-                ? "text-grey-700 font-semibold! border-b-[3px] border-b-grey-500"
-                : "bg-grey-50 text-grey-700 hover:text-grey-900",
+                  ? "text-grey-700 font-semibold! border-b-[3px] border-b-grey-500"
+                  : "bg-grey-50 text-grey-700 hover:text-grey-900",
               )}
             >
               Past
@@ -181,17 +180,19 @@ export default function MySchedule() {
           </div>
 
           {bucket === "past" && (
-            <div className="flex items-center gap-3 mt-1 w-fit">
-              <label className="text-sm! font-semibold! text-black!" htmlFor="month">
-                Select Month
-              </label>
-              <input
-                id="month"
-                type="month"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="rounded-md border px-3 py-2 text-sm text-black"
-              />
+            <div className="w-fit mt-1">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <label className="text-sm! font-semibold! text-black! text-left" htmlFor="month">
+                  Select Month
+                </label>
+                <input
+                  id="month"
+                  type="month"
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                  className="rounded-md border px-3 py-2 text-sm text-black"
+                />
+              </div>
             </div>
           )}
         </div>

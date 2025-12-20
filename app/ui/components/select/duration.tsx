@@ -29,7 +29,7 @@ export function DurationSelect({
   );
 
   return (
-    <LabelInputContainer className="mb-4">
+    <LabelInputContainer className="mb-4 max-w-94">
       <Label className="text-grey-700!" htmlFor="duration-select">
         Select a Duration:
       </Label>
