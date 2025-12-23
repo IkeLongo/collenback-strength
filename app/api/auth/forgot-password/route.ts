@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { getUserByEmailWithRole } from "@/app/lib/queries/users";
+import { getUserByEmailWithRoles } from "@/app/lib/queries/users";
 import { createPasswordResetToken } from "@/app/lib/queries/passwordReset";
 import { sendResetEmail } from "@/app/lib/email/sendResetEmail";
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (!email) return NextResponse.json({ message: "Email is required." }, { status: 400 });
 
     // Look up user
-    const users = await getUserByEmailWithRole(email);
+    const users = await getUserByEmailWithRoles(email);
     if (users.length === 0) return genericOk;
 
     const user = users[0];

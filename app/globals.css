@@ -75,6 +75,7 @@
 .fc .fc-event-title,
 .fc .fc-event-time {
   color: #000;
+  font-size: 12px;
 }
 
 .fc .fc-daygrid-day.fc-day-today {
@@ -179,6 +180,117 @@
     --foreground: #ededed;
   }
 } */
+
+/* Base session styling */
+.fc .cs-session-event {
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08); /* subtle outline */
+  overflow: hidden;                   /* so left bar clips cleanly */
+  background: var(--cs-bg, #fff); /* ✅ use var */
+}
+
+/* Left border emphasis */
+.fc .cs-session-event .fc-event-main {
+  background: var(--cs-bg, #fff); /* ✅ ensure inner paints too */
+  border-left: 5px solid var(--cs-left, #111827); /* ✅ uses our variable */
+  padding: 4px 6px;
+  height: 100%;
+}
+
+/* Keep text readable */
+.fc .cs-session-event .fc-event-title {
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* Reduce visual noise */
+.fc .cs-session-event {
+  box-shadow: none;
+}
+
+/* Inner wrapper */
+.fc .cs-session-event .cs-event-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Coach label (top line) */
+.fc .cs-session-event .cs-event-coach {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  /* same color as left border */
+  color: var(--cs-left);
+
+  /* subtle tint using same color */
+  /* background-color: color-mix(in srgb, var(--cs-left) 12%, transparent); */
+  /* padding: 2px 6px; */
+  /* border-radius: 4px; */
+}
+
+/* Client name */
+.fc .cs-session-event .cs-event-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Service name */
+.fc .cs-session-event .cs-event-service {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* scheduled: dashed outline + subtle corner badge */
+.fc .cs-status-scheduled {
+  outline: 2px dashed rgba(17, 24, 39, 0.35);
+  outline-offset: -2px;
+}
+
+/* optional: completed, cancelled, no_show styles */
+.fc .cs-status-completed { opacity: 0.95; }
+.fc .cs-status-cancelled { opacity: 0.65; }
+.fc .cs-status-noshow { opacity: 0.75; }
+
+/* Month list-item content */
+.fc .cs-month-item{
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 6px;
+}
+
+.fc .cs-month-time{
+  font-weight: 700;
+  opacity: 0.85;
+  flex: 0 0 auto;
+  color: var(--cs-left);
+}
+
+.fc .cs-month-client{
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--cs-left);
+}
+
+/* Month list items: tint the row */
+.fc .fc-daygrid-event.cs-session-event,
+.fc .fc-daygrid-event.cs-session-event .fc-event-main{
+  background: var(--cs-bg, #fff) !important; /* ✅ tint row */
+}
+
+.fc-daygrid-more-link {
+  color: #000;
+  font-size: small;
+}
 
 body {
   background: var(--background);

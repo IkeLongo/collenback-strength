@@ -20,7 +20,11 @@ export default async function middleware(req: any) {
     }
 
     // Get user role from token
-    const userRole = (token as any).role || 'client'; // Default to client if no role
+    const roles: string[] = (token as any).roles ?? [];
+    const roleIds: number[] = (token as any).roleIds ?? [];
+    const isAdmin = roles.includes("admin") || roleIds.includes(3);
+
+    const userRole = isAdmin ? "admin" : ((token as any).role || "client");
 
     // Role-based access control
     if (pathname.startsWith('/admin') && userRole !== 'admin') {

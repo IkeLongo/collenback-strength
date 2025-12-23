@@ -1,55 +1,114 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { signOut } from 'next-auth/react';
-import { cn } from '@/app/lib/utils';
+import React, { useState } from "react";
+import { signOut } from "next-auth/react";
+import { cn } from "@/app/lib/utils";
 
-interface AdminNavbarProps {
-  setSidebarOpen?: (open: boolean) => void;
-  userName?: string;
-}
+type AdminNavbarProps = {
+  setSidebarOpen: (open: boolean) => void; // mobile overlay
+  userName: string;
 
-export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarProps) {
+  // desktop pinned sidebar toggle
+  desktopSidebarOpen?: boolean;
+  setDesktopSidebarOpen?: (open: boolean) => void;
+};
+
+export function AdminNavbar({
+  setSidebarOpen,
+  userName = "Admin",
+  desktopSidebarOpen,
+  setDesktopSidebarOpen,
+}: AdminNavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  
+
   // Get first and last initial from userName
   const getInitials = (name: string) => {
-    const names = name.trim().split(' ');
+    const names = name.trim().split(" ");
     if (names.length >= 2) {
-      return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
+      return `${names[0].charAt(0)}${names[names.length - 1]
+        .charAt(0)
+        .toUpperCase()}`.toUpperCase();
     }
     return name.charAt(0).toUpperCase();
   };
-  
+
   const userInitials = getInitials(userName);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await signOut({ 
-        callbackUrl: '/auth',
-        redirect: true 
+      await signOut({
+        callbackUrl: "/auth",
+        redirect: true,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };
 
+  const canToggleDesktop =
+    typeof desktopSidebarOpen === "boolean" && typeof setDesktopSidebarOpen === "function";
+
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      {/* Mobile menu button */}
+      {/* Mobile menu button (opens overlay sidebar) */}
       <button
         type="button"
         className="-m-2.5 p-2.5 text-grey-700 lg:hidden"
-        onClick={() => setSidebarOpen?.(true)}
+        onClick={() => setSidebarOpen(true)}
       >
         <span className="sr-only">Open sidebar</span>
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="1.5"
+          stroke="currentColor"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
       </button>
+
+      {/* Desktop sidebar toggle (lg+) */}
+      {canToggleDesktop && (
+        <button
+          type="button"
+          className="hidden lg:inline-flex -m-2.5 p-2.5 text-grey-700 hover:text-grey-900"
+          onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+          aria-label={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          title={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          <span className="sr-only">
+            {desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          </span>
+
+          {desktopSidebarOpen ? (
+            // chevron-left
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
+            </svg>
+          ) : (
+            // chevron-right
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
+            </svg>
+          )}
+        </button>
+      )}
 
       {/* Separator */}
       <div className="h-6 w-px bg-grey-200 lg:hidden" aria-hidden="true" />
@@ -58,14 +117,18 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
         <div className="flex flex-1 items-center">
           <h1 className="text-xl font-semibold text-grey-900!">Admin Dashboard</h1>
         </div>
-        
+
         {/* User menu */}
         <div className="flex items-center gap-x-4 lg:gap-x-6">
           {/* Notifications */}
           <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
             <span className="sr-only">View notifications</span>
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+              />
             </svg>
           </button>
 
@@ -87,15 +150,19 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
                 <span className="ml-4 text-sm font-semibold leading-6 text-grey-900" aria-hidden="true">
                   {userName}
                 </span>
-                <svg 
+                <svg
                   className={cn(
                     "ml-2 h-5 w-5 text-grey-400 transform transition-transform duration-200",
                     userMenuOpen ? "rotate-180" : "rotate-0"
-                  )} 
-                  viewBox="0 0 20 20" 
+                  )}
+                  viewBox="0 0 20 20"
                   fill="currentColor"
                 >
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </span>
             </button>
@@ -103,7 +170,10 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
             {/* Dropdown menu */}
             {userMenuOpen && (
               <div className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 px-2 shadow-lg ring-1 ring-grey-900/5 focus:outline-none">
-                <a href="#" className="block px-3! py-2! text-sm! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!">
+                <a
+                  href="#"
+                  className="block px-3! py-2! text-sm! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!"
+                >
                   Your profile
                 </a>
                 <button
@@ -111,26 +181,15 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
                   disabled={isLoggingOut}
                   className={cn(
                     "block w-full text-left px-3! py-2! text-sm! leading-6! rounded-md! transition-colors duration-200",
-                    isLoggingOut 
-                      ? "text-grey-500! bg-grey-50! cursor-not-allowed" 
+                    isLoggingOut
+                      ? "text-grey-500! bg-grey-50! cursor-not-allowed"
                       : "text-grey-900! hover:bg-grey-100! hover:cursor-pointer!"
                   )}
                 >
                   {isLoggingOut ? (
                     <span className="flex items-center">
-                      <svg
-                        className="h-4 w-4 mr-2 animate-spin"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
+                      <svg className="h-4 w-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path
                           className="opacity-75"
                           fill="currentColor"
@@ -139,13 +198,19 @@ export function AdminNavbar({ setSidebarOpen, userName = 'Admin' }: AdminNavbarP
                       </svg>
                       Signing out
                       <span className="ml-1 flex">
-                        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
-                        <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: "0ms" }}>
+                          .
+                        </span>
+                        <span className="animate-bounce" style={{ animationDelay: "150ms" }}>
+                          .
+                        </span>
+                        <span className="animate-bounce" style={{ animationDelay: "300ms" }}>
+                          .
+                        </span>
                       </span>
                     </span>
                   ) : (
-                    'Sign out'
+                    "Sign out"
                   )}
                 </button>
               </div>
