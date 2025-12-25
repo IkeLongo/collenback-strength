@@ -14,12 +14,24 @@ interface AdminSidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
-  { name: 'Sessions', href: '/admin/sessions', icon: SessionsIcon },
+  { name: 'My Schedule', href: '/admin/my-schedule', icon: MyScheduleIcon },
+  { name: 'Client Sessions', href: '/admin/sessions', icon: SessionsIcon },
   { name: 'Users', href: '/admin/users', icon: UsersIcon },
   { name: 'Programs', href: '/admin/programs', icon: ClipboardIcon },
   { name: 'Purchases', href: '/admin/purchases', icon: ChartBarIcon },
   { name: 'Credit Ledger', href: '/admin/credit-ledger', icon: CogIcon },
 ];
+// My Schedule Icon (Calendar with clock)
+function MyScheduleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 3v4M8 3v4" />
+      <circle cx="16.5" cy="16.5" r="4" stroke="currentColor" strokeWidth="1.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 14.5v2l1.5 1.5" />
+    </svg>
+  );
+}
 // Sessions Icon (Calendar with checkmark)
 function SessionsIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

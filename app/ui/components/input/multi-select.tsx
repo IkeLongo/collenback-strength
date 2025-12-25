@@ -10,10 +10,12 @@ export interface MultiSelectProps
   onChange?: (value: string | string[]) => void
   placeholder?: string
   singleSelect?: boolean
+  menuClassName?: string // custom dropdown menu styling
+  dropdownPlacement?: "top" | "bottom" // dropdown position
 }
 
 const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
-  ({ className, options, value = [], onChange, placeholder = "Select options...", singleSelect = false, ...props }, ref) => {
+  ({ className, options, value = [], onChange, placeholder = "Select options...", singleSelect = false, menuClassName, dropdownPlacement = "bottom", ...props }, ref) => {
     const radius = 100 // change this to increase the radius of the hover effect
     const [visible, setVisible] = React.useState(false)
     const [isOpen, setIsOpen] = React.useState(false)
@@ -182,8 +184,13 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
 
         {/* Dropdown options */}
         {isOpen && (
-          <div className="absolute z-50 mt-1 w-full bg-white rounded-2xl border border-grey-300 shadow-lg">
-            <div className="max-h-60 overflow-y-auto p-1 space-y-1">
+          <div
+            className={cn(
+              "absolute z-50 w-full bg-white rounded-2xl border border-grey-300 shadow-lg",
+              dropdownPlacement === "top" ? "bottom-full mb-1" : "mt-1"
+            )}
+          >
+            <div className={cn("max-h-60 overflow-y-auto p-1 space-y-1", menuClassName)}>
               {options.map((option) => {
                 const isActive = selectedValues.includes(option.value);
                 return (
