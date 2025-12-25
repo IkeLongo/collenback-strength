@@ -1,5 +1,3 @@
-'use client';
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LoadingProvider } from "./ui/components/load/loading-context";
@@ -9,6 +7,10 @@ import { ToastContainer } from "react-toastify";
 import GoogleAnalytics from "./lib/analytics/google-analytics";
 import CookieBanner from "./ui/cookies/banner";
 import { SessionProvider } from "next-auth/react";
+import { draftMode } from 'next/headers'
+import { VisualEditing } from 'next-sanity/visual-editing'
+import { DisableDraftMode } from "./ui/components/button/disable-draft-mode";
+import { SanityLive } from '@/sanity/lib/live'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +22,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -117,6 +119,13 @@ export default function RootLayout({
             <PageLoadingManager />
             <FadeOverlay />
               {children}
+              <SanityLive />
+              {(await draftMode()).isEnabled && (
+                <>
+                  <DisableDraftMode />
+                  <VisualEditing />
+                </>
+              )}
             <ToastContainer limit={1} theme="dark" />
             <GoogleAnalytics />
             <CookieBanner />
