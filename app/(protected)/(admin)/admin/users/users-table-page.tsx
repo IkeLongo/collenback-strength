@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/app/lib/utils";
 import { UserAvatar } from "@/app/ui/components/user/user-avatar";
 import AdminUserModal from "@/app/ui/components/modal/AdminUserModal";
+import { SyncedHorizontalScroll } from "@/app/ui/components/layout/synced-horizontal-scroll";
 
 type RoleTab = "client" | "coach" | "admin";
 
@@ -115,7 +116,7 @@ export default function UsersTablePage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl! font-semibold! text-grey-700! normal-case!">Users</h1>
+          <h1 className="text-xl! font-semibold! text-grey-700! normal-case!">My Clients</h1>
           <p className="text-sm! text-grey-500!">Manage clients, coaches, and admins.</p>
         </div>
 
@@ -167,91 +168,93 @@ export default function UsersTablePage() {
       {/* Table */}
       <div className="overflow-hidden rounded-2xl border border-grey-300 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-[950px] w-full text-sm table-fixed">
-            <colgroup>
-              <col className="w-[320px]" /> {/* User */}
-              <col className="w-[280px]" /> {/* Email */}
-              <col className="w-[180px]" /> {/* Phone */}
-              <col className="w-[120px]" /> {/* Status */}
-              <col className="w-[220px]" /> {/* Roles */}
-            </colgroup>
+          <SyncedHorizontalScroll>
+            <table className="min-w-[950px] w-full text-sm table-fixed">
+              <colgroup>
+                <col className="w-[320px]" /> {/* User */}
+                <col className="w-[280px]" /> {/* Email */}
+                <col className="w-[180px]" /> {/* Phone */}
+                <col className="w-[120px]" /> {/* Status */}
+                <col className="w-[220px]" /> {/* Roles */}
+              </colgroup>
 
-            <thead className="bg-grey-100 text-grey-700">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">User</th>
-                <th className="px-4 py-3 text-left font-semibold">Email</th>
-                <th className="px-4 py-3 text-left font-semibold">Phone</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-left font-semibold">Roles</th>
-              </tr>
-            </thead>
+              <thead className="bg-grey-100 text-grey-700">
+                <tr>
+                  <th className="px-4 py-3 pl-6 text-left font-semibold">User</th>
+                  <th className="px-4 py-3 text-left font-semibold">Email</th>
+                  <th className="px-4 py-3 text-left font-semibold">Phone</th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold">Roles</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td className="px-4 py-4 text-grey-500" colSpan={5}>
-                    Loading…
-                  </td>
-                </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-4 text-grey-500" colSpan={5}>
-                    No users found.
-                  </td>
-                </tr>
-              ) : (
-                users.map((u) => {
-                  const fullName = name(u.first_name, u.last_name);
-                  return (
-                    <tr
-                      key={u.id}
-                      className="border-t border-grey-300 hover:bg-grey-50 cursor-pointer"
-                      onClick={() => setSelected(u)}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <UserAvatar
-                            name={fullName}
-                            avatarUrl={avatarUrlFromKey(u.avatar_key)}
-                            size={40}
-                          />
-                          <div className="min-w-0">
-                            <div className="font-medium text-grey-700 truncate">{fullName}</div>
-                            <div className="text-xs text-grey-500">User #{u.id}</div>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td className="px-4 py-4 text-grey-500" colSpan={5}>
+                      Loading…
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td className="px-4 py-4 text-grey-500" colSpan={5}>
+                      No users found.
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((u) => {
+                    const fullName = name(u.first_name, u.last_name);
+                    return (
+                      <tr
+                        key={u.id}
+                        className="border-t border-grey-300 hover:bg-grey-50 cursor-pointer"
+                        onClick={() => setSelected(u)}
+                      >
+                        <td className="px-4 py-3 pl-6">
+                          <div className="flex items-center gap-2">
+                            <UserAvatar
+                              name={fullName}
+                              avatarUrl={avatarUrlFromKey(u.avatar_key)}
+                              size={40}
+                            />
+                            <div className="min-w-0">
+                              <div className="font-medium text-grey-700 truncate">{fullName}</div>
+                              <div className="text-xs text-grey-500">User #{u.id}</div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <div className="text-grey-700 truncate">{u.email}</div>
-                      </td>
+                        <td className="px-4 py-3">
+                          <div className="text-grey-700 truncate">{u.email}</div>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <div className="text-grey-700 truncate">{u.phone ?? "—"}</div>
-                      </td>
+                        <td className="px-4 py-3">
+                          <div className="text-grey-700 truncate">{u.phone ?? "—"}</div>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold",
-                            u.is_active
-                              ? "border-green-200 bg-green-50 text-green-700"
-                              : "border-grey-300 bg-white text-grey-700"
-                          )}
-                        >
-                          {u.is_active ? "active" : "inactive"}
-                        </span>
-                      </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={cn(
+                              "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold",
+                              u.is_active
+                                ? "border-green-200 bg-green-50 text-green-700"
+                                : "border-grey-300 bg-white text-grey-700"
+                            )}
+                          >
+                            {u.is_active ? "active" : "inactive"}
+                          </span>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <div className="text-grey-700 truncate">{u.roles.join(", ") || "—"}</div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                        <td className="px-4 py-3">
+                          <div className="text-grey-700 truncate">{u.roles.join(", ") || "—"}</div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </SyncedHorizontalScroll>
         </div>
 
         {/* Pagination footer */}

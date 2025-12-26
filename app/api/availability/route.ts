@@ -33,6 +33,16 @@ function dateToMysqlUtc(dt: Date) {
   return dt.toISOString().slice(0, 19).replace("T", " ");
 }
 
+function dateOnlyYmd(v: any): string {
+  // MySQL DATE can come as:
+  // - "2025-12-31" (string)
+  // - Date object representing UTC midnight
+  if (!v) return "";
+  if (typeof v === "string") return v.slice(0, 10);
+  if (v instanceof Date) return v.toISOString().slice(0, 10); // ✅ keeps correct day
+  return String(v).slice(0, 10);
+}
+
 export async function GET(req: Request) {
   // Get current time in Chicago timezone for filtering past slots
   const nowChicago = toZonedTime(new Date(), TZ);
@@ -106,15 +116,16 @@ export async function GET(req: Request) {
   );
 
   // Debug logging
-  // console.log("[availability] exceptions", {
-  //   count: exceptions.length,
-  //   dates: Array.from(new Set(exceptions.map((e) => toYMD(new Date(e.date))))),
-  // });
+  console.log("[availability] exceptions", {
+    count: exceptions.length,
+    raw: exceptions.map((e) => ({ date: e.date, type: typeof e.date })),
+    dates: Array.from(new Set(exceptions.map((e) => dateOnlyYmd(e.date)))),
+  });
 
   // Index exceptions by date
   const exByDate = new Map<string, RowDataPacket[]>();
   for (const ex of exceptions) {
-    const key = toYMD(new Date(ex.date)); // date comes back as Date/string
+    const key = dateOnlyYmd(ex.date); // ✅ no timezone shift
     const arr = exByDate.get(key) ?? [];
     arr.push(ex);
     exByDate.set(key, arr);
@@ -195,15 +206,27 @@ export async function GET(req: Request) {
       (e) => e.type === "blocked" && !e.start_time && !e.end_time
     );
 
+    // Does the day have any custom availability windows?
+    const customWindows = dayEx
+      .filter((e) => e.type === "custom" && e.start_time && e.end_time)
+      .map((e) => ({
+        startTime: String(e.start_time),
+        endTime: String(e.end_time),
+      }));
+
     // Build windows: recurring rules + custom exceptions
     const windows: Array<{ startTime: string; endTime: string }> = [];
 
     if (!allDayBlocked) {
-      for (const r of dayRules) {
-        windows.push({
-          startTime: String(r.start_time), // "09:00:00"
-          endTime: String(r.end_time),     // "17:00:00"
-        });
+      if (customWindows.length > 0) {
+        windows.push(...customWindows);
+      } else {
+        for (const r of dayRules) {
+          windows.push({
+            startTime: String(r.start_time),
+            endTime: String(r.end_time),
+          });
+        }
       }
     }
 

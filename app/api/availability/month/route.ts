@@ -18,6 +18,16 @@ function dayOfWeekLocal(d: Date) {
   return d.getDay();
 }
 
+function dateOnlyYmd(v: any): string {
+  // MySQL DATE can come as:
+  // - "2025-12-31" (string)
+  // - Date object representing UTC midnight
+  if (!v) return "";
+  if (typeof v === "string") return v.slice(0, 10);
+  if (v instanceof Date) return v.toISOString().slice(0, 10); // ✅ keeps correct day
+  return String(v).slice(0, 10);
+}
+
 /**
  * GET /api/availability/month
  */
@@ -68,7 +78,7 @@ export async function GET(req: Request) {
   // Index exceptions by date (YYYY-MM-DD)
   const exByDate = new Map<string, RowDataPacket[]>();
   for (const ex of exceptions) {
-    const key = toYmd(new Date(ex.date));
+    const key = dateOnlyYmd(ex.date); // ✅
     const arr = exByDate.get(key) ?? [];
     arr.push(ex);
     exByDate.set(key, arr);

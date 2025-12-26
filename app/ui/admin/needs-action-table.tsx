@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { SyncedHorizontalScroll } from "@/app/ui/components/layout/synced-horizontal-scroll";
 import { ActionMultiSelect, type SessionAction } from "@/app/ui/components/select/action";
 import { UserAvatar } from "../components/user/user-avatar";
 
@@ -260,113 +261,115 @@ export default function NeedsActionTable() {
 
       <div className="overflow-hidden rounded-2xl border border-grey-300 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-[950px] w-full text-sm">
-            <colgroup>
-              <col className="min-w-[180px]" />
-              <col className="min-w-[260px]" />
-              <col className="min-w-[200px]" />
-              <col className="min-w-[220px]" />
-              <col className="min-w-[120px]" />
-              <col className="min-w-[220px]" />
-            </colgroup>
-            <thead className="bg-grey-100 text-grey-700">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">When</th>
-                <th className="px-4 py-3 text-left font-semibold">Client</th>
-                <th className="px-4 py-3 text-left font-semibold">Coach</th>
-                <th className="px-4 py-3 text-left font-semibold">Service</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-left font-semibold">Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
+          <SyncedHorizontalScroll>
+            <table className="min-w-[950px] w-full text-sm">
+              <colgroup>
+                <col className="min-w-[180px]" />
+                <col className="min-w-[260px]" />
+                <col className="min-w-[200px]" />
+                <col className="min-w-[220px]" />
+                <col className="min-w-[120px]" />
+                <col className="min-w-[220px]" />
+              </colgroup>
+              <thead className="bg-grey-100 text-grey-700">
                 <tr>
-                  <td className="px-4 py-4 text-grey-500" colSpan={6}>
-                    Loading…
-                  </td>
+                  <th className="px-4 py-3 pl-6 text-left font-semibold">When</th>
+                  <th className="px-4 py-3 text-left font-semibold">Client</th>
+                  <th className="px-4 py-3 text-left font-semibold">Coach</th>
+                  <th className="px-4 py-3 text-left font-semibold">Service</th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold">Action</th>
                 </tr>
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-4 text-grey-500" colSpan={6}>
-                    No sessions need action.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((s) => {
-                  const clientName = name(s.client_first_name, s.client_last_name);
-                  const coachName = name(s.coach_first_name, s.coach_last_name);
-                  const busy = busySessionId === s.id;
+              </thead>
 
-                  return (
-                    <tr key={s.id} className="border-t border-grey-300">
-                      <td className="px-4 py-3">
-                        {fmtWhenRange(s.scheduled_start, s.scheduled_end)}
-                        <div className="text-xs text-grey-500">Session #{s.id}</div>
-                      </td>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td className="px-4 py-4 text-grey-500" colSpan={6}>
+                      Loading…
+                    </td>
+                  </tr>
+                ) : rows.length === 0 ? (
+                  <tr>
+                    <td className="px-4 py-4 text-grey-500" colSpan={6}>
+                      No sessions need action.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((s) => {
+                    const clientName = name(s.client_first_name, s.client_last_name);
+                    const coachName = name(s.coach_first_name, s.coach_last_name);
+                    const busy = busySessionId === s.id;
 
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <UserAvatar
-                            name={clientName}
-                            avatarUrl={avatarUrlFromKey(s.client_avatar_key)}
-                            size={40}
-                          />
-                          <div>
-                            <div className="font-medium text-grey-700">{clientName}</div>
-                            <div className="text-xs text-grey-500">{s.client_email}</div>
+                    return (
+                      <tr key={s.id} className="border-t border-grey-300">
+                        <td className="px-4 py-3 pl-6">
+                          {fmtWhenRange(s.scheduled_start, s.scheduled_end)}
+                          <div className="text-xs text-grey-500">Session #{s.id}</div>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <UserAvatar
+                              name={clientName}
+                              avatarUrl={avatarUrlFromKey(s.client_avatar_key)}
+                              size={40}
+                            />
+                            <div>
+                              <div className="font-medium text-grey-700">{clientName}</div>
+                              <div className="text-xs text-grey-500">{s.client_email}</div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-grey-700">{coachName}</div>
-                        <div className="text-xs text-grey-500">{s.coach_email ?? "—"}</div>
-                      </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-grey-700">{coachName}</div>
+                          <div className="text-xs text-grey-500">{s.coach_email ?? "—"}</div>
+                        </td>
 
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-grey-700">
-                          {s.service_category_title ?? s.service_category ?? "—"}
-                        </div>
-                        {s.service_title ? (
-                          <div className="text-xs text-grey-500">{s.service_title}</div>
-                        ) : null}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-full border border-grey-300 bg-white px-2.5 py-1 text-xs font-medium text-grey-700">
-                          {s.status}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <ActionMultiSelect
-                            value={null}
-                            disabled={busy}
-                            onChange={(action) => {
-                              if (!action) return;
-                              if (action === "cancel_release") {
-                                openCancel(s.id);
-                                return;
-                              }
-                              finalize(s.id, action);
-                            }}
-                            className="w-56 bg-white text-black font-outfit max-w-full rounded-md border border-grey-300 shadow-sm"
-                          />
-
-                          {busy ? (
-                            <span className="text-xs text-grey-500">Working…</span>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-grey-700">
+                            {s.service_category_title ?? s.service_category ?? "—"}
+                          </div>
+                          {s.service_title ? (
+                            <div className="text-xs text-grey-500">{s.service_title}</div>
                           ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full border border-grey-300 bg-white px-2.5 py-1 text-xs font-medium text-grey-700">
+                            {s.status}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <ActionMultiSelect
+                              value={null}
+                              disabled={busy}
+                              onChange={(action) => {
+                                if (!action) return;
+                                if (action === "cancel_release") {
+                                  openCancel(s.id);
+                                  return;
+                                }
+                                finalize(s.id, action);
+                              }}
+                              className="w-56 bg-white text-black font-outfit max-w-full rounded-md border border-grey-300 shadow-sm"
+                            />
+
+                            {busy ? (
+                              <span className="text-xs text-grey-500">Working…</span>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </SyncedHorizontalScroll>
         </div>
       </div>
 

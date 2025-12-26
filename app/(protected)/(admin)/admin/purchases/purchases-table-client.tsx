@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { UserAvatar } from "@/app/ui/components/user/user-avatar";
+import { SyncedHorizontalScroll } from "@/app/ui/components/layout/synced-horizontal-scroll";
 import { cn } from "@/app/lib/utils";
 
 type Totals = {
@@ -161,7 +162,7 @@ export default function PurchasesTableClient(props: {
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-grey-300 bg-white shadow-sm">
-        <div className="overflow-x-auto overflow-y-hidden">
+        <SyncedHorizontalScroll>
           <table className="min-w-[1100px] w-full text-sm">
             <colgroup>
               <col className="w-[44px]" />
@@ -324,7 +325,7 @@ export default function PurchasesTableClient(props: {
               )}
             </tbody>
           </table>
-        </div>
+        </SyncedHorizontalScroll>
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-grey-200 bg-white px-4 py-3">

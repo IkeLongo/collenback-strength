@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/app/lib/utils";
+import { usePathname } from "next/navigation";
 
 type AdminNavbarProps = {
   setSidebarOpen: (open: boolean) => void; // mobile overlay
@@ -51,6 +52,25 @@ export function AdminNavbar({
   const canToggleDesktop =
     typeof desktopSidebarOpen === "boolean" && typeof setDesktopSidebarOpen === "function";
 
+  const pathname = usePathname();
+  
+  const NAV_TITLES: Array<{ href: string; title: string }> = [
+    { href: "/admin/dashboard", title: "Dashboard" },
+    { href: "/admin/my-schedule", title: "Availability" },
+    { href: "/admin/sessions", title: "Client Schedule" },
+    { href: "/admin/users", title: "Clients" },
+    { href: "/admin/programs", title: "Programs" },
+    { href: "/admin/purchases", title: "Purchases" },
+    { href: "/admin/credit-ledger", title: "Credit Ledger" },
+  ];
+
+  // Pick the best match (supports subroutes like /client/programs/123)
+  const currentTitle =
+    NAV_TITLES
+      .sort((a, b) => b.href.length - a.href.length)
+      .find((x) => pathname === x.href || pathname.startsWith(x.href + "/"))
+      ?.title ?? "Dashboard";
+  
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button (opens overlay sidebar) */}
@@ -113,13 +133,9 @@ export function AdminNavbar({
       {/* Separator */}
       <div className="h-6 w-px bg-grey-200 lg:hidden" aria-hidden="true" />
 
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1 items-center">
-          <h1 className="text-xl font-semibold text-grey-900!">Admin Dashboard</h1>
-        </div>
-
-        {/* User menu */}
-        <div className="flex items-center gap-x-4 lg:gap-x-6">
+      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center min-w-0">
+        <h1 className="text-xl font-semibold text-grey-900! truncate whitespace-nowrap min-w-0 max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex-shrink">{currentTitle}</h1>
+        <div className="flex items-center gap-x-4 lg:gap-x-6 flex-shrink-0 ml-auto">
           {/* Notifications */}
           <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
             <span className="sr-only">View notifications</span>

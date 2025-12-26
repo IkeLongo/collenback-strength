@@ -104,7 +104,12 @@ export default function CalendarBooking() {
 
   const fetchAvailabilityForYmd = useCallback(
     async (ymd: string) => {
-      // idempotency guard: do not refetch the same day if already loaded (unless you want refresh)
+      if (!selectedCoachId) {
+        setSlots([]);
+        setError("Please select a coach first.");
+        return;
+      }
+
       setError("");
       setLoading(true);
 
@@ -118,12 +123,10 @@ export default function CalendarBooking() {
           end: endUtc.toISOString(),
         });
 
-        const res = await fetch(`/api/availability?${qs.toString()}`);
+        const res = await fetch(`/api/availability?${qs.toString()}`, { cache: "no-store" });
         const data = (await res.json()) as AvailabilityResponse;
 
-        if (!res.ok || !data.ok) {
-          throw new Error(data?.error || "Failed to load availability");
-        }
+        if (!res.ok || !data.ok) throw new Error(data?.error || "Failed to load availability");
 
         setSlots(data.slots ?? []);
       } catch (e: any) {
@@ -136,25 +139,27 @@ export default function CalendarBooking() {
     [selectedCoachId]
   );
 
-  const fetchMonthAvailability = useCallback(async (startYmd: string, endYmd: string) => {
-    // startYmd inclusive, endYmd exclusive (FullCalendar style)
-    const qs = new URLSearchParams({
-      coachId: String(selectedCoachId),
-      start: startYmd,
-      end: endYmd,
-    });
+  const fetchMonthAvailability = useCallback(
+    async (startYmd: string, endYmd: string) => {
+      if (!selectedCoachId) {
+        setMonthAvailability(new Set());
+        return;
+      }
 
-    console.log("Fetching month availability for", qs.toString());
+      const qs = new URLSearchParams({
+        coachId: String(selectedCoachId),
+        start: startYmd,
+        end: endYmd,
+      });
 
-    const res = await fetch(`/api/availability/month?${qs.toString()}`);
-    const data = await res.json();
+      const res = await fetch(`/api/availability/month?${qs.toString()}`, { cache: "no-store" });
+      const data = await res.json();
 
-    if (res.ok && data?.ok) {
-      setMonthAvailability(new Set(data.days as string[]));
-    } else {
-      setMonthAvailability(new Set());
-    }
-  }, [selectedCoachId]);
+      if (res.ok && data?.ok) setMonthAvailability(new Set(data.days as string[]));
+      else setMonthAvailability(new Set());
+    },
+    [selectedCoachId]
+  );
 
   async function bookSelected() {
     if (!selectedSlot) return;
@@ -233,17 +238,31 @@ export default function CalendarBooking() {
             <CoachSelect
               coaches={coaches}
               value={selectedCoachId}
-              onChange={coachId => {
+              onChange={(coachId) => {
                 setSelectedCoachId(coachId);
+
+                // reset day/slot selections
                 setActiveYmd(null);
                 setSelectedStart(null);
                 setSlots([]);
                 setError("");
                 setMonthAvailability(new Set());
                 lastMonthRange.current = null;
+
+                // ✅ fetch month availability for the currently visible month
                 const api = calendarRef.current?.getApi();
                 if (api && coachId) {
-                  api.render();
+                  const view = api.view;
+
+                  // FullCalendar month view uses [start, end) ranges
+                  const startAnchor = new Date(view.currentStart.getTime() + 12 * 60 * 60 * 1000);
+                  const endAnchor = new Date(view.currentEnd.getTime() + 12 * 60 * 60 * 1000);
+
+                  const startYmd = formatInTimeZone(startAnchor, TZ, "yyyy-MM-dd");
+                  const endYmd = formatInTimeZone(endAnchor, TZ, "yyyy-MM-dd");
+
+                  lastMonthRange.current = { start: startYmd, end: endYmd };
+                  fetchMonthAvailability(startYmd, endYmd);
                 }
               }}
               loading={loading}

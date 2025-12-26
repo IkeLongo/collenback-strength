@@ -252,7 +252,7 @@ export default function AdminSessionsCalendar() {
     <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl! normal-case! font-semibold! text-grey-700!">Sessions</h1>
+          <h1 className="text-xl! normal-case! font-semibold! text-grey-700!">Client Schedule</h1>
           <p className="text-sm! text-grey-500!">
             Calendar view for scheduled sessions (Central Time).
           </p>

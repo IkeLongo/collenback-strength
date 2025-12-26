@@ -14,9 +14,9 @@ interface AdminSidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
-  { name: 'My Schedule', href: '/admin/my-schedule', icon: MyScheduleIcon },
-  { name: 'Client Sessions', href: '/admin/sessions', icon: SessionsIcon },
-  { name: 'Users', href: '/admin/users', icon: UsersIcon },
+  { name: 'Availability', href: '/admin/my-schedule', icon: MyScheduleIcon },
+  { name: 'Schedule', href: '/admin/sessions', icon: SessionsIcon },
+  { name: 'Clients', href: '/admin/users', icon: UsersIcon },
   { name: 'Programs', href: '/admin/programs', icon: ClipboardIcon },
   { name: 'Purchases', href: '/admin/purchases', icon: ChartBarIcon },
   { name: 'Credit Ledger', href: '/admin/credit-ledger', icon: CogIcon },
