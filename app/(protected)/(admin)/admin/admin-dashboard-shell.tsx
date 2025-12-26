@@ -5,15 +5,11 @@ import { useSession } from "next-auth/react";
 import { AdminNavbar } from "@/app/ui/dashboard/admin-navbar";
 import { AdminSidebar } from "@/app/ui/dashboard/admin-sidebar";
 
-export default function AdminShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // mobile overlay open/close
+export default function AdminShell({ children }: { children: React.ReactNode }) {
+  // Mobile drawer open/close (<lg)
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // desktop (lg+) open/close
+  // Desktop pinned sidebar open/close (lg+)
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
   const { data: session } = useSession();
@@ -23,7 +19,7 @@ export default function AdminShell({
       ? `${session.user.firstName} ${session.user.lastName}`
       : session?.user?.firstName || "Admin";
 
-  // optional: remember desktop preference
+  // remember desktop preference
   useEffect(() => {
     const saved = localStorage.getItem("adminSidebarOpen");
     if (saved === "0") setDesktopSidebarOpen(false);
@@ -36,30 +32,36 @@ export default function AdminShell({
 
   return (
     <div className="min-h-screen bg-grey-100">
-      {/* Mobile sidebar overlay (unchanged behavior) */}
-      <div className="lg:hidden">
-        <AdminSidebar
-          mobile
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-        />
-      </div>
+      {/* =========================
+          MOBILE SIDEBAR DRAWER (<lg)
+         ========================= */}
+      <AdminSidebar mobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Desktop sidebar (collapsible) */}
+      {/* =========================
+          DESKTOP PINNED SIDEBAR (lg+)
+         ========================= */}
       <div
         className={[
-          "hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col lg:h-screen lg:overflow-y-auto",
+          "hidden lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:flex-col lg:h-screen lg:overflow-y-auto",
           "transition-all duration-200 ease-in-out",
           desktopSidebarOpen ? "lg:w-72" : "lg:w-0",
         ].join(" ")}
       >
-        {/* When collapsed, hide content and prevent it from intercepting clicks */}
-        <div className={desktopSidebarOpen ? "w-72 h-full flex flex-col" : "w-0 h-full overflow-hidden pointer-events-none flex flex-col"}>
+        {/* When collapsed, hide content and prevent intercepting clicks */}
+        <div
+          className={
+            desktopSidebarOpen
+              ? "w-72 h-full flex flex-col"
+              : "w-0 h-full overflow-hidden pointer-events-none flex flex-col"
+          }
+        >
           <AdminSidebar />
         </div>
       </div>
 
-      {/* Main content shifts based on desktop sidebar state */}
+      {/* =========================
+          MAIN CONTENT
+         ========================= */}
       <div
         className={[
           "transition-all duration-200 ease-in-out",
@@ -67,7 +69,8 @@ export default function AdminShell({
         ].join(" ")}
       >
         <AdminNavbar
-          setSidebarOpen={setSidebarOpen} // mobile hamburger
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
           userName={userName}
           desktopSidebarOpen={desktopSidebarOpen}
           setDesktopSidebarOpen={setDesktopSidebarOpen}
@@ -82,3 +85,4 @@ export default function AdminShell({
     </div>
   );
 }
+

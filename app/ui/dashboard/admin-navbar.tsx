@@ -5,18 +5,20 @@ import { signOut } from "next-auth/react";
 import { cn } from "@/app/lib/utils";
 import { usePathname } from "next/navigation";
 import { UserAvatar } from "@/app/ui/components/user/user-avatar";
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
 
 type AdminNavbarProps = {
-  setSidebarOpen: (open: boolean) => void; // mobile overlay
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+
   userName: string;
 
-  // desktop pinned sidebar toggle
   desktopSidebarOpen?: boolean;
   setDesktopSidebarOpen?: (open: boolean) => void;
 };
 
 export function AdminNavbar({
+  sidebarOpen,
   setSidebarOpen,
   userName = "Admin",
   desktopSidebarOpen,
@@ -49,7 +51,7 @@ export function AdminNavbar({
     typeof desktopSidebarOpen === "boolean" && typeof setDesktopSidebarOpen === "function";
 
   const pathname = usePathname();
-  
+
   const NAV_TITLES: Array<{ href: string; title: string }> = [
     { href: "/admin/dashboard", title: "Dashboard" },
     { href: "/admin/my-schedule", title: "Availability" },
@@ -60,29 +62,23 @@ export function AdminNavbar({
     { href: "/admin/credit-ledger", title: "Credit Ledger" },
   ];
 
-  // Pick the best match (supports subroutes like /client/programs/123)
   const currentTitle =
-    NAV_TITLES
-      .sort((a, b) => b.href.length - a.href.length)
-      .find((x) => pathname === x.href || pathname.startsWith(x.href + "/"))
-      ?.title ?? "Dashboard";
-  
+    NAV_TITLES.sort((a, b) => b.href.length - a.href.length).find(
+      (x) => pathname === x.href || pathname.startsWith(x.href + "/")
+    )?.title ?? "Dashboard";
+
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-grey-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      {/* Mobile menu button (opens overlay sidebar) */}
+    <div className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-x-3 border-b border-grey-200 bg-white px-3 shadow-sm sm:px-4 md:px-6 lg:px-8">
+      {/* Mobile hamburger (<lg) */}
       <button
         type="button"
-        className="-m-2.5 p-2.5 text-grey-700 lg:hidden"
-        onClick={() => setSidebarOpen(true)}
+        className="lg:hidden -m-2.5 p-2.5 text-grey-700 hover:text-grey-900"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Open sidebar"
+        title="Open sidebar"
       >
         <span className="sr-only">Open sidebar</span>
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-        >
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
       </button>
@@ -96,58 +92,28 @@ export function AdminNavbar({
           aria-label={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           title={desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
-          <span className="sr-only">
-            {desktopSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          </span>
-
           {desktopSidebarOpen ? (
-            // chevron-left
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-            >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
             </svg>
           ) : (
-            // chevron-right
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-            >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
             </svg>
           )}
         </button>
       )}
 
-      {/* Separator */}
-      <div className="h-6 w-px bg-grey-200 lg:hidden" aria-hidden="true" />
+      <div className="h-6 w-px bg-grey-200" aria-hidden="true" />
 
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center min-w-0">
-        <h1 className="text-xl font-semibold text-grey-900! truncate whitespace-nowrap min-w-0 max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex-shrink">{currentTitle}</h1>
-        <div className="flex items-center gap-x-4 lg:gap-x-6 flex-shrink-0 ml-auto">
-          {/* Notifications */}
-          {/* <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
-            <span className="sr-only">View notifications</span>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-              />
-            </svg>
-          </button> */}
+      <div className="flex flex-1 items-center min-w-0 gap-x-3">
+        <h1 className="text-2xl! md:text-3xl! font-semibold! text-grey-900! truncate min-w-0">
+          {currentTitle}
+        </h1>
 
-          {/* Separator */}
+        <div className="ml-auto flex items-center gap-x-3 sm:gap-x-4">
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-grey-200" aria-hidden="true" />
 
-          {/* Profile dropdown */}
           <div className="relative">
             <button
               type="button"
@@ -155,13 +121,10 @@ export function AdminNavbar({
               onClick={() => setUserMenuOpen(!userMenuOpen)}
             >
               <span className="sr-only">Open user menu</span>
-              <UserAvatar
-                name={userName}
-                avatarUrl={avatarUrl}
-                size={32}
-              />
-              <span className="hidden lg:flex lg:items-center">
-                <span className="ml-4 text-sm font-semibold leading-6 text-grey-900" aria-hidden="true">
+              <UserAvatar name={userName} avatarUrl={avatarUrl} size={32} />
+
+              <span className="flex items-center">
+                <span className="ml-3 text-xs sm:text-sm font-semibold leading-6 text-grey-900 hidden sm:inline" aria-hidden="true">
                   {userName}
                 </span>
                 <svg
@@ -181,51 +144,26 @@ export function AdminNavbar({
               </span>
             </button>
 
-            {/* Dropdown menu */}
             {userMenuOpen && (
-              <div className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 px-2 shadow-lg ring-1 ring-grey-900/5 focus:outline-none">
+              <div className="absolute right-0 z-40 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 px-2 shadow-lg ring-1 ring-grey-900/5 focus:outline-none">
                 <a
                   href="/admin/profile"
-                  className="block px-3! py-2! text-sm! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!"
+                  className="block px-3 py-2 text-sm! font-medium! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1"
                 >
                   Your profile
                 </a>
+
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
                   className={cn(
-                    "block w-full text-left px-3! py-2! text-sm! leading-6! rounded-md! transition-colors duration-200",
+                    "block w-full text-left px-3 py-2 text-sm! font-[outfit]! font-medium! leading-6! rounded-md transition-colors duration-200",
                     isLoggingOut
-                      ? "text-grey-500! bg-grey-50! cursor-not-allowed"
-                      : "text-grey-900! hover:bg-grey-100! hover:cursor-pointer!"
+                      ? "text-grey-500 bg-grey-50 cursor-not-allowed"
+                      : "text-grey-900 hover:bg-grey-100 hover:cursor-pointer"
                   )}
                 >
-                  {isLoggingOut ? (
-                    <span className="flex items-center">
-                      <svg className="h-4 w-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Signing out
-                      <span className="ml-1 flex">
-                        <span className="animate-bounce" style={{ animationDelay: "0ms" }}>
-                          .
-                        </span>
-                        <span className="animate-bounce" style={{ animationDelay: "150ms" }}>
-                          .
-                        </span>
-                        <span className="animate-bounce" style={{ animationDelay: "300ms" }}>
-                          .
-                        </span>
-                      </span>
-                    </span>
-                  ) : (
-                    "Sign out"
-                  )}
+                  {isLoggingOut ? "Signing out…" : "Sign out"}
                 </button>
               </div>
             )}
