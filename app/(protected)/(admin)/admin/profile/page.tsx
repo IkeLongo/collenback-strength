@@ -6,7 +6,7 @@ import { pool } from "@/app/lib/mysql";
 // Adjust this import to wherever you export auth from:
 import { auth } from "@/app/actions/nextauth";
 
-import ProfileClient from "./ProfileClient";
+import ProfileAdmin from "./profileAdmin";
 
 function avatarUrlFromKey(key: string | null) {
   const base = process.env.R2_PUBLIC_BASE_URL;
@@ -55,7 +55,7 @@ export default async function ProfilePage() {
         View, update, and manage your personal information.
       </p>
       <div className="mt-6">
-        <ProfileClient initialProfile={initialProfile} />
+        <ProfileAdmin initialProfile={initialProfile} />
       </div>
     </div>
   );

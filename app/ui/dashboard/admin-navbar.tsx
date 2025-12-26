@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/app/lib/utils";
 import { usePathname } from "next/navigation";
+import { UserAvatar } from "@/app/ui/components/user/user-avatar";
+import { useSession } from 'next-auth/react';
 
 type AdminNavbarProps = {
   setSidebarOpen: (open: boolean) => void; // mobile overlay
@@ -23,18 +25,12 @@ export function AdminNavbar({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Get first and last initial from userName
-  const getInitials = (name: string) => {
-    const names = name.trim().split(" ");
-    if (names.length >= 2) {
-      return `${names[0].charAt(0)}${names[names.length - 1]
-        .charAt(0)
-        .toUpperCase()}`.toUpperCase();
-    }
-    return name.charAt(0).toUpperCase();
-  };
+  const { data: session } = useSession();
+  const avatarKey = (session?.user as any)?.avatarKey as string | null;
 
-  const userInitials = getInitials(userName);
+  const avatarUrl = avatarKey
+    ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL!.replace(/\/$/, "")}/${avatarKey}`
+    : null;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -137,7 +133,7 @@ export function AdminNavbar({
         <h1 className="text-xl font-semibold text-grey-900! truncate whitespace-nowrap min-w-0 max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex-shrink">{currentTitle}</h1>
         <div className="flex items-center gap-x-4 lg:gap-x-6 flex-shrink-0 ml-auto">
           {/* Notifications */}
-          <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
+          {/* <button type="button" className="-m-2.5 p-2.5 text-grey-400 hover:text-grey-500">
             <span className="sr-only">View notifications</span>
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
               <path
@@ -146,7 +142,7 @@ export function AdminNavbar({
                 d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
               />
             </svg>
-          </button>
+          </button> */}
 
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-grey-200" aria-hidden="true" />
@@ -159,9 +155,11 @@ export function AdminNavbar({
               onClick={() => setUserMenuOpen(!userMenuOpen)}
             >
               <span className="sr-only">Open user menu</span>
-              <div className="h-8 w-8 rounded-full bg-gold-500 flex items-center justify-center text-white font-medium text-sm">
-                {userInitials}
-              </div>
+              <UserAvatar
+                name={userName}
+                avatarUrl={avatarUrl}
+                size={32}
+              />
               <span className="hidden lg:flex lg:items-center">
                 <span className="ml-4 text-sm font-semibold leading-6 text-grey-900" aria-hidden="true">
                   {userName}
@@ -187,7 +185,7 @@ export function AdminNavbar({
             {userMenuOpen && (
               <div className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 px-2 shadow-lg ring-1 ring-grey-900/5 focus:outline-none">
                 <a
-                  href="#"
+                  href="/admin/profile"
                   className="block px-3! py-2! text-sm! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!"
                 >
                   Your profile
