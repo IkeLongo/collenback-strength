@@ -195,7 +195,7 @@ export async function GET(req: Request) {
       sessions,
     });
   } catch (error) {
-    console.error("GET /api/admin/sessions error:", error);
+    // console.error("GET /api/admin/sessions error:", error);
     return NextResponse.json({ message: "Failed to load sessions." }, { status: 500 });
   }
 }

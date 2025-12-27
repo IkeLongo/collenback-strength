@@ -30,14 +30,14 @@ export default function OrderSummary() {
       );
 
       if (!response?.url) {
-        console.error("No Checkout URL returned:", response);
+        // console.error("No Checkout URL returned:", response);
         setLoading(false);
         return;
       }
 
       window.location.assign(response.url);
     } catch (err) {
-      console.error("Checkout error:", err);
+      // console.error("Checkout error:", err);
       setLoading(false);
     }
   };

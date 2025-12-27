@@ -127,7 +127,7 @@ export async function GET(
 
     return NextResponse.json({ ok: true, paymentId, items, subscription });
   } catch (e) {
-    console.error("GET /api/admin/purchases/:id/items error:", e);
+    // console.error("GET /api/admin/purchases/:id/items error:", e);
     return NextResponse.json({ ok: false, message: "Failed to load line items." }, { status: 500 });
   }
 }

@@ -144,7 +144,7 @@ export async function GET(req: Request) {
       purchases,
     });
   } catch (e) {
-    console.error("GET /api/admin/purchases error:", e);
+    // console.error("GET /api/admin/purchases error:", e);
     return NextResponse.json({ ok: false, message: "Failed to load purchases." }, { status: 500 });
   }
 }

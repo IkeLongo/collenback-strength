@@ -127,8 +127,8 @@ export default function NavLinks({
 
   // Debug: log activeSection and pathname on change
   useEffect(() => {
-    console.log('activeSection:', activeSection);
-    console.log('pathname:', pathname);
+    // console.log('activeSection:', activeSection);
+    // console.log('pathname:', pathname);
   }, [activeSection, pathname]);
 
   return (

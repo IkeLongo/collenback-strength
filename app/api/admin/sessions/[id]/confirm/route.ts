@@ -271,7 +271,7 @@ export async function POST(
       await conn.rollback();
     } catch {}
 
-    console.error("Confirm session error:", error);
+    // console.error("Confirm session error:", error);
 
     return NextResponse.json(
       { message: "Failed to finalize session.", error: String(error?.message ?? error) },

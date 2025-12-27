@@ -98,7 +98,7 @@ export function AdminSidebar({ mobile = false, sidebarOpen = false, setSidebarOp
     try {
       await signOut({ callbackUrl: "/auth", redirect: true });
     } catch (error) {
-      console.error("Logout error:", error);
+      // console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };

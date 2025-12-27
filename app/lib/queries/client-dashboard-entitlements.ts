@@ -231,11 +231,11 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
     const sanityMap = new Map<string, SanityService>();
     sanityServices.forEach((s) => sanityMap.set(s._id, s));
 
-    console.log("[entitlements] sanityServices(program) sample", sanityServices.map((s: any) => ({
-      id: s._id,
-      title: s.title,
-      program: s.program,
-    })).slice(0, 10));
+    // console.log("[entitlements] sanityServices(program) sample", sanityServices.map((s: any) => ({
+    //   id: s._id,
+    //   title: s.title,
+    //   program: s.program,
+    // })).slice(0, 10));
 
 
     // 4) Build PACK line items (with Sanity fields)
@@ -338,7 +338,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
       };
     });
 
-    console.log("[entitlements] programLineItems sample", programLineItems.slice(0, 3));
+    // console.log("[entitlements] programLineItems sample", programLineItems.slice(0, 3));
 
     // 6) Unified lineItems array for the UI
     const lineItems: DashboardLineItem[] = [...packLineItems, ...membershipLineItems, ...programLineItems].sort((a, b) => {

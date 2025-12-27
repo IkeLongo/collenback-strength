@@ -11,7 +11,7 @@ type AdminDashboardProps = {
 };
 
 export default function AdminDashboard({ data }: AdminDashboardProps) {
-  console.log("recentActivity", data.recentActivity);
+  // console.log("recentActivity", data.recentActivity);
 
   return (
     <div className="space-y-6">

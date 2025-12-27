@@ -45,7 +45,7 @@ export function UserAvatar({
           className="h-full w-full object-cover"
           onError={(e) => {
             // If image fails to load, fallback to initials
-            console.warn("[UserAvatar] image failed to load, falling back to initials");
+            // console.warn("[UserAvatar] image failed to load, falling back to initials");
             (e.currentTarget as HTMLImageElement).style.display = "none";
           }}
         />

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const session = await auth();
   const userId = session?.user?.id;
 
-  console.log("[POST /api/profile/avatar/presign] userId:", userId);
+  // console.log("[POST /api/profile/avatar/presign] userId:", userId);
 
   if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const contentType = (body.contentType ?? "").trim();
   const ext = extFromMime(contentType);
 
-  console.log("[presign] contentType:", contentType, "ext:", ext);
+  // console.log("[presign] contentType:", contentType, "ext:", ext);
 
   if (!ext) {
     return NextResponse.json(
@@ -49,8 +49,8 @@ export async function POST(req: Request) {
 
   const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 60 });
 
-  console.log("[presign] generated key:", key);
-  console.log("[presign] url length:", uploadUrl.length);
+  // console.log("[presign] generated key:", key);
+  // console.log("[presign] url length:", uploadUrl.length);
 
   return NextResponse.json({ uploadUrl, key });
 }

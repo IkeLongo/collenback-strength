@@ -18,7 +18,7 @@ export default async function ProfilePage() {
   const session = await auth();
   const userId = session?.user?.id;
 
-  console.log("[SSR /client/profile] userId:", userId);
+  // console.log("[SSR /client/profile] userId:", userId);
 
   if (!userId) {
     redirect("/auth"); // your login route
@@ -33,7 +33,7 @@ export default async function ProfilePage() {
 
   const u = rows[0] as any | undefined;
 
-  console.log("[SSR /client/profile] db user found:", !!u);
+  // console.log("[SSR /client/profile] db user found:", !!u);
 
   if (!u) {
     redirect("/auth");

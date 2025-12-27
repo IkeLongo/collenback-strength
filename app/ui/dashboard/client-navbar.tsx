@@ -36,7 +36,7 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
         redirect: true 
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      // console.error('Logout error:', error);
       setIsLoggingOut(false);
     }
   };

@@ -116,11 +116,11 @@ export async function GET(req: Request) {
   );
 
   // Debug logging
-  console.log("[availability] exceptions", {
-    count: exceptions.length,
-    raw: exceptions.map((e) => ({ date: e.date, type: typeof e.date })),
-    dates: Array.from(new Set(exceptions.map((e) => dateOnlyYmd(e.date)))),
-  });
+  // console.log("[availability] exceptions", {
+  //   count: exceptions.length,
+  //   raw: exceptions.map((e) => ({ date: e.date, type: typeof e.date })),
+  //   dates: Array.from(new Set(exceptions.map((e) => dateOnlyYmd(e.date)))),
+  // });
 
   // Index exceptions by date
   const exByDate = new Map<string, RowDataPacket[]>();
@@ -162,11 +162,11 @@ export async function GET(req: Request) {
 
   if (bookings[0]) {
     const raw = String(bookings[0].scheduled_start);
-    console.log("[availability] busy sanity", {
-      raw,
-      asUtcIso: new Date(mysqlDatetimeToUtcMs(raw)).toISOString(),
-      chicago: formatInTimeZone(new Date(mysqlDatetimeToUtcMs(raw)), "America/Chicago", "yyyy-MM-dd h:mm a XXX"),
-    });
+    // console.log("[availability] busy sanity", {
+    //   raw,
+    //   asUtcIso: new Date(mysqlDatetimeToUtcMs(raw)).toISOString(),
+    //   chicago: formatInTimeZone(new Date(mysqlDatetimeToUtcMs(raw)), "America/Chicago", "yyyy-MM-dd h:mm a XXX"),
+    // });
   }
 
   function overlapsAny(startMs: number, endMs: number) {

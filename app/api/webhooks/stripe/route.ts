@@ -15,7 +15,7 @@ import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
 
 export const runtime = "nodejs";
 
-const DEBUG_WEBHOOK = true;
+const DEBUG_WEBHOOK = false;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
@@ -214,7 +214,7 @@ export async function POST(req: Request) {
             });
           }
         } catch (e) {
-          console.error("[webhook] member status email failed", e);
+          // console.error("[webhook] member status email failed", e);
         }
 
         try {

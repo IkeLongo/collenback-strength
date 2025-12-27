@@ -126,7 +126,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ok: true, sessions });
   } catch (e: any) {
-    console.error("[api/sessions/mine] error", e);
+    // console.error("[api/sessions/mine] error", e);
     return NextResponse.json({ ok: false, error: "server_error", detail: e?.message }, { status: 500 });
   }
 }

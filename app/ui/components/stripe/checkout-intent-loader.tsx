@@ -25,11 +25,11 @@ export default function CheckoutIntentLoader() {
 
     (async () => {
       try {
-        console.log("serviceSlug from URL:", serviceId);
+        // console.log("serviceSlug from URL:", serviceId);
 
         const service = await fetchServiceById(serviceId);
 
-        console.log("service fetched:", service);
+        // console.log("service fetched:", service);
         if (!service || cancelled) return;
 
         const itemId = service._id;
@@ -58,7 +58,7 @@ export default function CheckoutIntentLoader() {
         // Optional: remove the query param so future refreshes don't even try
         // window.history.replaceState({}, "", "/client/checkout");
       } catch (e) {
-        console.error("Failed to load checkout intent:", e);
+        // console.error("Failed to load checkout intent:", e);
       }
     })();
 

@@ -15,7 +15,7 @@ export async function GET() {
   const session = await auth();
   const userId = session?.user?.id;
 
-  console.log("[GET /api/profile] session userId:", userId);
+  // console.log("[GET /api/profile] session userId:", userId);
 
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -30,7 +30,7 @@ export async function GET() {
 
   const u = rows[0] as any | undefined;
 
-  console.log("[GET /api/profile] db user found:", !!u);
+  // console.log("[GET /api/profile] db user found:", !!u);
 
   if (!u) return NextResponse.json({ message: "Not found" }, { status: 404 });
 
@@ -53,7 +53,7 @@ export async function PATCH(req: Request) {
   const session = await auth();
   const userId = session?.user?.id;
 
-  console.log("[PATCH /api/profile] session userId:", userId);
+  // console.log("[PATCH /api/profile] session userId:", userId);
 
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -69,7 +69,7 @@ export async function PATCH(req: Request) {
   const lastName = (body.lastName ?? "").trim();
   const phone = (body.phone ?? "").trim();
 
-  console.log("[PATCH /api/profile] incoming:", { firstName, lastName, phone });
+  // console.log("[PATCH /api/profile] incoming:", { firstName, lastName, phone });
 
   if (!firstName || !lastName) {
     return NextResponse.json({ message: "First and last name are required." }, { status: 400 });
@@ -82,7 +82,7 @@ export async function PATCH(req: Request) {
     [firstName, lastName, phone || null, userId]
   );
 
-  console.log("[PATCH /api/profile] affectedRows:", res.affectedRows);
+  // console.log("[PATCH /api/profile] affectedRows:", res.affectedRows);
 
   return NextResponse.json({ ok: true });
 }

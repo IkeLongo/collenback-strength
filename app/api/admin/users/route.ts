@@ -116,7 +116,7 @@ export async function GET(req: Request) {
       users,
     });
   } catch (e) {
-    console.error("GET /api/admin/users error:", e);
+    // console.error("GET /api/admin/users error:", e);
     return NextResponse.json({ ok: false, message: "Failed to load users." }, { status: 500 });
   }
 }

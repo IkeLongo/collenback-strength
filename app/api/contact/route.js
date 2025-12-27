@@ -266,12 +266,12 @@ function createEmailTemplate(data) {
 }
 
 export async function POST(request) {
-  console.log('=== Contact Form API Called ===');
+  // console.log('=== Contact Form API Called ===');
   
   try {
     // Check environment configuration
     if (!process.env.RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not configured');
+      // console.error('RESEND_API_KEY is not configured');
       return NextResponse.json(
         { success: false, message: 'Server configuration error' },
         { status: 500 }
@@ -286,7 +286,7 @@ export async function POST(request) {
     // Check rate limiting
     const rateLimitResult = checkRateLimit(clientIP);
     if (!rateLimitResult.allowed) {
-      console.log(`Rate limit exceeded for IP: ${clientIP}`);
+      // console.log(`Rate limit exceeded for IP: ${clientIP}`);
       return NextResponse.json(
         { success: false, message: rateLimitResult.message },
         { status: 429 }
@@ -297,9 +297,9 @@ export async function POST(request) {
     let rawData;
     try {
       rawData = await request.json();
-      console.log('Raw form data received:', rawData);
+      // console.log('Raw form data received:', rawData);
     } catch (error) {
-      console.error('Invalid JSON in request body:', error);
+      // console.error('Invalid JSON in request body:', error);
       return NextResponse.json(
         { success: false, message: 'Invalid request format' },
         { status: 400 }
@@ -316,13 +316,13 @@ export async function POST(request) {
       description: sanitizeInput(rawData.description)
     };
 
-    console.log('Sanitized form data:', sanitizedData);
+    // console.log('Sanitized form data:', sanitizedData);
 
     // Validate all fields
     const validation = validateFormData(sanitizedData);
     
     if (!validation.isValid) {
-      console.log('Validation errors:', validation.errors);
+      // console.log('Validation errors:', validation.errors);
       return NextResponse.json(
         { 
           success: false, 
@@ -333,7 +333,7 @@ export async function POST(request) {
       );
     }
 
-    console.log('Validation passed, sending email...');
+    // console.log('Validation passed, sending email...');
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
@@ -344,17 +344,17 @@ export async function POST(request) {
     });
 
     if (error) {
-      console.error('Resend API error:', error);
+      // console.error('Resend API error:', error);
       return NextResponse.json(
         { success: false, message: 'Failed to send email' },
         { status: 500 }
       );
     }
 
-    console.log('Email sent successfully:', data);
+    // console.log('Email sent successfully:', data);
     
     // Log successful submission (you might want to save to database here)
-    console.log(`Contact form submitted by: ${sanitizedData.email} at ${new Date().toISOString()}`);
+    // console.log(`Contact form submitted by: ${sanitizedData.email} at ${new Date().toISOString()}`);
 
     return NextResponse.json(
       { 
@@ -366,7 +366,7 @@ export async function POST(request) {
     );
 
   } catch (error) {
-    console.error('Unexpected error in contact API:', error);
+    // console.error('Unexpected error in contact API:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

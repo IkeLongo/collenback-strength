@@ -76,7 +76,7 @@ export async function GET() {
 
     return NextResponse.json({ ok: true, services });
   } catch (e: any) {
-    console.error("[services] error", e);
+    // console.error("[services] error", e);
     return NextResponse.json(
       { ok: false, error: "server_error", detail: e?.message },
       { status: 500 }

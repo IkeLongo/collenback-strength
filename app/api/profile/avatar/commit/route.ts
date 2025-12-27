@@ -15,14 +15,14 @@ export async function POST(req: Request) {
   const session = await auth();
   const userId = session?.user?.id;
 
-  console.log("[POST /api/profile/avatar/commit] userId:", userId);
+  // console.log("[POST /api/profile/avatar/commit] userId:", userId);
 
   if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   const body = (await req.json()) as { key?: string };
   const key = (body.key ?? "").trim();
 
-  console.log("[commit] received key:", key);
+  // console.log("[commit] received key:", key);
 
   // Basic ownership validation (prevents someone committing another user’s key)
   const expectedPrefix = `avatars/user_${userId}_`;
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     [key, userId]
   );
 
-  console.log("[commit] affectedRows:", res.affectedRows);
+  // console.log("[commit] affectedRows:", res.affectedRows);
 
   const avatarUrl = avatarUrlFromKey(key);
 

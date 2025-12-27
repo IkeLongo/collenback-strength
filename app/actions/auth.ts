@@ -60,7 +60,7 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
     // 4. User created successfully - NextAuth will handle the session
     
   } catch (err) {
-    console.error('Database Error during insert:', err);
+    // console.error('Database Error during insert:', err);
     return { status: 'error' as const, message: 'An error occurred while creating your account.' };
   }
 

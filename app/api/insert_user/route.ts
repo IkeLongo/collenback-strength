@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     // Rollback the transaction on error
     await connection.rollback();
-    console.error('Database Error:', error);
+    // console.error('Database Error:', error);
     
     // Check for duplicate email error (MySQL error code 1062)
     if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {

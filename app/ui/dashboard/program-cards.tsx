@@ -39,12 +39,12 @@ export default function ProgramCards({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {programs.map((p) => {
             const downloadHref = `/api/programs/${p.program_entitlement_id}/download`;
-            console.log("[ProgramCards] program", {
-              id: p.program_entitlement_id,
-              title: p.service_title,
-              cover_image_url: p.cover_image_url,
-              cover_image_alt: p.cover_image_alt,
-            });
+            // console.log("[ProgramCards] program", {
+            //   id: p.program_entitlement_id,
+            //   title: p.service_title,
+            //   cover_image_url: p.cover_image_url,
+            //   cover_image_alt: p.cover_image_alt,
+            // });
 
             return (
               <div

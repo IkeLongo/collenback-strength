@@ -42,7 +42,7 @@ export function AdminNavbar({
         redirect: true,
       });
     } catch (error) {
-      console.error("Logout error:", error);
+      // console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };

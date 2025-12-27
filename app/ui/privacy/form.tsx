@@ -124,9 +124,9 @@ export default function PrivacyContactForm() {
     });
 
     // ✅ DEBUG CODE - Add this to see what's failing
-    console.log('Form Data:', formData);
-    console.log('Validation Errors:', newErrors);
-    console.log('Fields with errors:', Object.entries(newErrors).filter(([key, error]) => error !== ''));
+    // console.log('Form Data:', formData);
+    // console.log('Validation Errors:', newErrors);
+    // console.log('Fields with errors:', Object.entries(newErrors).filter(([key, error]) => error !== ''));
 
     // ✅ ADD THESE LINES - Update state with errors and mark all fields as touched
     setErrors(newErrors);
@@ -189,7 +189,7 @@ export default function PrivacyContactForm() {
         toast.error(result.message || 'Failed to submit privacy request');
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      // console.error('Error submitting form:', error);
       toast.error('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);

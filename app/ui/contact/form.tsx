@@ -213,7 +213,7 @@ export function ContactForm() {
         }
       }
     } catch (error) {
-      console.error('Form submission error:', error);
+      // console.error('Form submission error:', error);
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);

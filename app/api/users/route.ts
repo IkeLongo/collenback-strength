@@ -3,7 +3,7 @@ import { pool } from "@/app/lib/mysql"; // Ensure you have the correct import fo
 
 export async function GET() {
   try {
-    console.log("testing connection to database:", process.env.DB_SCHEMA);
+    // console.log("testing connection to database:", process.env.DB_SCHEMA);
     
 // Simple connection test - just check if we can connect to the database
     const [rows] = await pool.execute('SELECT 1 as connection_test');
@@ -15,7 +15,7 @@ export async function GET() {
       result: rows
     });
   } catch (error) {
-    console.error('Database Connection Error:', error);
+    // console.error('Database Connection Error:', error);
 
     // Type assertion to ensure error is treated as an Error object
     const errorMessage = (error as Error).message || 'Unknown error';

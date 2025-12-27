@@ -51,7 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             avatarKey: result.user.avatarKey ?? null,
           };
         } catch (err) {
-          console.error('Error fetching user:', err);
+          // console.error('Error fetching user:', err);
           throw new Error("An error occurred while verifying credentials.");
         }
       },

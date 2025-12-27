@@ -23,14 +23,14 @@ export default async function ProgramsPage() {
     ])
   );
 
-  console.log(
-    services.map((s:any) => ({
-      id: s._id,
-      title: stegaClean(s.title),
-      isActive: s.isActive,
-      category: stegaClean(s.category),
-    }))
-  );
+  // console.log(
+  //   services.map((s:any) => ({
+  //     id: s._id,
+  //     title: stegaClean(s.title),
+  //     isActive: s.isActive,
+  //     category: stegaClean(s.category),
+  //   }))
+  // );
 
   return (
     <AdminProgramsWrapper

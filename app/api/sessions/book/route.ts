@@ -155,9 +155,9 @@ export async function POST(req: Request) {
     });
 
     // Send confirmation email (do not block response on error)
-    console.log("[book] about to send email", { clientEmail, clientName });
+    // console.log("[book] about to send email", { clientEmail, clientName });
 
-    console.log("[book] email gate", { clientName, clientEmail, type: typeof clientName });
+    // console.log("[book] email gate", { clientName, clientEmail, type: typeof clientName });
 
     if (typeof clientEmail === "string" && clientEmail) {
       try {
@@ -170,12 +170,12 @@ export async function POST(req: Request) {
           serviceTitle: body.sanityServiceTitle || undefined,
         });
 
-        console.log("[book] resend result", result);
+        // console.log("[book] resend result", result);
       } catch (err) {
-        console.error("[book] resend error", err);
+        // console.error("[book] resend error", err);
       }
     } else {
-      console.warn("[book] No valid client email, skipping confirmation email.");
+      // console.warn("[book] No valid client email, skipping confirmation email.");
     }
 
     if (body.coachId) {
@@ -192,18 +192,20 @@ export async function POST(req: Request) {
             start: body.start,
             end: body.end,
             serviceTitle: body.sanityServiceTitle ?? undefined,
-          }).catch((err) => console.error("[book] coach email error", err));
+          }).catch((err) => {
+            // console.error("[book] coach email error", err);
+          });
         } else {
-          console.warn("[book] coach not found or missing email", { coachId: body.coachId });
+          // console.warn("[book] coach not found or missing email", { coachId: body.coachId });
         }
       } catch (err) {
-        console.error("[book] coach lookup/email failed", err);
+        // console.error("[book] coach lookup/email failed", err);
       }
     }
     
     return NextResponse.json({ ok: true, sessionId });
   } catch (e: any) {
-    console.error("[book] error", e);
+    // console.error("[book] error", e);
 
     const detail =
       e?.sqlMessage || e?.message || "Unknown error";

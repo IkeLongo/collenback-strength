@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     return genericOk;
   } catch (error) {
-    console.error("Forgot Password API Error:", error);
+    // console.error("Forgot Password API Error:", error);
     return NextResponse.json(
       { message: "Internal server error during forgot password." },
       { status: 500 }

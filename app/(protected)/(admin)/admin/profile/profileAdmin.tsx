@@ -31,7 +31,7 @@ export default function ProfileAdmin({
   const onSave = async () => {
     setSaving(true);
     try {
-      console.log("[ProfileAdmin] PATCH /api/profile payload:", form);
+      // console.log("[ProfileAdmin] PATCH /api/profile payload:", form);
 
       const res = await fetch("/api/profile", {
         method: "PATCH",
@@ -40,7 +40,7 @@ export default function ProfileAdmin({
       });
 
       const data = await res.json().catch(() => ({}));
-      console.log("[ProfileAdmin] PATCH status:", res.status, data);
+      // console.log("[ProfileAdmin] PATCH status:", res.status, data);
 
       if (!res.ok) throw new Error(data?.message ?? "Failed to save profile");
 
@@ -52,7 +52,7 @@ export default function ProfileAdmin({
         phone: form.phone,
       }));
     } catch (e: any) {
-      console.error("[ProfileAdmin] save error:", e);
+      // console.error("[ProfileAdmin] save error:", e);
       toast.error(e.message ?? "Failed to save");
     } finally {
       setSaving(false);
@@ -69,7 +69,7 @@ export default function ProfileAdmin({
 
     setUploading(true);
     try {
-      console.log("[ProfileAdmin] presign for:", { type: file.type, size: file.size });
+      // console.log("[ProfileAdmin] presign for:", { type: file.type, size: file.size });
 
       // 1) presign
       const presignRes = await fetch("/api/profile/avatar/presign", {
@@ -79,14 +79,14 @@ export default function ProfileAdmin({
       });
 
       const presign = await presignRes.json();
-      console.log("[ProfileAdmin] presign status:", presignRes.status, presign);
+      // console.log("[ProfileAdmin] presign status:", presignRes.status, presign);
 
       if (!presignRes.ok) throw new Error(presign?.message ?? "Failed to start upload");
 
       const { uploadUrl, key } = presign as { uploadUrl: string; key: string };
 
       // 2) direct upload to R2
-      console.log("[ProfileAdmin] PUT upload starting...");
+      // console.log("[ProfileAdmin] PUT upload starting...");
 
       const putRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -94,12 +94,12 @@ export default function ProfileAdmin({
         body: file,
       });
 
-      console.log("[ProfileAdmin] PUT status:", putRes.status);
+      // console.log("[ProfileAdmin] PUT status:", putRes.status);
 
       if (!putRes.ok) throw new Error("Upload failed. Please try again.");
 
       // 3) commit
-      console.log("[ProfileAdmin] commit key:", key);
+      // console.log("[ProfileAdmin] commit key:", key);
 
       const commitRes = await fetch("/api/profile/avatar/commit", {
         method: "POST",
@@ -108,7 +108,7 @@ export default function ProfileAdmin({
       });
 
       const commit = await commitRes.json();
-      console.log("[ProfileAdmin] commit status:", commitRes.status, commit);
+      // console.log("[ProfileAdmin] commit status:", commitRes.status, commit);
 
       if (!commitRes.ok) throw new Error(commit?.message ?? "Failed to save avatar");
 

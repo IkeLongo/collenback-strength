@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Password reset successful." });
   } catch (error) {
-    console.error("Reset Password API Error:", error);
+    // console.error("Reset Password API Error:", error);
     return NextResponse.json(
       { message: "Internal server error during password reset." },
       { status: 500 }
