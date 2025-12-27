@@ -4,6 +4,10 @@ import type { RowDataPacket } from "mysql2/promise";
 import { auth } from "@/app/actions/nextauth";
 import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
 
+type RouteContext = {
+  params: Promise<{ paymentId: string }>;
+};
+
 // map sanity enum -> display title (matches your schema list)
 function categoryTitleFromValue(v: string | null) {
   switch (v) {
@@ -15,18 +19,23 @@ function categoryTitleFromValue(v: string | null) {
   }
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { paymentId: string } }
-) {
+export async function GET(req: Request, ctx: RouteContext) {
+  const { paymentId } = await ctx.params; // ✅ await params
+
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, message: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
-  const paymentId = Number(params.paymentId);
-  if (!paymentId || Number.isNaN(paymentId)) {
-    return NextResponse.json({ ok: false, message: "Invalid paymentId" }, { status: 400 });
+  const pid = Number(paymentId);
+  if (!pid || Number.isNaN(pid)) {
+    return NextResponse.json(
+      { ok: false, message: "Invalid paymentId" },
+      { status: 400 }
+    );
   }
 
   try {
