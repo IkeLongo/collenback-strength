@@ -1,16 +1,19 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
 });
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: Request, ctx: RouteContext) {
+  const { id } = await ctx.params; // ✅ await params
+
   try {
-    const session = await stripe.checkout.sessions.retrieve(params.id, {
+    const session = await stripe.checkout.sessions.retrieve(id, {
       expand: ["payment_intent", "payment_intent.charges"],
     });
 
