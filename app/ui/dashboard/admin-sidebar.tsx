@@ -19,7 +19,7 @@ const navigation = [
   { name: "Clients", href: "/admin/users", icon: UsersIcon },
   { name: "Programs", href: "/admin/programs", icon: ClipboardIcon },
   { name: "Purchases", href: "/admin/purchases", icon: ChartBarIcon },
-  { name: "Credit Ledger", href: "/admin/credit-ledger", icon: CogIcon },
+  // { name: "Credit Ledger", href: "/admin/credit-ledger", icon: CogIcon },
 ];
 
 function MyScheduleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -77,15 +77,15 @@ function ChartBarIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function CogIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
-      <rect x="3" y="6" width="18" height="12" rx="2" />
-      <rect x="6" y="14" width="4" height="2" rx="0.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18" />
-    </svg>
-  );
-}
+// function CogIcon(props: React.SVGProps<SVGSVGElement>) {
+//   return (
+//     <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
+//       <rect x="3" y="6" width="18" height="12" rx="2" />
+//       <rect x="6" y="14" width="4" height="2" rx="0.5" />
+//       <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18" />
+//     </svg>
+//   );
+// }
 
 export function AdminSidebar({ mobile = false, sidebarOpen = false, setSidebarOpen }: AdminSidebarProps) {
   const pathname = usePathname();

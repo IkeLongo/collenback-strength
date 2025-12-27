@@ -15,8 +15,8 @@ export default async function ClientDashboard() {
   return (
     <div className="space-y-6!">
       <div>
-        <h1 className="text-xl! sm:text-2xl! font-bold! text-grey-600!">Welcome back, {userName}!</h1>
-        <p className="text-grey-500! text-sm! sm:text-base!">
+        <h1 className="text-xl! font-semibold! text-grey-700! normal-case!">Welcome back, {userName}!</h1>
+        <p className="text-sm! text-grey-500!">
           Browse your services by category, then by type.
         </p>
       </div>

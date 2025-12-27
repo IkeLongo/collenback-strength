@@ -269,6 +269,24 @@ export default function AdminSessionsCalendar() {
       <div className="grid gap-4">
         {/* Calendar */}
         <div className="rounded-2xl border border-grey-300 bg-white p-3 shadow-sm">
+          {/* Custom Calendar Header for mobile and desktop */}
+          <div className="mb-2">
+            <div className="flex flex-wrap gap-2 items-center justify-between">
+              <div className="flex gap-2">
+                <button type="button" className="fc-prev-button text-black px-2 py-1 border rounded cursor-pointer" onClick={() => calendarRef.current?.getApi().prev()}>Prev</button>
+                <button type="button" className="fc-next-button text-black px-2 py-1 border rounded cursor-pointer" onClick={() => calendarRef.current?.getApi().next()}>Next</button>
+                <button type="button" className="fc-today-button text-black px-2 py-1 border rounded cursor-pointer" onClick={() => calendarRef.current?.getApi().today()}>Today</button>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" className={viewType === "timeGridDay" ? "font-bold underline text-black" : "text-black"} onClick={() => calendarRef.current?.getApi().changeView("timeGridDay")}>Day</button>
+                <button type="button" className={viewType === "timeGridWeek" ? "font-bold underline text-black" : "text-black"} onClick={() => calendarRef.current?.getApi().changeView("timeGridWeek")}>Week</button>
+                <button type="button" className={viewType === "dayGridMonth" ? "font-bold underline text-black" : "text-black"} onClick={() => calendarRef.current?.getApi().changeView("dayGridMonth")}>Month</button>
+              </div>
+            </div>
+            <div className="mt-2 text-center text-lg font-semibold text-grey-900">
+              {calendarRef.current?.getApi().view?.title || "Calendar"}
+            </div>
+          </div>
           <FullCalendar
             ref={(r) => {
               // @ts-ignore
@@ -295,19 +313,23 @@ export default function AdminSessionsCalendar() {
               // meridiem: "short",
               omitZeroMinute: true,
             }}
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "timeGridDay,timeGridWeek,dayGridMonth",
-            }}
+            headerToolbar={false}
             dayHeaderContent={(args) => {
-              // args.date is a Date object
               const date = args.date;
-              const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
               const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+              // Month and day views: only weekday
+              if (viewType === "dayGridMonth" || viewType === "timeGridDay") {
+                return (
+                  <div className="fc-custom-header flex flex-col items-center text-xs sm:text-sm md:text-base">
+                    <span className="text-grey-500">{weekday}</span>
+                  </div>
+                );
+              }
+              // Week view: day number and weekday
+              const dayNum = date.getDate();
               return (
-                <div className="flex flex-col items-center">
-                  <span>{monthDay}</span>
+                <div className="fc-custom-header flex flex-col items-center text-xs sm:text-sm md:text-base">
+                  <span>{dayNum}</span>
                   <span className="text-xs text-grey-500">{weekday}</span>
                 </div>
               );

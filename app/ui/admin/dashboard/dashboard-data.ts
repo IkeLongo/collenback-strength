@@ -12,10 +12,10 @@ import type {
 const DBG = process.env.NODE_ENV !== "production"; // flip to true if you want always on
 
 function log(...args: any[]) {
-  if (DBG) console.log(...args);
+  // if (DBG) console.log(...args);
 }
 function warn(...args: any[]) {
-  if (DBG) console.warn(...args);
+  // if (DBG) console.warn(...args);
 }
 
 // function toIso(dt: any) {
@@ -46,7 +46,7 @@ function mysqlToIsoUtc(dt: any) {
 export async function getAdminDashboardData(
   adminUserId: number
 ): Promise<DashboardData> {
-  log("[dashboard-data] START", { adminUserId });
+  // log("[dashboard-data] START", { adminUserId });
 
   // -------------------------
   // 1) Upcoming sessions
@@ -74,15 +74,15 @@ export async function getAdminDashboardData(
     `
   );
 
-  log("[dashboard-data] sessionRows", {
-    count: sessionRows.length,
-    sample: sessionRows.slice(0, 2).map((r) => ({
-      id: r.id,
-      status: r.status,
-      scheduled_start: r.scheduled_start,
-      sanity_service_id: r.sanity_service_id,
-    })),
-  });
+  // log("[dashboard-data] sessionRows", {
+  //   count: sessionRows.length,
+  //   sample: sessionRows.slice(0, 2).map((r) => ({
+  //     id: r.id,
+  //     status: r.status,
+  //     scheduled_start: r.scheduled_start,
+  //     sanity_service_id: r.sanity_service_id,
+  //   })),
+  // });
 
   const upcomingSessionsBase: SessionListItem[] = sessionRows.map((r) => ({
     id: String(r.id),
@@ -124,34 +124,34 @@ export async function getAdminDashboardData(
     `
   );
 
-  log("[dashboard-data] purchaseRows", {
-    count: purchaseRows.length,
-    sample: purchaseRows.slice(0, 3).map((r) => ({
-      payment_id: r.payment_id,
-      status: r.payment_status,
-      created_at: r.payment_created_at,
-      amount_cents: r.amount_cents,
-      item_amount_cents: r.item_amount_cents,
-      sanity_service_id: r.sanity_service_id,
-      qty: r.quantity,
-    })),
-  });
+  // log("[dashboard-data] purchaseRows", {
+  //   count: purchaseRows.length,
+  //   sample: purchaseRows.slice(0, 3).map((r) => ({
+  //     payment_id: r.payment_id,
+  //     status: r.payment_status,
+  //     created_at: r.payment_created_at,
+  //     amount_cents: r.amount_cents,
+  //     item_amount_cents: r.item_amount_cents,
+  //     sanity_service_id: r.sanity_service_id,
+  //     qty: r.quantity,
+  //   })),
+  // });
 
   // If this prints count: 0, the issue is in SQL/data, not the UI.
   if (purchaseRows.length === 0) {
-    warn("[dashboard-data] purchaseRows is EMPTY. Checking quick diagnostics…");
+    // warn("[dashboard-data] purchaseRows is EMPTY. Checking quick diagnostics…");
 
     // 2a) do we have ANY succeeded payments?
     const [pCount] = await pool.execute<RowDataPacket[]>(
       `SELECT COUNT(*) AS cnt FROM payments WHERE status='succeeded'`
     );
-    warn("[dashboard-data] succeeded payments count", pCount?.[0]?.cnt);
+    // warn("[dashboard-data] succeeded payments count", pCount?.[0]?.cnt);
 
     // 2b) do we have payment_items at all?
     const [piCount] = await pool.execute<RowDataPacket[]>(
       `SELECT COUNT(*) AS cnt FROM payment_items`
     );
-    warn("[dashboard-data] payment_items count", piCount?.[0]?.cnt);
+    // warn("[dashboard-data] payment_items count", piCount?.[0]?.cnt);
 
     // 2c) do we have payment_items whose payment exists (join sanity)?
     const [joinCount] = await pool.execute<RowDataPacket[]>(
@@ -161,7 +161,7 @@ export async function getAdminDashboardData(
       JOIN payment_items pi ON pi.payment_id = p.id
       `
     );
-    warn("[dashboard-data] payments JOIN payment_items count", joinCount?.[0]?.cnt);
+    // warn("[dashboard-data] payments JOIN payment_items count", joinCount?.[0]?.cnt);
 
     // 2d) latest 3 payment statuses (spot enum mismatch like 'Succeeded' vs 'succeeded')
     const [latest] = await pool.execute<RowDataPacket[]>(
@@ -172,7 +172,7 @@ export async function getAdminDashboardData(
       LIMIT 5
       `
     );
-    warn("[dashboard-data] latest payments", latest);
+    // warn("[dashboard-data] latest payments", latest);
   }
 
   // -------------------------
@@ -203,15 +203,15 @@ export async function getAdminDashboardData(
     `
   );
 
-  log("[dashboard-data] recentSessionRows", {
-    count: recentSessionRows.length,
-    sample: recentSessionRows.slice(0, 2).map((r) => ({
-      id: r.id,
-      status: r.status,
-      occurred: r.updated_at || r.created_at || r.scheduled_start,
-      sanity_service_id: r.sanity_service_id,
-    })),
-  });
+  // log("[dashboard-data] recentSessionRows", {
+  //   count: recentSessionRows.length,
+  //   sample: recentSessionRows.slice(0, 2).map((r) => ({
+  //     id: r.id,
+  //     status: r.status,
+  //     occurred: r.updated_at || r.created_at || r.scheduled_start,
+  //     sanity_service_id: r.sanity_service_id,
+  //   })),
+  // });
 
   // -------------------------
   // 4) Stats
@@ -264,7 +264,7 @@ export async function getAdminDashboardData(
     sessionsBooked30dCount: Number(booked30Rows?.[0]?.cnt ?? 0),
   };
 
-  log("[dashboard-data] stats", stats);
+  // log("[dashboard-data] stats", stats);
 
   // -------------------------
   // 5) Collect sanity IDs
@@ -281,16 +281,16 @@ export async function getAdminDashboardData(
     if (r.sanity_service_id) serviceIds.add(String(r.sanity_service_id));
   }
 
-  log("[dashboard-data] serviceIds", {
-    count: serviceIds.size,
-    list: Array.from(serviceIds).slice(0, 10),
-  });
+  // log("[dashboard-data] serviceIds", {
+  //   count: serviceIds.size,
+  //   list: Array.from(serviceIds).slice(0, 10),
+  // });
 
   const sanityServices = await getServicesByIds(Array.from(serviceIds));
-  log("[dashboard-data] sanityServices fetched", {
-    count: sanityServices.length,
-    sample: sanityServices.slice(0, 2).map((s) => ({ _id: s._id, title: s.title })),
-  });
+  // log("[dashboard-data] sanityServices fetched", {
+  //   count: sanityServices.length,
+  //   sample: sanityServices.slice(0, 2).map((s) => ({ _id: s._id, title: s.title })),
+  // });
 
   const serviceById = new Map(
     sanityServices.map((s) => [
@@ -357,19 +357,19 @@ export async function getAdminDashboardData(
 
     const occurredAtUtc = mysqlToIsoUtc(r.payment_created_at);
 
-    // log each row (only first few)
-    if (pushedPurchases < 3) {
-      log("[dashboard-data] purchase row -> activity", {
-        payment_id: r.payment_id,
-        sanityId,
-        titleFromSanity: meta?.title ?? null,
-        created_at: r.payment_created_at,
-        occurredAtUtc,
-        cents,
-        currency,
-        qty,
-      });
-    }
+    // // log each row (only first few)
+    // if (pushedPurchases < 3) {
+    //   log("[dashboard-data] purchase row -> activity", {
+    //     payment_id: r.payment_id,
+    //     sanityId,
+    //     titleFromSanity: meta?.title ?? null,
+    //     created_at: r.payment_created_at,
+    //     occurredAtUtc,
+    //     cents,
+    //     currency,
+    //     qty,
+    //   });
+    // }
 
     recentActivity.push({
       id: `payment_${r.payment_id}_${sanityId ?? "unknown"}`,
@@ -387,11 +387,11 @@ export async function getAdminDashboardData(
     pushedPurchases += 1;
   }
 
-  log("[dashboard-data] recentActivity counts (pre-sort)", {
-    total: recentActivity.length,
-    sessionItems: recentActivity.filter((x) => x.kind !== "purchase_completed").length,
-    purchaseItems: recentActivity.filter((x) => x.kind === "purchase_completed").length,
-  });
+  // log("[dashboard-data] recentActivity counts (pre-sort)", {
+  //   total: recentActivity.length,
+  //   sessionItems: recentActivity.filter((x) => x.kind !== "purchase_completed").length,
+  //   purchaseItems: recentActivity.filter((x) => x.kind === "purchase_completed").length,
+  // });
 
   // Sort desc
   recentActivity.sort(
@@ -400,15 +400,15 @@ export async function getAdminDashboardData(
 
   const sliced = recentActivity.slice(0, 12);
 
-  log("[dashboard-data] recentActivity counts (post-sort/slice)", {
-    total: sliced.length,
-    purchaseItems: sliced.filter((x) => x.kind === "purchase_completed").length,
-    sample: sliced.slice(0, 5).map((x) => ({
-      kind: x.kind,
-      title: x.title,
-      occurredAtUtc: x.occurredAtUtc,
-    })),
-  });
+  // log("[dashboard-data] recentActivity counts (post-sort/slice)", {
+  //   total: sliced.length,
+  //   purchaseItems: sliced.filter((x) => x.kind === "purchase_completed").length,
+  //   sample: sliced.slice(0, 5).map((x) => ({
+  //     kind: x.kind,
+  //     title: x.title,
+  //     occurredAtUtc: x.occurredAtUtc,
+  //   })),
+  // });
 
   return {
     stats,

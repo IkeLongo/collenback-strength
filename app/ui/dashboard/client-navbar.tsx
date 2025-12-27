@@ -178,8 +178,8 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
             {/* Dropdown menu */}
             {userMenuOpen && (
               <div className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 px-2 shadow-lg ring-1 ring-grey-900/5 focus:outline-none">
-                <a href="/client/profile" className="block px-3! py-2! text-sm! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!">
-                  Your profile
+                <a href="/client/profile" className="block px-3! py-2! text-sm! font-medium! leading-6! text-grey-900! hover:bg-grey-100! rounded-md! mb-1!">
+                  Your Profile
                 </a>
                 <button
                   onClick={handleLogout}

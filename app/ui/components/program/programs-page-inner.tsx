@@ -22,10 +22,10 @@ export default function ProgramsPageInner({
   return (
     <>
       <div className="w-full overflow-x-hidden">
-        <h1 className="!text-xl sm:!text-2xl !font-bold !text-grey-600">
-          Purchase a Program or Coaching
+        <h1 className="text-xl! font-semibold! text-grey-700! normal-case!">
+          Purchase a Program or Coaching Session
         </h1>
-        <p className="!text-grey-500 !text-sm sm:!text-base !mb-6">
+        <p className="text-sm! text-grey-500! mb-6">
           Browse and manage your available programs and coaching options.
         </p>
 

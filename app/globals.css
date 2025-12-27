@@ -292,6 +292,45 @@
   font-size: small;
 }
 
+.fc .fc-timegrid-axis {
+  font-size: 0.75rem; /* mobile */
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.75rem; /* mobile */
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.75rem; /* mobile */
+}
+
+@media (min-width: 640px) {
+  .fc .fc-timegrid-axis {
+    font-size: 0.875rem; /* sm */
+  }
+
+  .fc .fc-timegrid-slot-label {
+    font-size: 0.875rem; /* mobile */
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 0.875rem; /* mobile */
+  }
+}
+@media (min-width: 768px) {
+  .fc .fc-timegrid-axis {
+    font-size: 1rem; /* md */
+  }
+
+  .fc .fc-timegrid-slot-label {
+    font-size: 1rem; /* mobile */
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 1rem; /* mobile */
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
