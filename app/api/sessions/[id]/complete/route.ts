@@ -3,9 +3,13 @@ import { NextResponse } from "next/server";
 import { withTx } from "@/app/lib/mysql";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
-export async function POST(_: Request, { params }: { params: { id: string } }) {
-  const sessionId = Number(params.id);
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
 
+export async function POST(_: Request, ctx: RouteContext) {
+  const { id } = await ctx.params;
+  const sessionId = Number(id);
   try {
     await withTx(async (conn) => {
       // Lock session
