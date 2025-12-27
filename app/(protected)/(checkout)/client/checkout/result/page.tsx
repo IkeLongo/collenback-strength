@@ -2,6 +2,10 @@ import Stripe from "stripe";
 import Link from "next/link";
 import ClearCartOnSuccess from "@/app/ui/components/stripe/clear-cart-on-success";
 
+interface ResultPageProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
 });
@@ -17,12 +21,9 @@ function formatDate(unixSeconds: number | null | undefined) {
   return new Date(unixSeconds * 1000).toLocaleString();
 }
 
-export default async function ResultPage({
-  searchParams,
-}: {
-  searchParams: { session_id?: string };
-}) {
-  const sessionId = searchParams.session_id;
+export default async function ResultPage({ searchParams }: ResultPageProps) {
+  const sessionIdRaw = searchParams?.session_id;
+  const sessionId = Array.isArray(sessionIdRaw) ? sessionIdRaw[0] : sessionIdRaw;
 
   if (!sessionId) {
     return (
