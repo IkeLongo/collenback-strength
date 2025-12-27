@@ -180,7 +180,7 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
 
         <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-grey-300 to-transparent" />
         
-        <div className="flex flex-col space-y-4">
+        {/* <div className="flex flex-col space-y-4">
           <button
             className="group/btn shadow-input relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-grey-100 px-4 font-medium text-grey-700 border border-grey-300"
             type="button"
@@ -211,7 +211,7 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
             </span>
             <BottomGradient />
           </button>
-        </div>
+        </div> */}
       </form>
       
       <div className="flex flex-col items-center space-y-2">

@@ -60,7 +60,7 @@ export default function ProgramsTabs() {
   if (loading) return <div className="text-center py-20 text-white">Loading...</div>;
 
   return (
-    <section id="programs" className="flex flex-col w-full mx-auto py-16 pb-4 md:py-18 md:pb-4 lg:py-24 lg:pb-10 px-4 md:px-8 lg:px-16">
+    <section id="programs" className="scroll-mt-12 flex flex-col w-full mx-auto py-16 pb-4 md:py-18 md:pb-4 lg:py-24 lg:pb-10 px-4 md:px-8 lg:px-16">
       <FadeInUp>
         <div className="w-full flex flex-col items-center text-center mb-8 md:mb-12">
           <h3 className="text-white font-bold text-center pt-4 md:text-3xl lg:text-4xl font-outfit -mb-6 md:mb-4">

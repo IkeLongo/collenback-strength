@@ -219,7 +219,7 @@ export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
             </button>
 
             <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-grey-300 to-transparent" />
-            <div className="flex flex-col space-y-4">
+            {/* <div className="flex flex-col space-y-4">
               <button
                 className="group/btn shadow-input relative flex h-10 w-full items-center justify-start space-x-2 rounded-md bg-grey-100 px-4 font-medium text-grey-700 border border-grey-300"
                 type="button"
@@ -250,10 +250,10 @@ export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
                 </span>
                 <BottomGradient />
               </button>
-            </div>
+            </div> */}
           </form>
           
-          <p className="!text-gray-700 pt-4 !text-[15px]">
+          <p className="!text-gray-700 !text-[15px]">
             Already have an account?{' '}
             <span
               className="!text-gold-600 hover:!text-gold-500 !no-underline !text-[18px] cursor-pointer underline"

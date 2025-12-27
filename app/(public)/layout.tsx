@@ -1,20 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import { Navbar } from "../../react-component-library/src";
-import Footer from "../ui/layout/footer";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://collenbackstrength.com'),
@@ -89,25 +76,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <Navbar 
-        logoSrc="/logo-stamp.png"
-        navLinks={[
-          { name: 'About', href: '/#about' },
-          { name: 'Qualifications', href: '/#qualifications' },
-          { name: 'Programs', href: '/#programs' },
-          { name: 'Testimonials', href: '/#testimonials' },
-          { name: 'FAQ', href: '/#faq' },
-        ]}
-        showBookingButton={true}
-        bookingText="Message Me"
-        bookingHref="/contact"
-        backgroundColor="bg-grey-700"
-      />
-        {children}
-      <Footer>
-      </Footer>
-    </>
-  );
+  // Only import the Navbar from the component library here if you want it above the client layout
+  // import { Navbar } from "../../react-component-library/src";
+  // You can add the static Navbar here if needed
+  // <Navbar ... />
+  // Wrap children with the client layout
+  // This allows the resizeable navbar to use useState and client features
+  const PublicLayoutClient = require("../ui/layout/public-layout-client.tsx").default;
+  return <PublicLayoutClient>{children}</PublicLayoutClient>;
 }
