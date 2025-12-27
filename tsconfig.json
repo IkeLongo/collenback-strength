@@ -22,6 +22,15 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/subject-request/route.js", "app/lib/stripe/getStripe.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.d.ts",
+    ".next/types/**/*.ts",
+    "app/types/**/*.d.ts",
+    "app/api/subject-request/route.js",
+    "app/lib/stripe/getStripe.js"
+  ],
   "exclude": ["node_modules"]
 }
