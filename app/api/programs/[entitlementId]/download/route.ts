@@ -5,11 +5,13 @@ import { client } from "@/sanity/lib/client";
 
 export const runtime = "nodejs";
 
-type Params = {
-  params: { entitlementId: string };
+type RouteContext = {
+  params: Promise<{ entitlementId: string }>;
 };
 
-export async function GET(req: Request, { params }: Params) {
+export async function GET(req: Request, ctx: RouteContext) {
+  const { entitlementId } = await ctx.params; // ✅ await params
+
   // 1️⃣ Require auth
   const session = await auth();
   if (!session?.user?.id) {
@@ -17,9 +19,9 @@ export async function GET(req: Request, { params }: Params) {
   }
 
   const userId = Number(session.user.id);
-  const entitlementId = Number(params.entitlementId);
+  const entitlementIdNum = Number(entitlementId);
 
-  if (!Number.isFinite(entitlementId)) {
+  if (!Number.isFinite(entitlementIdNum)) {
     return new NextResponse("Invalid entitlement id", { status: 400 });
   }
 
