@@ -1,4 +1,4 @@
-import "server-only";
+
 import type Stripe from "stripe";
 import type { MembershipStatusKind } from "@/app/lib/email/sendMembershipStatusEmail";
 
