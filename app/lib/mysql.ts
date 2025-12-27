@@ -1,16 +1,5 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-
-// Load environment variables
-// dotenv.config({ path: './.env.local' });
-
-// console.log("DB Config:", {
-//   host: process.env.DB_HOST,
-//   port: process.env.DB_PORT,
-//   user: process.env.DB_USER || "MISSING",
-//   password: process.env.DB_PASS ? "*****" : "MISSING",
-//   database: process.env.DB_SCHEMA || "MISSING"
-// });
+import "server-only";
+import mysql from "mysql2/promise";
 
 export const pool = mysql.createPool({
   host: process.env.DB_HOST,
