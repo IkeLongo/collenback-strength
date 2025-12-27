@@ -1,19 +1,10 @@
-"use client";
-import React, { useEffect } from "react";
-import { LoginForm } from "../../ui/auth/login-form";
-import { SignupForm } from "../../ui/auth/signup-form";
-import { useAuthForm } from "./auth-form-context";
+import { Suspense } from "react";
+import GetStartedClient from "./GetStartedClient";
 
-export default function AuthPage() {
-	const { formType, setFormType } = useAuthForm();
-
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: "smooth" });
-	}, [formType]);
-
-	return formType === "signup" ? (
-		<SignupForm onShowLogin={() => setFormType("login")} />
-	) : (
-		<LoginForm onShowSignup={() => setFormType("signup")} />
+export default function Page() {
+	return (
+		<Suspense fallback={<div className="min-h-screen" />}>
+			<GetStartedClient />
+		</Suspense>
 	);
 }
