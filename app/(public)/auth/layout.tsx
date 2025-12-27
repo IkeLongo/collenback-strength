@@ -1,0 +1,7 @@
+
+import "react-toastify/dist/ReactToastify.css";
+import AuthLayoutClient from "./auth-layout-client";
+
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return <AuthLayoutClient>{children}</AuthLayoutClient>;
+}

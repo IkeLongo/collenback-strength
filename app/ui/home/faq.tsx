@@ -1,5 +1,5 @@
-import AccordionItem from "@/app/lib/accordion-item";
-import FadeInUp from "@/app/lib/components/fade-in-up";
+import AccordionItem from "@/app/ui/components/accordion-item";
+import FadeInUp from "@/app/ui/components/fade/fade-in-up";
 
 export default function Faq() {
 

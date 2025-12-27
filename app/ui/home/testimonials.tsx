@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import Testimonial, { TestimonialCard } from '@/app/lib/testimonial';
-import FullWidthCarousel from '@/app/lib/comp-carosel';
-import FadeInUp from '@/app/lib/components/fade-in-up';
+import Testimonial, { TestimonialCard } from '@/app/ui/components/testimonial/testimonial';
+import FullWidthCarousel from '@/app/ui/components/carousel/comp-carosel';
+import FadeInUp from '@/app/ui/components/fade/fade-in-up';
 
 export default function Testimonials() {
   const testimonials = [

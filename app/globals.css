@@ -35,10 +35,143 @@
   --color-gradient-gold: linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%);
   --color-gradient-fallback: #79DD1A;
 
+  --shadow-input:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+
   /* Font Families */
   --font-oxanium: Oxanium, sans-serif;
   --font-anton: Anton, sans-serif;
   --font-outfit: Outfit, sans-serif;
+}
+
+
+.fc {
+  color: #000; /* default text color */
+}
+
+.fc .fc-toolbar-title {
+  color: #000;
+}
+
+.fc .fc-daygrid-day {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.fc .fc-daygrid-day-number {
+  color: #000;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #000;
+}
+
+.fc .fc-timegrid-slot-label,
+.fc .fc-timegrid-axis-cushion {
+  color: #000;
+}
+
+.fc .fc-event-title,
+.fc .fc-event-time {
+  color: #000;
+  font-size: 12px;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background: rgba(191, 238, 60, 0.15); /* your lime-ish */
+}
+
+.fc-available-slot {
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* Make availability visually obvious */
+.fc .fc-event.fc-available-slot {
+  background: #e5f9eb;
+  border: 1px solid #22c55e;
+  color: #000 !important; /* your requirement */
+}
+
+/* Hover state */
+.fc .fc-event.fc-available-slot:hover {
+  filter: brightness(0.95);
+}
+
+/* Selected state */
+.fc .fc-event.fc-available-selected {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+  color: #000 !important;
+}
+
+/* Past days: muted and not clickable-looking */
+.cs-day-past {
+  opacity: 0.45;
+}
+
+/* ============================= */
+/* AVAILABLE DAY (white) */
+/* ============================= */
+.cs-day-available {
+  background-color: #ffffff;
+}
+
+/* Make sure number is readable */
+.cs-day-available .fc-daygrid-day-number {
+  color: #000000;
+}
+
+/* Hover effect for available days */
+.cs-day-available:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+/* ============================= */
+/* UNAVAILABLE DAY (light grey) */
+/* ============================= */
+.cs-day-unavailable {
+  background-color: #e5e7eb; /* Tailwind gray-200 */
+}
+
+.cs-day-unavailable .fc-daygrid-day-number {
+  color: #6b7280; /* Tailwind gray-500 */
+}
+
+/* Prevent "clickable" feel */
+.cs-day-unavailable:hover {
+  cursor: not-allowed;
+}
+
+/* ============================= */
+/* SELECTED DAY (dark grey) */
+/* ============================= */
+.cs-day-selected {
+  background-color: #374151 !important; /* Tailwind gray-700 */
+}
+
+.cs-day-selected .fc-daygrid-day-number {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* ============================= */
+/* PAST DAYS (disabled) */
+/* ============================= */
+.cs-day-past {
+  background-color: #f3f4f6; /* gray-100 */
+  opacity: 0.5;
+}
+
+.cs-day-past .fc-daygrid-day-number {
+  color: #9ca3af;
+}
+
+.cs-day-past:hover {
+  cursor: not-allowed;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -47,6 +180,156 @@
     --foreground: #ededed;
   }
 } */
+
+/* Base session styling */
+.fc .cs-session-event {
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08); /* subtle outline */
+  overflow: hidden;                   /* so left bar clips cleanly */
+  background: var(--cs-bg, #fff); /* ✅ use var */
+}
+
+/* Left border emphasis */
+.fc .cs-session-event .fc-event-main {
+  background: var(--cs-bg, #fff); /* ✅ ensure inner paints too */
+  border-left: 5px solid var(--cs-left, #111827); /* ✅ uses our variable */
+  padding: 4px 6px;
+  height: 100%;
+}
+
+/* Keep text readable */
+.fc .cs-session-event .fc-event-title {
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* Reduce visual noise */
+.fc .cs-session-event {
+  box-shadow: none;
+}
+
+/* Inner wrapper */
+.fc .cs-session-event .cs-event-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Coach label (top line) */
+.fc .cs-session-event .cs-event-coach {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  /* same color as left border */
+  color: var(--cs-left);
+
+  /* subtle tint using same color */
+  /* background-color: color-mix(in srgb, var(--cs-left) 12%, transparent); */
+  /* padding: 2px 6px; */
+  /* border-radius: 4px; */
+}
+
+/* Client name */
+.fc .cs-session-event .cs-event-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Service name */
+.fc .cs-session-event .cs-event-service {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* scheduled: dashed outline + subtle corner badge */
+.fc .cs-status-scheduled {
+  outline: 2px dashed rgba(17, 24, 39, 0.35);
+  outline-offset: -2px;
+}
+
+/* optional: completed, cancelled, no_show styles */
+.fc .cs-status-completed { opacity: 0.95; }
+.fc .cs-status-cancelled { opacity: 0.65; }
+.fc .cs-status-noshow { opacity: 0.75; }
+
+/* Month list-item content */
+.fc .cs-month-item{
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 6px;
+}
+
+.fc .cs-month-time{
+  font-weight: 700;
+  opacity: 0.85;
+  flex: 0 0 auto;
+  color: var(--cs-left);
+}
+
+.fc .cs-month-client{
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--cs-left);
+}
+
+/* Month list items: tint the row */
+.fc .fc-daygrid-event.cs-session-event,
+.fc .fc-daygrid-event.cs-session-event .fc-event-main{
+  background: var(--cs-bg, #fff) !important; /* ✅ tint row */
+}
+
+.fc-daygrid-more-link {
+  color: #000;
+  font-size: small;
+}
+
+.fc .fc-timegrid-axis {
+  font-size: 0.75rem; /* mobile */
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.75rem; /* mobile */
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.75rem; /* mobile */
+}
+
+@media (min-width: 640px) {
+  .fc .fc-timegrid-axis {
+    font-size: 0.875rem; /* sm */
+  }
+
+  .fc .fc-timegrid-slot-label {
+    font-size: 0.875rem; /* mobile */
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 0.875rem; /* mobile */
+  }
+}
+@media (min-width: 768px) {
+  .fc .fc-timegrid-axis {
+    font-size: 1rem; /* md */
+  }
+
+  .fc .fc-timegrid-slot-label {
+    font-size: 1rem; /* mobile */
+  }
+
+  .fc .fc-daygrid-day-number {
+    font-size: 1rem; /* mobile */
+  }
+}
 
 body {
   background: var(--background);
@@ -225,4 +508,14 @@ p, a {
   border-color: var(--color-gold-500);
   box-shadow: 0 0 24px 4px rgba(203, 159, 36, 0.5), 0 2px 8px #0002;
   z-index: 2;
+}
+
+.no-visible-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+ 
+.no-visible-scrollbar::-webkit-scrollbar {
+  display: none;
 }

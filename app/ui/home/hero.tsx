@@ -3,10 +3,10 @@
 import { Button } from "@heroui/button";
 import Image from "next/image";
 import Link from "next/link";
-import FadeInUp from "@/app/lib/components/fade-in-up";
+import FadeInUp from "@/app/ui/components/fade/fade-in-up";
 
 import { useEffect, useState } from "react";
-import { useLoading } from "@/app/lib/components/loading-context";
+import { useLoading } from "@/app/ui/components/load/loading-context";
 
 export default function Hero() {
   const { setLoading } = useLoading();

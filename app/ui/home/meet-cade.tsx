@@ -1,6 +1,6 @@
 import Image from "next/image";
-import InfoGraphic from "@/app/lib/info-graphic-1";
-import FadeInUp from "@/app/lib/components/fade-in-up";
+import InfoGraphic from "@/app/ui/components/info-graphic/info-graphic-1";
+import FadeInUp from "@/app/ui/components/fade/fade-in-up";
 
 export default function MeetCade() {
   return (

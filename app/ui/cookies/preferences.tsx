@@ -12,7 +12,7 @@ import {
   useDisclosure,
   Switch,
 } from "@heroui/react";
-import CustomSwitch from '../../lib/switch';
+import CustomSwitch from '../components/switch/switch';
 
 interface PreferencesModalProps {
   isOpen: boolean; // ✅ Indicates if the modal is open
