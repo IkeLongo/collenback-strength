@@ -2,8 +2,11 @@ import Stripe from "stripe";
 import Link from "next/link";
 import ClearCartOnSuccess from "@/app/ui/components/stripe/clear-cart-on-success";
 
+type SearchParams = Record<string, string | string[] | undefined>;
+
 interface ResultPageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  // ✅ Next build expects searchParams to possibly be a Promise
+  searchParams?: Promise<SearchParams>;
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -22,7 +25,10 @@ function formatDate(unixSeconds: number | null | undefined) {
 }
 
 export default async function ResultPage({ searchParams }: ResultPageProps) {
-  const sessionIdRaw = searchParams?.session_id;
+  // ✅ await it (and default to empty object)
+  const sp = (await searchParams) ?? {};
+
+  const sessionIdRaw = sp.session_id;
   const sessionId = Array.isArray(sessionIdRaw) ? sessionIdRaw[0] : sessionIdRaw;
 
   if (!sessionId) {
