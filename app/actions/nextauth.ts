@@ -1,4 +1,5 @@
 import { LoginFormSchema } from '@/app/lib/definitions'
+import { verifyCredentials } from '@/app/lib/auth/verifyCredentials'
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
@@ -10,50 +11,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        // Ensure credentials are defined and properly typed
         if (!credentials || typeof credentials.email !== "string" || typeof credentials.password !== "string") {
           throw new Error("Invalid credentials.");
         }
 
-        // Validate credentials using signInSchema
         const { email, password } = await LoginFormSchema.parseAsync(credentials);
 
-        // Debug: Log the submitted email and password
-        // console.log("Submitted Email:", email);
-        // console.log("Submitted Password (raw):", password);
+        const user = await verifyCredentials(email, password);
+        if (!user) throw new Error("Invalid credentials.");
 
-        let user = null;
-
-        // Call the login_user API endpoint
-        try {
-          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-          const response = await fetch(`${baseUrl}/api/login_user`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-
-          const result = await response.json();
-
-          if (!response.ok) {
-            throw new Error(result.message || "Invalid credentials.");
-          }
-
-          // The API now handles password verification and returns full user info with role
-          return {
-            id: result.userId,
-            email: result.user.email,
-            firstName: result.user.firstName,
-            lastName: result.user.lastName,
-            phone: result.user.phone,
-            role: result.role,
-            roleId: result.roleId,
-            avatarKey: result.user.avatarKey ?? null,
-          };
-        } catch (err) {
-          // console.error('Error fetching user:', err);
-          throw new Error("An error occurred while verifying credentials.");
-        }
+        return user;
       },
     }),
   ],
