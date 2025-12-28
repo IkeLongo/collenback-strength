@@ -77,8 +77,13 @@ export const ModalBody = ({
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     }
+
+    // ✅ critical: when ModalBody unmounts (e.g. route change), restore scroll
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const modalRef = useRef<HTMLDivElement>(null);

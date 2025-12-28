@@ -1,4 +1,4 @@
-// app/client/profile/page.tsx
+// app/admin/profile/page.tsx
 import { redirect } from "next/navigation";
 import type { RowDataPacket } from "mysql2/promise";
 import { pool } from "@/app/lib/mysql";

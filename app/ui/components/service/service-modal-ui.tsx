@@ -187,17 +187,15 @@ export default function ServiceModalUI({
                 // optional: add-to-cart action
                 if (enableAddToCart && onAddToCart) onAddToCart(selectedService);
 
-                // primary action
+                // ✅ CLOSE MODAL FIRST
+                setOpen(false);
+                setSelectedService(null);
+
+                // then navigate
                 onPrimaryAction(selectedService);
 
-                // open cart drawer (only if provider exists)
+                // open cart drawer if needed
                 if (enableAddToCart && cartCtx) cartCtx.setOpen(true);
-
-                // ✅ CLOSE MODAL
-                setOpen(false);
-
-                // (optional but makes it feel instant)
-                setSelectedService(null);
               }}
             >
               <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">

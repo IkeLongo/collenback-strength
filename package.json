@@ -53,7 +53,7 @@
     "luxon": "^3.7.2",
     "motion": "^12.23.25",
     "mysql2": "^3.15.3",
-    "next": "15.3.4",
+    "next": "15.3.8",
     "next-auth": "5.0.0-beta.30",
     "next-sanity": "^11.6.10",
     "nodemailer": "^7.0.5",
