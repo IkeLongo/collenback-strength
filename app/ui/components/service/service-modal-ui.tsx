@@ -49,7 +49,7 @@ export default function ServiceModalUI({
 
   if (!selectedService) return null;
 
-  const imageUrl = selectedService.image?.asset?.url || "/logo-stamp.png";
+  const imageUrl = selectedService.imageUrl || "/logo-stamp.png";
 
   return (
     <ModalBody className="p-0! max-w-2xl! w-full!">
@@ -85,7 +85,7 @@ export default function ServiceModalUI({
               {selectedService.title}
             </h2>
             {selectedService.shortDescription && (
-              <p className="mt-1! text-sm! sm:text-base! text-white/90! drop-shadow! line-clamp-2!">
+              <p className="mt-1! text-xs! sm:text-base! text-white/90! drop-shadow! line-clamp-2!">
                 {selectedService.shortDescription}
               </p>
             )}
