@@ -49,13 +49,14 @@ export const Tabs = ({
           <MultiSelect
             options={propTabs.map(tab => ({ value: tab.value, label: tab.title }))}
             placeholder="Select a training option..."
-            className="bg-grey-900 text-white font-outfit max-w-[450px] rounded-2xl border border-grey-800 shadow-lg"
+            className="bg-grey-900 text-white! font-outfit max-w-[450px] rounded-2xl border border-grey-800 shadow-lg"
             value={active.value}
             onChange={val => {
               const idx = propTabs.findIndex(tab => tab.value === val);
               if (idx !== -1) moveSelectedTabToTop(idx);
             }}
             singleSelect
+            selectedValueClassName="text-white!"
           />
         </LabelInputContainer>
       </div>

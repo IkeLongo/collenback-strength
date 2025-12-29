@@ -12,10 +12,11 @@ export interface MultiSelectProps
   singleSelect?: boolean
   menuClassName?: string // custom dropdown menu styling
   dropdownPlacement?: "top" | "bottom" // dropdown position
+  selectedValueClassName?: string // custom class for selected value span
 }
 
 const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
-  ({ className, options, value = [], onChange, placeholder = "Select options...", singleSelect = false, menuClassName, dropdownPlacement = "bottom", ...props }, ref) => {
+  ({ className, options, value = [], onChange, placeholder = "Select options...", singleSelect = false, menuClassName, dropdownPlacement = "bottom", selectedValueClassName, ...props }, ref) => {
     const radius = 100 // change this to increase the radius of the hover effect
     const [visible, setVisible] = React.useState(false)
     const [isOpen, setIsOpen] = React.useState(false)
@@ -163,7 +164,12 @@ const MultiSelect = React.forwardRef<HTMLSelectElement, MultiSelectProps>(
                 {placeholder}
               </span>
             ) : (
-              <span className="font-outfit text-base text-black truncate">
+              <span
+                className={cn(
+                  "font-outfit text-base truncate",
+                  selectedValueClassName ? selectedValueClassName : "text-black"
+                )}
+              >
                 {options.find((o) => o.value === normalizedSelectedValues[0])?.label ?? normalizedSelectedValues[0]}
               </span>
             )}

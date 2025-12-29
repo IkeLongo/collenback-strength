@@ -170,41 +170,39 @@ export default function ServiceModalUI({
             <button
               type="button"
               className="
-                w-full! sm:w-auto!
-                bg-black!
-                text-white!
-                font-bold!
-                flex!
-                justify-center!
+                w-full sm:w-auto
+                bg-black text-white font-bold
+                flex justify-center items-center gap-2
+                px-6 py-3 rounded-lg
+                relative overflow-hidden
+                transition
+                active:scale-[0.97]
+                active:bg-neutral-900
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-gold-500/70
                 group/modal-btn
-                px-6!
-                py-3!
-                rounded-lg!
-                relative!
-                overflow-hidden!
               "
               onClick={() => {
-                // optional: add-to-cart action
                 if (enableAddToCart && onAddToCart) onAddToCart(selectedService);
 
-                // ✅ CLOSE MODAL FIRST
                 setOpen(false);
                 setSelectedService(null);
-
-                // then navigate
                 onPrimaryAction(selectedService);
 
-                // open cart drawer if needed
                 if (enableAddToCart && cartCtx) cartCtx.setOpen(true);
               }}
             >
-              <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
+              {/* Label (mobile + desktop base) */}
+              <span className="text-center transition md:duration-500 md:group-hover/modal-btn:translate-x-40">
                 {primaryLabel}
               </span>
-              <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
+
+              {/* Desktop hover animation only */}
+              <div className="hidden md:flex absolute inset-0 items-center justify-center transition md:duration-500 md:-translate-x-40 md:group-hover/modal-btn:translate-x-0 z-20">
                 <Lottie
                   animationData={flexedBiceps}
-                  loop={true}
+                  loop
                   className="w-24 h-24"
                 />
               </div>
