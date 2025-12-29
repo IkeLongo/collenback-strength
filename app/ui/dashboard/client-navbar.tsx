@@ -185,7 +185,7 @@ export function ClientNavbar({ setSidebarOpen, userName = 'User' }: ClientNavbar
                   onClick={handleLogout}
                   disabled={isLoggingOut}
                   className={cn(
-                    "block w-full text-left px-3! py-2! text-sm! leading-6! rounded-md! transition-colors duration-200",
+                    "block w-full text-left px-3! py-2! font-medium! font-[outfit]! text-sm! leading-6! rounded-md! transition-colors duration-200",
                     isLoggingOut 
                       ? "text-grey-500! bg-grey-50! cursor-not-allowed" 
                       : "text-grey-900! hover:bg-grey-100! hover:cursor-pointer!"

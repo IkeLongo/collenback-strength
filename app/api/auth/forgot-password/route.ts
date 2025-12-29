@@ -1,3 +1,5 @@
+// app/api/auth/forgot-password/route.ts
+
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { getUserByEmailWithRoles } from "@/app/lib/queries/users";

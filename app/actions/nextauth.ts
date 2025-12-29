@@ -27,6 +27,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // allow relative redirects
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      // allow same-origin absolute redirects
+      const u = new URL(url);
+      if (u.origin === baseUrl) return url;
+
+      // otherwise force canonical baseUrl (prevents main-- netlify redirects)
+      return baseUrl;
+    },
     async session({ session, token }) {
       // Attach user details to the session object
       if (token) {
