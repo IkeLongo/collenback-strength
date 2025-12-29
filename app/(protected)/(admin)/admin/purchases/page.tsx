@@ -1,32 +1,17 @@
 // app/(protected)/(admin)/admin/purchases/page.tsx
 import PurchasesTableClient from "./purchases-table-client";
-import { cookies } from "next/headers";
-
-function baseUrl() {
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-}
+import { getAdminPurchases } from "@/app/lib/auth/getPurchases";
 
 export default async function AdminPurchasesPage() {
   const limit = 25;
   const offset = 0;
 
-  const cookieHeader = cookies().toString();
+  const data = await getAdminPurchases({ limit, offset });
 
-  const res = await fetch(
-    `${baseUrl()}/api/admin/purchases?limit=${limit}&offset=${offset}`,
-    {
-      cache: "no-store",
-      headers: { cookie: cookieHeader },
-    }
-  );
-
-  const data = await res.json();
-
-  if (!res.ok || !data?.ok) {
+  if (!data.ok) {
     return (
       <div className="rounded-2xl border border-red-200 bg-white p-4 text-sm text-red-600">
-        {data?.message ?? "Failed to load purchases."}
+        {(data as any).message ?? "Failed to load purchases."}
       </div>
     );
   }
@@ -39,11 +24,11 @@ export default async function AdminPurchasesPage() {
       </div>
 
       <PurchasesTableClient
-        initialPurchases={data.purchases}
-        initialTotals={data.totals}
-        initialTotal={data.total}
-        initialLimit={data.limit}
-        initialOffset={data.offset}
+        initialPurchases={(data as any).purchases}
+        initialTotals={(data as any).totals}
+        initialTotal={(data as any).total}
+        initialLimit={(data as any).limit}
+        initialOffset={(data as any).offset}
       />
     </div>
   );

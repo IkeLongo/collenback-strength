@@ -1,3 +1,5 @@
+// app/lib/auth/requireAdmin.tsx
+
 import { auth } from "@/app/actions/nextauth";
 
 export async function requireAdmin() {
