@@ -14,6 +14,25 @@ export function SyncedHorizontalScroll({
 
   const syncing = useRef(false);
   const [showTop, setShowTop] = useState(false);
+  const [enableDrag, setEnableDrag] = useState(false);
+
+  // ✅ Only enable drag on "desktop-like" devices
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mq = window.matchMedia("(pointer: fine) and (hover: hover)");
+    const update = () => setEnableDrag(mq.matches);
+    update();
+
+    // Safari compatibility
+    if (mq.addEventListener) mq.addEventListener("change", update);
+    else mq.addListener(update);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", update);
+      else mq.removeListener(update);
+    };
+  }, []);
 
   const syncSizes = useCallback(() => {
     const body = bodyRef.current;
@@ -67,15 +86,22 @@ export function SyncedHorizontalScroll({
     requestAnimationFrame(() => (syncing.current = false));
   }
 
-  // Drag-to-scroll (mouse) — improved to not fight with buttons/links/inputs
+  // ✅ Drag-to-scroll (DESKTOP ONLY), using Pointer Events so we can ignore touch
   useEffect(() => {
     const el = bodyRef.current;
     if (!el) return;
+
+    // If not desktop-like, do nothing (native scroll on tablet/mobile)
+    if (!enableDrag) {
+      el.classList.remove("cursor-grab", "cursor-grabbing");
+      return;
+    }
 
     let isDown = false;
     let startX = 0;
     let startLeft = 0;
     let moved = false;
+    let pointerId: number | null = null;
 
     const isInteractive = (target: EventTarget | null) => {
       if (!(target instanceof HTMLElement)) return false;
@@ -84,40 +110,55 @@ export function SyncedHorizontalScroll({
       );
     };
 
-    const onDown = (e: MouseEvent) => {
-      if (e.button !== 0) return; // left click only
-      if (isInteractive(e.target)) return; // don't hijack clicks on controls
+    const onDown = (e: PointerEvent) => {
+      // ✅ only left click / primary button, and only mouse/pen (NOT touch)
+      if (e.pointerType === "touch") return;
+      if (typeof e.button === "number" && e.button !== 0) return;
+      if (isInteractive(e.target)) return;
 
       isDown = true;
       moved = false;
       startX = e.pageX;
       startLeft = el.scrollLeft;
+      pointerId = e.pointerId;
 
-      // UX polish
+      // capture pointer so drag continues even if cursor leaves element
+      el.setPointerCapture(pointerId);
+
       el.classList.add("cursor-grabbing");
       el.classList.remove("cursor-grab");
-      document.body.classList.add("select-none"); // tailwind class
+      document.body.classList.add("select-none");
     };
 
-    const onMove = (e: MouseEvent) => {
+    const onMove = (e: PointerEvent) => {
       if (!isDown) return;
+      if (pointerId !== null && e.pointerId !== pointerId) return;
 
       const dx = e.pageX - startX;
-      if (Math.abs(dx) > 2) moved = true; // small threshold
+      if (Math.abs(dx) > 2) moved = true;
       el.scrollLeft = startLeft - dx;
     };
 
-    const onUp = () => {
+    const endDrag = () => {
       if (!isDown) return;
       isDown = false;
 
       el.classList.remove("cursor-grabbing");
       el.classList.add("cursor-grab");
       document.body.classList.remove("select-none");
+
+      if (pointerId !== null) {
+        try {
+          el.releasePointerCapture(pointerId);
+        } catch {}
+      }
+      pointerId = null;
     };
 
+    const onUp = () => endDrag();
+    const onCancel = () => endDrag();
+
     const onClickCapture = (e: MouseEvent) => {
-      // If user dragged, prevent accidental click (like on a row button)
       if (moved) {
         e.preventDefault();
         e.stopPropagation();
@@ -125,21 +166,22 @@ export function SyncedHorizontalScroll({
     };
 
     el.classList.add("cursor-grab");
-    el.addEventListener("mousedown", onDown);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-
-    // capture clicks inside the scroll area (optional but feels right)
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onCancel);
     el.addEventListener("click", onClickCapture, true);
 
     return () => {
-      el.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onCancel);
       el.removeEventListener("click", onClickCapture, true);
       document.body.classList.remove("select-none");
+      el.classList.remove("cursor-grab", "cursor-grabbing");
     };
-  }, []);
+  }, [enableDrag]);
 
   return (
     <div className="relative">
@@ -164,7 +206,11 @@ export function SyncedHorizontalScroll({
         <div
           ref={bodyRef}
           onScroll={onBodyScroll}
-          className="overflow-x-auto overflow-y-hidden"
+          className={cn(
+            "overflow-x-auto overflow-y-hidden",
+            // ✅ on mobile/tablet we want the normal feel
+            !enableDrag && "touch-pan-x"
+          )}
           style={{
             scrollbarGutter: "stable",
             WebkitOverflowScrolling: "touch",

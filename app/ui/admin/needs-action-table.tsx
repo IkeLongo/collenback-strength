@@ -273,12 +273,24 @@ export default function NeedsActionTable() {
               </colgroup>
               <thead className="bg-grey-100 text-grey-700">
                 <tr>
-                  <th className="px-4 py-3 pl-6 text-left font-semibold">When</th>
-                  <th className="px-4 py-3 text-left font-semibold">Client</th>
-                  <th className="px-4 py-3 text-left font-semibold">Coach</th>
-                  <th className="px-4 py-3 text-left font-semibold">Service</th>
-                  <th className="px-4 py-3 text-left font-semibold">Status</th>
-                  <th className="px-4 py-3 text-left font-semibold">Action</th>
+                  <th className="px-4 py-3 pl-6 text-left font-semibold min-w-[180px]">
+                    When
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold min-w-[260px]">
+                    Client
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold min-w-[200px]">
+                    Coach
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold min-w-[220px]">
+                    Service
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold min-w-[120px]">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold min-w-[220px]">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
