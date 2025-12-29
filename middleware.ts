@@ -8,6 +8,14 @@ export default async function middleware(req: any) {
   const url = new URL(req.url);
   const pathname = url.pathname;
 
+  // TEMP DEBUG HEADERS
+  const res = NextResponse.next();
+  res.headers.set("x-mw-path", pathname);
+  res.headers.set("x-mw-has-token", token ? "yes" : "no");
+  res.headers.set("x-mw-role", (token as any)?.role ?? "");
+  res.headers.set("x-mw-roles", JSON.stringify((token as any)?.roles ?? []));
+  return res;
+
   // Define protected routes that require authentication
   const protectedRoutes = ['/client', '/coach', '/admin'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
