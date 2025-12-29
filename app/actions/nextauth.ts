@@ -1,5 +1,6 @@
+// app/actions/nextauth.ts
+
 import { LoginFormSchema } from '@/app/lib/definitions'
-import { verifyCredentials } from '@/app/lib/auth/verifyCredentials'
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
@@ -17,6 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { email, password } = await LoginFormSchema.parseAsync(credentials);
 
+        const { verifyCredentials } = await import("@/app/lib/auth/verifyCredentials");
         const user = await verifyCredentials(email, password);
         if (!user) throw new Error("Invalid credentials.");
 
