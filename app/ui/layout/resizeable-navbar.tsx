@@ -164,12 +164,12 @@ export const MobileNav = ({ children, className, visible, solidAtTop }: MobileNa
         width: solid ? "90%" : "100%",
         paddingRight: solid ? "12px" : "0px",
         paddingLeft: solid ? "12px" : "0px",
-        borderRadius: solid ? "4px" : "2rem",
+        borderRadius: solid ? "4px" : "4px",
         y: solid ? 20 : 0,
       }}
       transition={{ type: "spring", stiffness: 200, damping: 50 }}
       className={cn(
-        "relative z-50 mx-auto flex w-full max-w-[calc(95vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
+        "relative z-50 mx-auto flex w-full max-w-[calc(95vw-0.5rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
         solid && "bg-black/90",
         "dark:bg-neutral-950/80",
         className
