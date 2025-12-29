@@ -74,16 +74,10 @@ export default function PublicLayoutClient({ children }: { children: React.React
 							<NavbarButton
 								onClick={() => setIsMobileMenuOpen(false)}
 								variant="primary"
-								className="w-full"
+								className="w-full text-black!"
+                href="/auth"
 							>
 								Login
-							</NavbarButton>
-							<NavbarButton
-								onClick={() => setIsMobileMenuOpen(false)}
-								variant="primary"
-								className="w-full"
-							>
-								Book a call
 							</NavbarButton>
 						</div>
 					</MobileNavMenu>

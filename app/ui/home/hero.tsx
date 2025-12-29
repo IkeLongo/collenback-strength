@@ -61,7 +61,7 @@ export default function Hero() {
           
           {/* Cade hero image */}
           <FadeInUp className="absolute z-4
-              w-[90vw] min-w-[400px] max-w-[475px] h-[100vh] -bottom-32 -right-28
+              w-[90vw] min-w-[400px] max-w-[475px] h-[100vh] -bottom-44 -right-28
               sm:w-[90vw] sm:min-w-[400px] sm:max-w-[475px] sm:h-[100vh] sm:-bottom-20 sm:-right-28
               md:w-[90vw] md:min-w-[400px] md:max-w-[475px] md:h-[100vh] md:-bottom-20 md:-right-28
               lg:w-[90vw] lg:min-w-[400px] lg:max-w-[475px] lg:h-[1000px] lg:-bottom-24 lg:-right-20
@@ -80,7 +80,7 @@ export default function Hero() {
         {/* Main content overlay */}
         <div className="absolute inset-0 flex flex-col w-full h-full items-center py-24 pb-20 sm:pt-36 sm:pb-20 md:pb-24 lg:pb-36 px-4 md:flex md:flex-row-reverse md:items-center md:justify-center lg:justify-end lg:left-0">
           <div className="flex flex-col h-full justify-between items-start w-full sm:max-w-[600px] lg:max-w-[600px] md:gap-6 lg:gap-8">
-            <h1 className="w-full sm:text-[1.5rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] sm:pt-10 md:pt-0 lg:pt-10 z-3">
+            <h1 className="w-full sm:text-[1.5rem]! md:text-[2.3rem]! max-w-[400px] md:max-w-[450px] pt-10 md:pt-0 lg:pt-10 z-3">
               <FadeInUp>
                 <span className="text-gold-500 italic">Athlete focused </span>strength, conditioning & nutritional coaching in San Antonio,<br className="sm:hidden"/> Texas!
               </FadeInUp>
