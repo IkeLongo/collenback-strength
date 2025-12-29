@@ -89,7 +89,7 @@ export function LoginForm({ onShowSignup }: { onShowSignup: () => void }) {
 
   return (
     <div className="mx-auto w-full max-w-md rounded-t-[50px] md:rounded-2xl bg-white p-4 md:p-8 relative flex flex-col h-full items-center justify-start md:justify-center z-2 pt-0 md:pt-8 md:py-10 md:shadow-input">
-      <form className="my-8 w-full" onSubmit={handleSubmit}>
+      <form className="mb-0 mt-10 md:my-8 w-full" onSubmit={handleSubmit}>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input 

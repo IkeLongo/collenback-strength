@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Calendar, ListChecks } from "lucide-react";
 import CalendarBooking from "@/app/ui/schedule/calendar-booking";
 import MySchedule from "@/app/ui/schedule/my-schedule";
-
-import { MultiSelect } from "@/app/ui/components/input/multi-select"; // adjust path if needed
-import { Label } from "@/app/ui/components/form/label"; // adjust path if needed
-import { LabelInputContainer } from "@/app/ui/components/input/label-input-container"; // adjust path if needed
+import { MultiSelect } from "@/app/ui/components/input/multi-select";
+import { Label } from "@/app/ui/components/form/label";
+import { LabelInputContainer } from "@/app/ui/components/input/label-input-container";
 
 type TabKey = "book_session" | "my_schedule";
 
@@ -17,11 +17,32 @@ const TAB_OPTIONS: { value: TabKey; label: string }[] = [
 ];
 
 export default function ScheduleTabs() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const serviceId = searchParams.get("serviceId");
+
+  // default state
   const [tab, setTab] = useState<TabKey>("my_schedule");
+
+  // ✅ if serviceId is present, jump to Book Session
+  useEffect(() => {
+    if (serviceId) setTab("book_session");
+  }, [serviceId]);
+
+  // Optional: when user manually changes tabs, clean up URL so refresh doesn't force book_session
+  const setTabAndMaybeCleanUrl = (next: TabKey) => {
+    setTab(next);
+
+    if (next === "my_schedule" && serviceId) {
+      router.replace(pathname); // removes ?serviceId=...
+    }
+  };
 
   return (
     <div className="space-y-4">
-      {/* ✅ Mobile/tablet: dropdown */}
+      {/* Mobile/tablet: dropdown */}
       <div className="md:hidden">
         <div className="bg-white rounded-2xl border border-grey-200 shadow-sm p-3">
           <LabelInputContainer className="mb-0">
@@ -34,7 +55,7 @@ export default function ScheduleTabs() {
               value={tab}
               onChange={(val) => {
                 const next = (val || "my_schedule") as TabKey;
-                setTab(next);
+                setTabAndMaybeCleanUrl(next);
               }}
               placeholder="Select..."
               singleSelect
@@ -44,7 +65,7 @@ export default function ScheduleTabs() {
         </div>
       </div>
 
-      {/* ✅ Desktop: your existing tabs */}
+      {/* Desktop: tabs */}
       <div className="hidden md:block">
         <div className="flex bg-white rounded-2xl border border-grey-200 shadow-sm py-2 px-4 pb-3 w-fit">
           {([
@@ -61,7 +82,7 @@ export default function ScheduleTabs() {
                     ? "border-b-[3px] border-b-grey-500"
                     : "bg-grey-50 text-grey-700 hover:text-grey-900",
                 ].join(" ")}
-                onClick={() => setTab(key as TabKey)}
+                onClick={() => setTabAndMaybeCleanUrl(key)}
               >
                 <span
                   className={[
@@ -80,7 +101,7 @@ export default function ScheduleTabs() {
         </div>
       </div>
 
-      {/* Tab content */}
+      {/* Content */}
       {tab === "book_session" ? <CalendarBooking /> : <MySchedule />}
     </div>
   );

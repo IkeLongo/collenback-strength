@@ -65,7 +65,7 @@ export default function PublicLayoutClient({ children }: { children: React.React
 								key={`mobile-link-${idx}`}
 								href={item.link}
 								onClick={() => setIsMobileMenuOpen(false)}
-								className="relative text-neutral-600 dark:text-neutral-300"
+								className="relative text-lg! text-neutral-300"
 							>
 								<span className="block">{item.name}</span>
 							</a>
@@ -74,7 +74,7 @@ export default function PublicLayoutClient({ children }: { children: React.React
 							<NavbarButton
 								onClick={() => setIsMobileMenuOpen(false)}
 								variant="primary"
-								className="w-full text-black!"
+								className="w-full text-lg! text-black!"
                 href="/auth"
 							>
 								Login
