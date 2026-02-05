@@ -82,10 +82,34 @@ export const service = defineType({
         }),
       ],
     }),
-    defineField({ name: "shortDescription", title: "Short Description", type: "text", rows: 3 }),
-    defineField({ name: "longDescription", title: "Detailed Description", type: "array", of: [{ type: "block" }] }),
-    defineField({ name: "image", title: "Hero Image", type: "image", options: { hotspot: true } }),
-    defineField({ name: "isActive", title: "Active", type: "boolean", initialValue: true }),
+    defineField({
+      name: "shortDescription",
+      title: "Short Description",
+      type: "text",
+      rows: 3,
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "longDescription",
+      title: "Detailed Description",
+      type: "array",
+      of: [{ type: "block" }],
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "image",
+      title: "Hero Image",
+      type: "image",
+      options: { hotspot: true },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "isActive",
+      title: "Active",
+      type: "boolean",
+      initialValue: true,
+      validation: (Rule) => Rule.required(),
+    }),
 
     /**
      * ✅ NEW: Pricing model
@@ -114,6 +138,13 @@ export const service = defineType({
       type: "number",
       description: "Used for one-time packs (e.g., 10-session pack).",
       hidden: ({ document }) => document?.pricingModel !== "one_time",
+      validation: Rule => Rule.custom((value, context) => {
+        const pricingModel = context?.document?.pricingModel;
+        if (pricingModel === "one_time" && (value === undefined || value === null)) {
+          return "Required for one-time purchase";
+        }
+        return true;
+      }),
     }),
 
     /**
@@ -167,6 +198,7 @@ export const service = defineType({
           description: "For 2x/week monthly membership, you might set 8.",
         }),
       ],
+      // No global required validation, only required if pricingModel is 'membership'
     }),
 
     /**
@@ -176,9 +208,15 @@ export const service = defineType({
       name: "priceCents",
       title: "Price (in cents)",
       type: "number",
-      validation: (Rule) => Rule.positive().integer(),
+      validation: (Rule) => Rule.positive().integer().required(),
     }),
-    defineField({ name: "currency", title: "Currency", type: "string", initialValue: "USD" }),
+    defineField({
+      name: "currency",
+      title: "Currency",
+      type: "string",
+      initialValue: "USD",
+      validation: (Rule) => Rule.required(),
+    }),
 
     /**
      * Stripe reference
@@ -190,6 +228,7 @@ export const service = defineType({
       title: "Stripe Price ID",
       type: "string",
       description: "For memberships, this should be a recurring Stripe Price ID.",
+      // optional
     }),
   ],
 });

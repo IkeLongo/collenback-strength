@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXTAUTH_URL ||
-      "http://localhost:3000";
+      "http://localhost:3001";
 
     const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
 

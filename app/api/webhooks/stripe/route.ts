@@ -15,7 +15,7 @@ import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
 
 export const runtime = "nodejs";
 
-const DEBUG_WEBHOOK = false;
+const DEBUG_WEBHOOK = true;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
