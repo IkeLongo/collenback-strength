@@ -68,7 +68,7 @@ export type MembershipLineItem = {
     | "paused";
 
   /** Derived state for UI */
-  is_active: boolean;
+  db_active_flag: boolean;
   state: "active" | "expired";
 
   current_period_end: Date | null;
@@ -180,12 +180,12 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
             OR (s.cancel_at_period_end = 1)
           )
           THEN 1 ELSE 0
-        END AS is_active
+        END AS db_active_flag
       FROM subscriptions s
       WHERE s.user_id = ?
         AND s.sanity_service_id IS NOT NULL
       ORDER BY
-        is_active DESC,
+        db_active_flag DESC,
         COALESCE(s.current_period_end, '9999-12-31') ASC,
         s.created_at DESC
       `,
@@ -279,7 +279,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         ? s.slug
         : (s?.slug as any)?.current ?? null;
 
-      const isActive = Boolean(m.is_active);
+      const isActive = Boolean(m.db_active_flag);
 
       return {
         subscription_id: Number(m.subscription_id),
@@ -291,7 +291,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         service_category: s?.category ?? null,
 
         status: m.status,
-        is_active: isActive,
+        db_active_flag: isActive,
         state: isActive ? "active" : "expired",
 
         current_period_end: m.current_period_end
