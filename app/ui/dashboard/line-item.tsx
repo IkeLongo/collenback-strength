@@ -49,8 +49,7 @@ export type MembershipLineItem = {
     | "incomplete_expired"
     | "paused";
 
-  is_active: boolean;
-  state: "active" | "expired";
+  db_active_flag: boolean;
   current_period_end: Date | null;
   cancel_at_period_end: boolean;
 };
@@ -80,6 +79,149 @@ export type ProgramLineItem = {
 };
 
 export type LineItem = PackLineItem | MembershipLineItem | ProgramLineItem;
+
+type StripeSubStatus =
+  | "trialing"
+  | "active"
+  | "incomplete"
+  | "incomplete_expired"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "paused";
+
+type MembershipEntitlementState = {
+  entitled: boolean;
+  badgeLabel: string;
+  badgeClasses: string;
+  footerPrefix?: string; // "Renews", "Active until", etc.
+};
+
+function getMembershipEntitlementState(m: MembershipLineItem): MembershipEntitlementState {
+  const status = (m.status as StripeSubStatus) ?? "active";
+  const endMs = m.current_period_end ? new Date(m.current_period_end).getTime() : null;
+  const nowMs = Date.now();
+
+  const hasEnd = typeof endMs === "number" && !Number.isNaN(endMs);
+  const withinPeriod = hasEnd ? nowMs < (endMs as number) : true;
+
+  // If we *know* the period ended, they are not entitled.
+  // This is the key fix for your problem.
+  if (withinPeriod === false) {
+    return {
+      entitled: false,
+      badgeLabel: "Expired",
+      badgeClasses: "bg-grey-100 text-grey-700 border-grey-200",
+      footerPrefix: "Expired",
+    };
+  }
+
+  // Hard inactive statuses
+  if (status === "canceled") {
+    // If canceled but still within paid period, keep entitled and show "Ending"
+    if (withinPeriod && m.cancel_at_period_end) {
+      return {
+        entitled: true,
+        badgeLabel: "Ending",
+        badgeClasses: "bg-yellow-50 text-yellow-800 border-yellow-200",
+        footerPrefix: "Active until",
+      };
+    }
+    return {
+      entitled: false,
+      badgeLabel: "Canceled",
+      badgeClasses: "bg-grey-100 text-grey-700 border-grey-200",
+      footerPrefix: "Canceled",
+    };
+  }
+
+  if (status === "incomplete_expired") {
+    return {
+      entitled: false,
+      badgeLabel: "Expired",
+      badgeClasses: "bg-grey-100 text-grey-700 border-grey-200",
+      footerPrefix: "Expired",
+    };
+  }
+
+  if (status === "paused") {
+    return {
+      entitled: false,
+      badgeLabel: "Paused",
+      badgeClasses: "bg-blue-50 text-blue-700 border-blue-200",
+      footerPrefix: "Paused",
+    };
+  }
+
+  if (status === "unpaid") {
+    return {
+      entitled: false,
+      badgeLabel: "Unpaid",
+      badgeClasses: "bg-red-50 text-red-700 border-red-200",
+      footerPrefix: "Unpaid",
+    };
+  }
+
+  // Statuses that might still be entitled (especially while within period)
+  if (status === "past_due") {
+    // common: allow access until period end (your call)
+    return {
+      entitled: true,
+      badgeLabel: "Past Due",
+      badgeClasses: "bg-orange-50 text-orange-700 border-orange-200",
+      footerPrefix: "Payment issue — access ends",
+    };
+  }
+
+  if (status === "trialing") {
+    return {
+      entitled: true,
+      badgeLabel: "Trial",
+      badgeClasses: "bg-yellow-50 text-yellow-800 border-yellow-200",
+      footerPrefix: "Trial ends",
+    };
+  }
+
+  if (status === "incomplete") {
+    // Usually not entitled. If you want to be generous, you could allow if withinPeriod.
+    return {
+      entitled: false,
+      badgeLabel: "Incomplete",
+      badgeClasses: "bg-grey-100 text-grey-700 border-grey-200",
+      footerPrefix: "Incomplete",
+    };
+  }
+
+  // Default "active"
+  // If we have no end date, treat as entitled, but you should rarely hit this if DB is synced.
+  if (status === "active") {
+    if (m.cancel_at_period_end) {
+      return {
+        entitled: true,
+        badgeLabel: "Ending",
+        badgeClasses: "bg-yellow-50 text-yellow-800 border-yellow-200",
+        footerPrefix: "Active until",
+      };
+    }
+    return {
+      entitled: true,
+      badgeLabel: "Active",
+      badgeClasses: "bg-green-50 text-green-700 border-green-200",
+      footerPrefix: "Renews",
+    };
+  }
+
+  // Fallback
+  const pretty = String(m.status || "unknown")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  return {
+    entitled: withinPeriod, // if period hasn't ended, default to entitled
+    badgeLabel: pretty,
+    badgeClasses: "bg-grey-100 text-grey-700 border-grey-200",
+  };
+}
 
 function formatCategory(cat: string | null) {
   if (!cat) return "Service";
@@ -118,18 +260,6 @@ function getItemKey(item: LineItem) {
   if (item.kind === "membership") return `membership-${item.subscription_id}`;
 }
 
-function isMembershipCurrentlyActive(m: MembershipLineItem) {
-  const end = m.current_period_end ? new Date(m.current_period_end).getTime() : null;
-  const now = Date.now();
-
-  if (m.status === "active" || m.status === "trialing") return true;
-
-  // ✅ If they canceled but still have time left, keep "Active"
-  if (m.cancel_at_period_end && end && now < end) return true;
-
-  return false;
-}
-
 export default function LineItems({
   items,
   title = "Your Services",
@@ -166,8 +296,8 @@ export default function LineItems({
 
     // membership sorting: active first, then soonest renewal
     if (a.kind === "membership" && b.kind === "membership") {
-      const aActive = a.is_active ? 1 : 0;
-      const bActive = b.is_active ? 1 : 0;
+      const aActive = a.db_active_flag ? 1 : 0;
+      const bActive = b.db_active_flag ? 1 : 0;
       if (aActive !== bActive) return bActive - aActive;
 
       const aEnd = a.current_period_end ? new Date(a.current_period_end).getTime() : Number.MAX_SAFE_INTEGER;
@@ -179,7 +309,7 @@ export default function LineItems({
   });
 
   const isItemActive = (item: LineItem) => {
-    if (item.kind === "membership") return isMembershipCurrentlyActive(item);
+    if (item.kind === "membership") return getMembershipEntitlementState(item).entitled;
     if (item.kind === "pack") return Number(item.available_credits ?? 0) > 0;
     return false;
   };
@@ -285,17 +415,17 @@ export default function LineItems({
     // ✅ MEMBERSHIP ROW
     if (item.kind === "membership") {
       const end = item.current_period_end ? new Date(item.current_period_end) : null;
-      const currentlyActive = isMembershipCurrentlyActive(item);
+      const state = getMembershipEntitlementState(item);
 
       const footerContent = end ? (
         <div className="flex items-baseline gap-2">
           <span className="text-xs text-grey-600">
-            {item.cancel_at_period_end ? "Active until " : "Renews "}
+            {state.footerPrefix ? `${state.footerPrefix} ` : ""}
             <span className="font-semibold">{formatDate(end)}</span>
           </span>
 
-          {/* ✅ Cancel */}
-          {currentlyActive && !item.cancel_at_period_end && (
+          {/* Cancel only if truly active and not already ending */}
+          {state.entitled && !item.cancel_at_period_end && item.status === "active" && (
             <button
               type="button"
               onClick={() => {
@@ -309,8 +439,8 @@ export default function LineItems({
             </button>
           )}
 
-          {/* ✅ Renew */}
-          {currentlyActive && item.cancel_at_period_end && (
+          {/* Renew only if ending and still entitled */}
+          {state.entitled && item.cancel_at_period_end && (
             <button
               type="button"
               onClick={() => {
@@ -326,19 +456,12 @@ export default function LineItems({
         </div>
       ) : null;
 
-      const statusLabel =
-        item.status === "active"
-          ? "Active"
-          : item.status === "trialing"
-          ? "Trialing"
-          : item.status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-
       return (
         <div
           key={getItemKey(item)}
           className={[
             "px-4 py-3 flex items-center justify-between gap-3",
-            item.is_active ? "" : "opacity-60",
+            state.entitled ? "" : "opacity-60",
           ].join(" ")}
         >
           <div className="min-w-0">
@@ -352,20 +475,16 @@ export default function LineItems({
               <span
                 className={[
                   "inline-block px-2 py-0.5 rounded-full text-xs font-semibold border",
-                  item.status === "active"
-                    ? "bg-green-50 text-green-700 border-green-200"
-                    : item.status === "trialing"
-                    ? "bg-yellow-50 text-yellow-800 border-yellow-200"
-                    : "bg-grey-100 text-grey-700 border-grey-200"
+                  state.badgeClasses,
                 ].join(" ")}
               >
-                {statusLabel}
+                {state.badgeLabel}
               </span>
             </div>
             {footerContent}
           </div>
 
-          {item.is_active && (
+          {state.entitled && (
             <BookCtaButton
               href={`/client/schedule?serviceId=${encodeURIComponent(item.sanity_service_id ?? "")}`}
               label="BOOK"
