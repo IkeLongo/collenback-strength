@@ -20,7 +20,7 @@ export default function TypeTabsMobile({
     let memberships = 0;
     let packs = 0;
     for (const i of items) {
-      if (i.kind === "membership" && i.is_active) memberships++;
+      if (i.kind === "membership" && i.db_active_flag) memberships++;
       if (i.kind === "pack" && Number(i.available_credits ?? 0) > 0) packs++;
     }
     return { memberships, packs };
