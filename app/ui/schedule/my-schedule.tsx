@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { fromZonedTime } from "date-fns-tz/fromZonedTime";
+import { toast } from "react-toastify";
 
 const TZ = "America/Chicago";
 
@@ -160,7 +161,7 @@ function BottomSheet({
         <div className="rounded-t-3xl bg-white shadow-2xl border border-slate-200">
           <div className="flex items-center justify-between px-5 pt-4">
             <div className="w-10" />
-            <div className="text-center text-base font-semibold text-red-600">{title}</div>
+            <div className="text-center text-base font-semibold text-slate-800">{title}</div>
             <button
               type="button"
               onClick={onClose}
@@ -271,6 +272,7 @@ export default function MySchedule() {
     const map = new Map<string, SessionItem[]>();
 
     for (const s of sessions) {
+      if (s.status === "cancelled") continue; // filter out cancelled
       const dayKey = formatInTimeZone(new Date(s.start), TZ, "EEEE, MMM d, yyyy");
       const arr = map.get(dayKey) ?? [];
       arr.push(s);
@@ -296,6 +298,8 @@ export default function MySchedule() {
   }
 
   async function cancelSession(sessionId: string) {
+    const toastId = toast.loading("Canceling session...");
+
     try {
       const res = await fetch(`/api/sessions/${sessionId}/cancel`, {
         method: "POST",
@@ -315,16 +319,27 @@ export default function MySchedule() {
         prev.map((s) => (String(s.id) === String(sessionId) ? { ...s, status: "cancelled" } : s))
       );
 
-      console.log("[cancel] result:", {
-        sessionId,
-        refundable: data.refundable,
-        policy: data.policy, // "release" | "consume"
-        minutesUntilStart: data.minutesUntilStart,
-        creditApplied: data.creditApplied,
-        alreadyCancelled: data.alreadyCancelled,
+      // ✅ Success toast
+      toast.update(toastId, {
+        render:
+          data.policy === "release"
+            ? "Session cancelled. Your credit was released."
+            : "Session cancelled. Cancellation was within 24 hours, so the credit was consumed.",
+        type: "success",
+        isLoading: false,
+        autoClose: 3500,
       });
+
+      // Optional: if you decide to return email flags
+      // if (data.emailClientSent === false) toast.info("Cancelled, but we couldn't send the email.");
+
     } catch (e: any) {
-      alert(e?.message ?? "Failed to cancel session");
+      toast.update(toastId, {
+        render: e?.message ?? "Failed to cancel session",
+        type: "error",
+        isLoading: false,
+        autoClose: 4500,
+      });
     }
   }
 
@@ -405,136 +420,99 @@ export default function MySchedule() {
       ) : (
         <div className="space-y-5">
           {grouped.map(([dayLabel, daySessions]) => {
-            // (optional) you can bring back collapsible days by using expandedDays + toggleDay
-            // for the new "app" feel, we keep days always expanded.
-            return (
-              <div key={dayLabel} className="space-y-3">
-                {/* Day header */}
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-black/80">{dayLabel}</div>
-                  {/* kept hook for future (collapse) */}
-                  <button
-                    type="button"
-                    onClick={() => toggleDay(dayLabel)}
-                    className="hidden"
-                    aria-hidden="true"
-                  />
-                </div>
+            return daySessions.map((s) => {
+              const startTime = formatInTimeZone(new Date(s.start), TZ, "h:mm a");
+              const endTime = formatInTimeZone(new Date(s.end), TZ, "h:mm a");
+              const service = s.serviceTitle ?? "Session";
 
-                {/* Cards */}
-                <div className="space-y-3">
-                  {daySessions.map((s) => {
-                    const startTime = formatInTimeZone(new Date(s.start), TZ, "h:mm a");
-                    const endTime = formatInTimeZone(new Date(s.end), TZ, "h:mm a");
-                    const service = s.serviceTitle ?? "Session";
+              const canCancel = bucket === "upcoming" && s.status === "scheduled";
+              const remindEnabled = Boolean(remindMap[s.id]);
 
-                    const canCancel = bucket === "upcoming" && s.status === "scheduled";
-                    const remindEnabled = Boolean(remindMap[s.id]);
-
-                    return (
-                      <div
-                        key={s.id}
-                        className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden"
-                      >
-                        {/* Card header row (like screenshot: date/time + remind toggle) */}
-                        <div className="flex items-start justify-between gap-3 px-4 pt-4">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div className="mt-0.5 h-9 w-9 rounded-xl bg-slate-100 grid place-items-center text-slate-700 shrink-0">
-                              <CalendarIcon className="h-5 w-5" />
-                            </div>
-
-                            <div className="min-w-0">
-                              <div className="text-sm font-semibold text-black truncate">
-                                {startTime} — {endTime}
-                              </div>
-                              <div className="text-xs text-black/60 truncate">{service}</div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 shrink-0">
-                            {/* status pill */}
-                            <span
-                              className={cx(
-                                "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
-                                statusPillClasses(s.status)
-                              )}
-                            >
-                              {String(s.status).replace("_", " ")}
-                            </span>
-
-                            {/* remind toggle like screenshot */}
-                            <Switch
-                              label="Remind me"
-                              checked={remindEnabled}
-                              disabled={!canCancel && bucket === "past"} // optional: disable in past
-                              onChange={(next) =>
-                                setRemindMap((prev) => ({ ...prev, [s.id]: next }))
-                              }
-                            />
-                          </div>
+              return (
+                <div
+                  key={s.id}
+                  className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden mb-3"
+                >
+                  {/* Card header row (date/time + remind toggle) */}
+                  <div className="flex items-start justify-between gap-3 px-4">
+                    <div className="flex items-start gap-3 min-w-0 pt-4">
+                      <div className="mt-0.5 h-9 w-9 rounded-xl bg-slate-100 grid place-items-center text-slate-700 shrink-0">
+                        <CalendarIcon className="h-5 w-5 text-gold-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-black/60">
+                          {dayLabel}
                         </div>
-
-                        {/* Card body (coach, etc.) */}
-                        <div className="px-4 pb-4 pt-3">
-                          <div className="grid gap-2">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="text-sm font-semibold text-black truncate">
-                                {service}
-                              </div>
-                              <div className="text-xs text-black/60 shrink-0">
-                                Duration{" "}
-                                <span className="font-semibold text-black/80">
-                                  {/* quick duration calc */}
-                                  {Math.max(
-                                    0,
-                                    Math.round(
-                                      (new Date(s.end).getTime() - new Date(s.start).getTime()) /
-                                        60000
-                                    )
-                                  )}{" "}
-                                  min
-                                </span>
-                              </div>
-                            </div>
-
-                            {s.coachName ? (
-                              <div className="text-sm text-black/70 truncate">
-                                Coach: <span className="font-semibold text-black/80">{s.coachName}</span>
-                              </div>
-                            ) : null}
-                          </div>
-
-                          {/* Buttons row (like screenshot) */}
-                          <div className="mt-4 grid grid-cols-2 gap-3">
-                            <button
-                              type="button"
-                              onClick={() => openCancelSheet(s)}
-                              disabled={!canCancel}
-                              className={cx(
-                                "rounded-2xl border px-4 py-3 text-sm font-semibold transition",
-                                canCancel
-                                  ? "border-emerald-700/30 text-emerald-800 hover:bg-emerald-50"
-                                  : "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
-                              )}
-                            >
-                              Cancel Booking
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => openDetailsSheet(s)}
-                              className="rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition"
-                            >
-                              View Details
-                            </button>
-                          </div>
+                        <div className="text-sm font-semibold text-black truncate">
+                          {startTime} — {endTime}
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                    {/* <div className="flex items-center gap-3 shrink-0">
+                      <Switch
+                        label="Remind me"
+                        checked={remindEnabled}
+                        disabled={!canCancel && bucket === "past"}
+                        onChange={(next) =>
+                          setRemindMap((prev) => ({ ...prev, [s.id]: next }))
+                        }
+                      />
+                    </div> */}
+                  </div>
+                  {/* Card body (coach, etc.) */}
+                  <div className="px-4 pb-4 pt-3">
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-black truncate">
+                          {service}
+                        </div>
+                        <div className="text-xs text-black/60 shrink-0">
+                          Duration{" "}
+                          <span className="font-semibold text-black/80">
+                            {Math.max(
+                              0,
+                              Math.round(
+                                (new Date(s.end).getTime() - new Date(s.start).getTime()) /
+                                  60000
+                              )
+                            )}{" "}
+                            min
+                          </span>
+                        </div>
+                      </div>
+                      {s.coachName ? (
+                        <div className="text-sm text-black/70 truncate">
+                          Coach: <span className="font-semibold text-black/80">{s.coachName}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                    {/* Buttons row */}
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => openCancelSheet(s)}
+                        disabled={!canCancel}
+                        className={cx(
+                          "rounded-2xl border px-4 py-3 text-sm font-semibold transition",
+                          canCancel
+                            ? "border-gold-500/30 text-gold-500 hover:bg-gold-100/10"
+                            : "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
+                        )}
+                      >
+                        Cancel Booking
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openDetailsSheet(s)}
+                        className="rounded-2xl bg-gold-500 px-4 py-3 text-sm font-semibold text-white hover:bg-gold-600 transition"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
+              );
+            });
           })}
         </div>
       )}
@@ -551,7 +529,7 @@ export default function MySchedule() {
         <div className="text-center text-sm text-black/80">
           Are you sure you want to cancel the booking?
           <div className="mt-2 text-xs text-black/60">
-            Cancels within 24 hours may still consume the credit.
+            Cancels within 24 hours of booked sessions will still consume the credit.
           </div>
         </div>
 
@@ -562,7 +540,7 @@ export default function MySchedule() {
               setCancelOpen(false);
               setCancelTarget(null);
             }}
-            className="rounded-2xl border border-emerald-700/30 px-4 py-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 transition"
+            className="rounded-2xl border border-slate-700/30 px-4 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 transition"
           >
             No, Don&apos;t Cancel
           </button>
@@ -576,7 +554,7 @@ export default function MySchedule() {
               setCancelTarget(null);
               await cancelSession(id);
             }}
-            className="rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition"
+            className="rounded-2xl bg-red-700 px-4 py-3 text-sm font-semibold text-white hover:bg-red-800 transition"
           >
             Yes, Cancel
           </button>
@@ -595,10 +573,10 @@ export default function MySchedule() {
         {detailsTarget ? (
           <div className="space-y-3">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-sm font-semibold text-black">
+              <div className="text-sm font-semibold !text-black">
                 {detailsTarget.serviceTitle ?? "Session"}
               </div>
-              <div className="mt-1 text-sm text-black/70">
+              <div className="mt-1 text-sm !text-black/70">
                 {formatInTimeZone(new Date(detailsTarget.start), TZ, "EEEE, MMM d")} ·{" "}
                 {formatInTimeZone(new Date(detailsTarget.start), TZ, "h:mm a")} –{" "}
                 {formatInTimeZone(new Date(detailsTarget.end), TZ, "h:mm a")}

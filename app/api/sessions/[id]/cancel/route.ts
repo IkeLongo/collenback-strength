@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { withTx } from "@/app/lib/mysql";
 import { auth } from "@/app/actions/nextauth";
+import { getCoachContactById } from "@/app/lib/queries/coaches";
+import {
+  sendCoachCancelNotificationEmail,
+  sendClientCancelConfirmationEmail,
+} from "@/app/lib/email/sendCancelConfirmation";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -12,7 +17,34 @@ type CancelBody = {
   reason?: string;
 };
 
+// comparisons should use MySQL UTC clock (UTC_TIMESTAMP())
 const CUTOFF_MINUTES = 24 * 60;
+
+type CancelPolicy = "release" | "consume";
+
+/**
+ * MySQL DATETIME (assumed UTC) -> real UTC ISO string.
+ * IMPORTANT: we do this so email times render correctly in America/Chicago.
+ */
+function mysqlUtcDatetimeToIso(input: unknown): string {
+  if (input instanceof Date) {
+    // best-effort: if mysql2 already shifted, this preserves that shift
+    return input.toISOString();
+  }
+
+  if (typeof input === "string") {
+    // Expect "YYYY-MM-DD HH:MM:SS" (or "YYYY-MM-DDTHH:MM:SS")
+    const s = input.trim().replace("T", " ");
+    const [datePart, timePart = "00:00:00"] = s.split(" ");
+    const [y, m, d] = datePart.split("-").map(Number);
+    const [hh, mm, ss] = timePart.split(":").map(Number);
+
+    const utcMs = Date.UTC(y, (m ?? 1) - 1, d ?? 1, hh ?? 0, mm ?? 0, ss ?? 0);
+    return new Date(utcMs).toISOString();
+  }
+
+  throw new Error("Invalid MySQL datetime value");
+}
 
 export async function POST(req: Request, ctx: RouteContext) {
   const { id } = await ctx.params;
@@ -31,9 +63,18 @@ export async function POST(req: Request, ctx: RouteContext) {
   const body = (await req.json().catch(() => ({}))) as CancelBody;
   const reason = (body?.reason ?? "").trim().slice(0, 255) || null;
 
-  try {
-    let payload: any = { ok: true };
+  // We'll email AFTER commit (best-effort), so gather details during the tx.
+  let emailContext: null | {
+    coachId: number | null;
+    startIso: string;
+    endIso: string;
+    policy: CancelPolicy;
+  } = null;
 
+  // Also helpful to return to the client UI
+  let payload: any = { ok: true };
+
+  try {
     await withTx(async (conn) => {
       // 1) Lock session row + compute minutes until start (UTC)
       const [rows] = await conn.execute<RowDataPacket[]>(
@@ -42,6 +83,7 @@ export async function POST(req: Request, ctx: RouteContext) {
           s.id,
           s.client_id,
           s.status,
+          s.coach_id,
           s.pack_id,
           s.subscription_id,
           s.charged,
@@ -67,21 +109,24 @@ export async function POST(req: Request, ctx: RouteContext) {
 
       const minutesUntilStart = Number(s.minutes_until_start ?? 0);
       const refundable = minutesUntilStart >= CUTOFF_MINUTES;
+      const policy: CancelPolicy = refundable ? "release" : "consume";
 
       const chargedNow = Number(s.charged ?? 1);
-      const creditsCharged = Math.max(1, chargedNow); // charged is 0/1, but keep same shape for response
 
-      // Idempotent: if already cancelled, just report policy & exit
+      // Idempotent: already cancelled -> do NOT re-run ledger or pack math
       if (s.status === "cancelled") {
         payload = {
           ok: true,
           alreadyCancelled: true,
           refundable,
-          policy: refundable ? "release" : "consume",
+          policy,
           minutesUntilStart,
           charged: chargedNow,
           creditApplied: false,
         };
+
+        // We can still populate emailContext if you *want* to allow re-sending,
+        // but defaulting to NO email on idempotent cancel.
         return;
       }
 
@@ -105,39 +150,46 @@ export async function POST(req: Request, ctx: RouteContext) {
         [reason, sessionId, clientId]
       );
 
-      // 3) Determine entitlement type
       const hasPack = Boolean(s.pack_id);
       const hasSub = Boolean(s.subscription_id);
 
+      const txNote =
+        policy === "release"
+          ? "Released entitlement due to cancellation (>= 24h notice)"
+          : "Consumed entitlement due to late cancellation (< 24h notice)";
+
+      // 3) No entitlement attached (rare): only update charged if refundable
       if (!hasPack && !hasSub) {
-        // No entitlement attached (rare) — still update charged based on policy
-        if (refundable) {
+        if (policy === "release") {
           await conn.execute<ResultSetHeader>(
             `UPDATE sessions SET charged = 0 WHERE id = ? AND client_id = ?`,
             [sessionId, clientId]
           );
         }
+
         payload = {
           ok: true,
           refundable,
-          policy: refundable ? "release" : "consume",
+          policy,
           minutesUntilStart,
-          chargedAfter: refundable ? 0 : chargedNow,
+          chargedAfter: policy === "release" ? 0 : chargedNow,
           creditApplied: false,
-          note: "No pack_id or subscription_id on session.",
+          entitlement: "none",
         };
+
+        // Email context still useful (coach/client should know it was cancelled)
+        emailContext = {
+          coachId: s.coach_id ? Number(s.coach_id) : null,
+          startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
+          endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
+          policy,
+        };
+
         return;
       }
 
-      const txType: "release" | "consume" = refundable ? "release" : "consume";
-      const txNote =
-        txType === "release"
-          ? "Released entitlement due to cancellation (>= 24h notice)"
-          : "Consumed entitlement due to late cancellation (< 24h notice)";
-
       // 4) PACK PATH
       if (hasPack) {
-        // Ensure we only do release/consume once per session
         const [ins] = await conn.execute<ResultSetHeader>(
           `
           INSERT INTO credit_transactions
@@ -163,12 +215,12 @@ export async function POST(req: Request, ctx: RouteContext) {
                 AND ct.type IN ('release','consume')
             )
           `,
-          [txType, txNote, sessionId, clientId]
+          [policy, txNote, sessionId, clientId]
         );
 
         if (ins.affectedRows === 1) {
-          if (txType === "release") {
-            // release: reserved decreases; set session charged=0
+          if (policy === "release") {
+            // release: reserved decreases; session charged=0
             await conn.execute<ResultSetHeader>(
               `
               UPDATE packs p
@@ -184,7 +236,7 @@ export async function POST(req: Request, ctx: RouteContext) {
               [sessionId, clientId]
             );
           } else {
-            // consume: reserved decreases, used increases; keep charged=1
+            // consume: reserved decreases, used increases; session charged=1
             await conn.execute<ResultSetHeader>(
               `
               UPDATE packs p
@@ -207,19 +259,26 @@ export async function POST(req: Request, ctx: RouteContext) {
         payload = {
           ok: true,
           refundable,
-          policy: txType,
+          policy,
           minutesUntilStart,
           creditApplied: ins.affectedRows === 1,
-          chargedAfter: txType === "release" ? 0 : 1,
+          chargedAfter: policy === "release" ? 0 : 1,
           entitlement: "pack",
         };
+
+        emailContext = {
+          coachId: s.coach_id ? Number(s.coach_id) : null,
+          startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
+          endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
+          policy,
+        };
+
         return;
       }
 
       // 5) SUBSCRIPTION PATH
-      // No pack mutation. “Release” = charged=0; “Consume” = charged=1.
       if (hasSub) {
-        // Idempotent ledger (optional but recommended for audit)
+        // ledger (optional but recommended for audit)
         await conn.execute<ResultSetHeader>(
           `
           INSERT INTO credit_transactions
@@ -244,26 +303,82 @@ export async function POST(req: Request, ctx: RouteContext) {
                 AND ct.type IN ('release','consume')
             )
           `,
-          [txType, txNote, sessionId, clientId]
+          [policy, txNote, sessionId, clientId]
         );
 
-        // charged update is the *actual* entitlement release/consume behavior
+        // “Release” = charged=0; “Consume” = charged=1.
         await conn.execute<ResultSetHeader>(
           `UPDATE sessions SET charged = ? WHERE id = ? AND client_id = ?`,
-          [txType === "release" ? 0 : 1, sessionId, clientId]
+          [policy === "release" ? 0 : 1, sessionId, clientId]
         );
 
         payload = {
           ok: true,
           refundable,
-          policy: txType,
+          policy,
           minutesUntilStart,
-          chargedAfter: txType === "release" ? 0 : 1,
+          chargedAfter: policy === "release" ? 0 : 1,
           entitlement: "subscription",
         };
+
+        emailContext = {
+          coachId: s.coach_id ? Number(s.coach_id) : null,
+          startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
+          endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
+          policy,
+        };
+
         return;
       }
     });
+
+    // ✅ Send emails AFTER COMMIT (best-effort; do not fail cancellation if email fails)
+    if (emailContext) {
+      const { coachId, startIso, endIso, serviceTitle, policy } = emailContext;
+
+      const clientEmail = typeof session.user.email === "string" ? session.user.email : "";
+      const clientName = [session.user.firstName, session.user.lastName].filter(Boolean).join(" ") || undefined;
+
+      let coachName: string | undefined = undefined;
+      if (coachId) {
+        const coach = await getCoachContactById(coachId);
+        coachName = coach?.name || undefined;
+      }
+
+      // client email
+      if (clientEmail) {
+        sendClientCancelConfirmationEmail({
+          to: clientEmail,
+          clientName,
+          coachName, // ✅ add this
+          start: startIso,
+          end: endIso,
+          serviceTitle: serviceTitle ?? undefined,
+          policy,
+        }).catch(() => {});
+      }
+
+      // coach email
+      if (coachId) {
+        getCoachContactById(coachId)
+          .then((coach) => {
+            if (!coach?.email) return;
+
+            return sendCoachCancelNotificationEmail({
+              to: coach.email,
+              coachName: coach.name || undefined,
+              clientName,
+              clientEmail: clientEmail || undefined,
+              clientPhone: session.user.phone || undefined,
+              start: startIso,
+              end: endIso,
+              serviceTitle: serviceTitle ?? undefined,
+              policy,
+            });
+          })
+          .catch(() => {});
+      }
+    }
 
     return NextResponse.json(payload);
   } catch (e: any) {
