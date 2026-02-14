@@ -1,6 +1,6 @@
 "use client";
 
-import type { MembershipLineItem } from "../../dashboard/line-item"; // adjust to your actual path
+import type { MembershipLineItem } from "@/app/types/entitlements";
 
 function formatDate(d: string | Date) {
   const dt = typeof d === "string" ? new Date(d) : d;
