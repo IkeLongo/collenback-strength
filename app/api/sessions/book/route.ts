@@ -285,12 +285,12 @@ export async function POST(req: Request) {
       } catch {}
     }
 
-    // Coach email (best-effort)
+    // Coach email (best-effort) - ✅ CRITICAL: Await for Vercel serverless
     if (body.coachId) {
       try {
         const coach = await getCoachContactById(body.coachId);
         if (coach?.email) {
-          sendCoachBookingNotificationEmail({
+          await sendCoachBookingNotificationEmail({
             to: coach.email,
             coachName: coach.name || undefined,
             clientName: [clientName, clientLastName].filter(Boolean).join(" ") || undefined,

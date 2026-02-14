@@ -345,39 +345,49 @@ export async function POST(req: Request, ctx: RouteContext) {
         coachName = coach?.name || undefined;
       }
 
+      // ✅ Collect email promises to await them (critical for Vercel serverless)
+      const emailPromises: Promise<any>[] = [];
+
       // client email
       if (clientEmail) {
-        sendClientCancelConfirmationEmail({
-          to: clientEmail,
-          clientName,
-          coachName, // ✅ add this
-          start: startIso,
-          end: endIso,
-          serviceTitle: serviceTitle ?? undefined,
-          policy,
-        }).catch(() => {});
+        emailPromises.push(
+          sendClientCancelConfirmationEmail({
+            to: clientEmail,
+            clientName,
+            coachName,
+            start: startIso,
+            end: endIso,
+            serviceTitle: serviceTitle ?? undefined,
+            policy,
+          }).catch(() => {})
+        );
       }
 
       // coach email
       if (coachId) {
-        getCoachContactById(coachId)
-          .then((coach) => {
-            if (!coach?.email) return;
+        emailPromises.push(
+          getCoachContactById(coachId)
+            .then((coach) => {
+              if (!coach?.email) return;
 
-            return sendCoachCancelNotificationEmail({
-              to: coach.email,
-              coachName: coach.name || undefined,
-              clientName,
-              clientEmail: clientEmail || undefined,
-              clientPhone: session.user.phone || undefined,
-              start: startIso,
-              end: endIso,
-              serviceTitle: serviceTitle ?? undefined,
-              policy,
-            });
-          })
-          .catch(() => {});
+              return sendCoachCancelNotificationEmail({
+                to: coach.email,
+                coachName: coach.name || undefined,
+                clientName,
+                clientEmail: clientEmail || undefined,
+                clientPhone: session.user.phone || undefined,
+                start: startIso,
+                end: endIso,
+                serviceTitle: serviceTitle ?? undefined,
+                policy,
+              });
+            })
+            .catch(() => {})
+        );
       }
+
+      // ✅ CRITICAL: Await all emails before returning (prevents Vercel from killing the function)
+      await Promise.allSettled(emailPromises);
     }
 
     return NextResponse.json(payload);
