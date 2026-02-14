@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { LineItem } from "./line-item";
+import type { LineItem } from "@/app/types/entitlements";
 import LineItems from "./line-item";
 import { TypeSelect, type KindKey } from "../components/select/type";
 

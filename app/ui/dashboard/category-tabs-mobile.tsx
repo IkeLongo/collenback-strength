@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CategorySelect, type CategoryKey } from "../components/select/categories";
-import type { LineItem } from "./line-item";
+import type { LineItem } from "@/app/types/entitlements";
 import TypeTabsMobile from "./types-tab-mobile";
 import ProgramCards from "./program-cards";
 

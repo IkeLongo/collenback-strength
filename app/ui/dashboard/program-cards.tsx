@@ -1,6 +1,6 @@
 "use client";
 
-import type { LineItem, ProgramLineItem } from "./line-item";
+import type { LineItem, ProgramLineItem } from "@/app/types/entitlements";
 import { urlFor } from "@/sanity/lib/image";
 import DownloadButton from "../components/button/DownloadButton";
 

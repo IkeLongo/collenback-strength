@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { BadgeCheck, Ticket } from "lucide-react";
-import type { LineItem } from "./line-item";
+import type { LineItem } from "@/app/types/entitlements";
 import LineItems from "./line-item";
 
 type KindKey = "membership" | "pack";

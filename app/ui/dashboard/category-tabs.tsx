@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Dumbbell, Laptop, ListChecks, Salad } from "lucide-react";
-import type { LineItem } from "./line-item";
+import type { LineItem } from "@/app/types/entitlements";
 import TypeTabs from "./type-tabs";
 import ProgramCards from "./program-cards";
 
