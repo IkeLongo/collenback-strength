@@ -502,7 +502,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4) Insert payment_items + session_credits + subscriptions-per-service (if membership)
+    // 4) Insert payment_items + packs + subscriptions-per-service (if membership)
     const lineItems = full.line_items?.data ?? [];
     // Collect sanity service IDs once
     const sanityIds = Array.from(
@@ -543,6 +543,10 @@ export async function POST(req: Request) {
 
       // membership metadata flags
       const membershipInterval = product?.metadata?.membership_interval || null;
+
+      // membership quota (sessions per billing period)
+      const sessionsPerPeriod =
+        Number(product?.metadata?.membership_sessions_per_period ?? 0) || 0;
 
       const unitAmount = price?.unit_amount ?? 0;
       const currency = price?.currency ?? full.currency ?? "usd";
@@ -658,11 +662,11 @@ export async function POST(req: Request) {
         );
       }
 
-      // 4b) session_credits insert (packs)
+      // 4b) packs insert (packs)
       const totalCredits = sessionsIncluded * quantity;
       if (!isProgramLineItem && totalCredits > 0) {
         await conn.query(
-          `INSERT INTO session_credits
+          `INSERT INTO packs
             (user_id, payment_id, payment_item_id, sanity_service_id, sanity_service_slug,
              total_credits, credits_used, expires_at)
            VALUES (?, ?, ?, ?, ?, ?, 0, NULL)`,
@@ -689,29 +693,16 @@ export async function POST(req: Request) {
           ["stripe", full.id, sanityServiceId]
         );
 
-        if (!existingSub.length) {
-          if (DEBUG_WEBHOOK) {
-            console.log("🧾 Subscriptions Row Preview:", {
-              user_id: userId,
-              sanity_service_id: sanityServiceId,
-              sanity_service_slug: sanityServiceSlug,
-              provider: "stripe",
-              stripe_customer_id: String(sub.customer),
-              stripe_subscription_id: sub.id,
-              stripe_checkout_session_id: full.id,
-              status: sub.status,
-              current_period_start: periodStart,
-              current_period_end: periodEnd,
-              cancel_at_period_end: cancelAtPeriodEnd,
-            });
-          }
+        let localSubscriptionId: number;
 
-          await conn.query(
+        if (!existingSub.length) {
+          const [subRes] = await conn.query<any>(
             `INSERT INTO subscriptions
               (user_id, sanity_service_id, sanity_service_slug, provider,
-               stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id,
-               status, current_period_start, current_period_end, cancel_at_period_end)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id,
+              status, current_period_start, current_period_end, cancel_at_period_end,
+              sessions_per_period)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               userId,
               sanityServiceId,
@@ -724,12 +715,39 @@ export async function POST(req: Request) {
               periodStart,
               periodEnd,
               cancelAtPeriodEnd,
+              sessionsPerPeriod, // ✅ NEW
             ]
           );
+
+          localSubscriptionId = Number(subRes.insertId);
         } else {
-          // ✅ Optional: on checkout completion, also ensure our row reflects latest Stripe state
+          localSubscriptionId = Number(existingSub[0].id);
+
+          // ✅ NEW: make sure quota is populated (only set if missing/0)
+          await conn.query(
+            `
+            UPDATE subscriptions
+            SET sessions_per_period =
+              CASE
+                WHEN sessions_per_period IS NULL OR sessions_per_period = 0 THEN ?
+                ELSE sessions_per_period
+              END
+            WHERE id = ?
+            `,
+            [sessionsPerPeriod, localSubscriptionId]
+          );
+
+          // keep row synced (optional)
           await updateSubscriptionFromStripe(conn, sub);
         }
+
+        // ✅ NEW: Link payment -> subscription
+        await conn.query(
+          `UPDATE payments
+          SET subscription_id = ?
+          WHERE id = ? AND user_id = ?`,
+          [localSubscriptionId, paymentId, userId]
+        );
       }
     }
 

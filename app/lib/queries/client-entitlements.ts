@@ -34,7 +34,7 @@ export async function getClientEntitlements(userId: number): Promise<Entitlement
         SUM(sc.total_credits - sc.credits_used - sc.credits_reserved) AS available_credits,
 
         MAX(sc.expires_at) AS expires_at
-      FROM session_credits sc
+      FROM packs sc
       LEFT JOIN payment_items pi ON pi.id = sc.payment_item_id
       WHERE sc.user_id = ?
         AND sc.status = 'active'

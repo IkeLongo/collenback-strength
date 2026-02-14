@@ -15,7 +15,7 @@ export async function POST(_: Request, ctx: RouteContext) {
       // Lock session
       const [rows] = await conn.execute<RowDataPacket[]>(
         `
-        SELECT id, client_id, status, credit_id
+        SELECT id, client_id, status, pack_id
         FROM sessions
         WHERE id = ?
         FOR UPDATE
@@ -42,19 +42,19 @@ export async function POST(_: Request, ctx: RouteContext) {
       const [ins] = await conn.execute<ResultSetHeader>(
         `
         INSERT INTO credit_transactions
-          (user_id, session_credit_id, session_id, payment_id, type, amount, note)
+          (user_id, pack_id, session_id, payment_id, type, amount, note)
         SELECT
           s.client_id,
-          s.credit_id,
+          s.pack_id,
           s.id,
           sc.payment_id,
           'consume',
           1,
           'Consumed reserved credit due to completion'
         FROM sessions s
-        JOIN session_credits sc ON sc.id = s.credit_id
+        JOIN packs sc ON sc.id = s.pack_id
         WHERE s.id = ?
-          AND s.credit_id IS NOT NULL
+          AND s.pack_id IS NOT NULL
           AND NOT EXISTS (
             SELECT 1
             FROM credit_transactions ct
@@ -69,8 +69,8 @@ export async function POST(_: Request, ctx: RouteContext) {
       if (ins.affectedRows === 1) {
         await conn.execute<ResultSetHeader>(
           `
-          UPDATE session_credits sc
-          JOIN sessions s ON s.credit_id = sc.id
+          UPDATE packs sc
+          JOIN sessions s ON s.pack_id = sc.id
           SET sc.credits_reserved = GREATEST(sc.credits_reserved - 1, 0),
               sc.credits_used = sc.credits_used + 1
           WHERE s.id = ?

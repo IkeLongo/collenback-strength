@@ -108,7 +108,7 @@ export async function GET(req: Request) {
       s.status,
       s.cancelled_at,
       s.cancellation_reason,
-      s.credit_id,
+      s.pack_id,
       s.credits_charged,
       s.location,
       s.notes,
@@ -138,7 +138,7 @@ export async function GET(req: Request) {
     JOIN users c ON c.id = s.client_id
     LEFT JOIN users co ON co.id = s.coach_id
     LEFT JOIN users cb ON cb.id = s.confirmed_by_user_id
-    LEFT JOIN session_credits sc ON sc.id = s.credit_id
+    LEFT JOIN packs sc ON sc.id = s.pack_id
 
     ${whereSql}
 

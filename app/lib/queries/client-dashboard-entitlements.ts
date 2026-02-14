@@ -1,148 +1,27 @@
 import { pool } from "@/app/lib/mysql";
-import type { RowDataPacket } from "mysql2/promise";
 import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
+import { getSubscriptionUsedCountsForWindows } from "@/app/lib/entitlements/subscriptionUsage";
 
-/** PACK PURCHASE LINE ITEM (one per session_credits row) */
-export type PackLineItem = {
-  kind: "pack";
-  session_credit_id: number;
-  purchased_at: Date;
-  status: "active" | "refunded" | "voided";
-  expires_at: Date | null;
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  total_credits: number;
-  credits_used: number;
-  credits_reserved: number;
-  available_credits: number;
-
-  payment_id: number;
-  payment_item_id: number | null;
-};
-
-/** PROGRAM PURCHASE LINE ITEM (one per program_entitlements row) */
-export type ProgramLineItem = {
-  kind: "program";
-  program_entitlement_id: number;
-  purchased_at: Date;
-  status: "active" | "refunded" | "voided";
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  program_version: string | null;
-  program_notes: string | null;
-  cover_image_url: string | null;
-  cover_image_alt: string | null;
-  sanity_file_asset_ref: string;
-
-  payment_id: number;
-  payment_item_id: number;
-};
-
-/** MEMBERSHIP SUMMARY LINE ITEM (one per active subscription row) */
-export type MembershipLineItem = {
-  subscription_id: number;
-  kind: "membership";
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  /** Stripe status */
-  status:
-    | "trialing"
-    | "active"
-    | "past_due"
-    | "canceled"
-    | "unpaid"
-    | "incomplete"
-    | "incomplete_expired"
-    | "paused";
-
-  /** Derived state for UI */
-  db_active_flag: boolean;
-  state: "active" | "expired";
-
-  current_period_end: Date | null;
-  cancel_at_period_end: boolean;
-
-  /** Keep parity with pack rows */
-  total_credits: null;
-  credits_used: null;
-  credits_reserved: null;
-  available_credits: null;
-};
-
-/** unified array for the UI */
-export type DashboardLineItem = PackLineItem | MembershipLineItem | ProgramLineItem;
-
-export type PackSummaryRow = {
-  sanity_service_id: string;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-  purchases_count: number;
-  total_credits: number;
-  credits_used: number;
-  credits_reserved: number;
-  available_credits: number;
-};
-
-export type MembershipSummaryRow = {
-  sanity_service_id: string;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-  memberships_count: number;
-  status:
-    | "trialing"
-    | "active"
-    | "past_due"
-    | "canceled"
-    | "unpaid"
-    | "incomplete"
-    | "incomplete_expired"
-    | "paused";
-  current_period_end: Date | null;
-  cancel_at_period_end: boolean;
-};
-
-export type ClientDashboardEntitlements = {
-  lineItems: DashboardLineItem[];
-  packsSummary: PackSummaryRow[];
-  membershipsSummary: MembershipSummaryRow[];
-};
-
-type SanityService = {
-  _id: string;
-  title?: string;
-  slug?: { current?: string } | string | null;
-  category?: string | null;
-  program?: {
-    notes?: string | null;
-    coverImageAlt?: string | null;
-    coverImage?: any; // we'll resolve url in getServicesByIds (recommended)
-    coverImageUrl?: string | null; // easiest if getServicesByIds returns this
-  } | null;
-};
+import type { PackLineItem, 
+  MembershipLineItem,
+  ProgramLineItem,
+  LineItem,
+  PackSummaryRow,
+  MembershipSummaryRow,
+  ClientDashboardEntitlements,
+  SanityService,
+} from "@/app/types/entitlements";
+import type { RowDataPacket } from "mysql2/promise";
 
 export async function getClientDashboardEntitlements(userId: number): Promise<ClientDashboardEntitlements> {
   const conn = await pool.getConnection();
 
   try {
-    // 1) PACK LINE ITEMS (one per session_credits row)
+    // 1) PACK LINE ITEMS (one per packs row)
     const [packRows] = await conn.query<RowDataPacket[]>(
       `
       SELECT
-        sc.id AS session_credit_id,
+        sc.id AS pack_id,
         sc.created_at AS purchased_at,
         sc.status,
         sc.expires_at,
@@ -153,7 +32,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         (sc.total_credits - sc.credits_used - sc.credits_reserved) AS available_credits,
         sc.payment_id,
         sc.payment_item_id
-      FROM session_credits sc
+      FROM packs sc
       WHERE sc.user_id = ?
         AND sc.status = 'active'
         AND (sc.expires_at IS NULL OR sc.expires_at > NOW())
@@ -170,8 +49,10 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         s.id AS subscription_id,
         s.sanity_service_id,
         s.status,
+        s.current_period_start,
         s.current_period_end,
         s.cancel_at_period_end,
+        s.sessions_per_period,
         CASE
           WHEN s.current_period_end IS NOT NULL
           AND s.current_period_end > NOW()
@@ -191,6 +72,25 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
       `,
       [userId]
     );
+
+    // ✅ Build usage map: subscription_id -> used_count for the CURRENT period
+    let membershipUsage = new Map<number, number>();
+
+    if ((membershipsRows as any[]).length > 0) {
+      const windows = (membershipsRows as any[]).map((m) => ({
+        subscription_id: Number(m.subscription_id),
+        period_start: m.current_period_start,
+        period_end: m.current_period_end,
+      })).filter((w) => w.subscription_id && w.period_start && w.period_end);
+
+      if (windows.length > 0) {
+        membershipUsage = await getSubscriptionUsedCountsForWindows({
+          conn,
+          userId,
+          windows,
+        });
+      }
+    }
 
     // 2b) PROGRAMS (version-locked entitlements)
     const [programRows] = await conn.query<RowDataPacket[]>(
@@ -250,7 +150,7 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
 
       return {
         kind: "pack",
-        session_credit_id: Number(r.session_credit_id),
+        pack_id: Number(r.pack_id),
         purchased_at: new Date(r.purchased_at),
         status: r.status,
         expires_at: r.expires_at ? new Date(r.expires_at) : null,
@@ -274,12 +174,13 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
     const membershipLineItems: MembershipLineItem[] = (membershipsRows as any[]).map((m) => {
       const sid = m.sanity_service_id as string;
       const s = sanityMap.get(sid);
-      const slug =
-      typeof s?.slug === "string"
-        ? s.slug
-        : (s?.slug as any)?.current ?? null;
+      const slug = typeof s?.slug === "string" ? s.slug : (s?.slug as any)?.current ?? null;
 
       const isActive = Boolean(m.db_active_flag);
+
+      const sessionsPerPeriod = Number(m.sessions_per_period ?? 0);
+      const used = membershipUsage.get(Number(m.subscription_id)) ?? 0;
+      const available = Math.max(0, sessionsPerPeriod - used);
 
       return {
         subscription_id: Number(m.subscription_id),
@@ -294,15 +195,13 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
         db_active_flag: isActive,
         state: isActive ? "active" : "expired",
 
-        current_period_end: m.current_period_end
-          ? new Date(m.current_period_end)
-          : null,
+        current_period_start: m.current_period_start ? new Date(m.current_period_start) : null,
+        current_period_end: m.current_period_end ? new Date(m.current_period_end) : null,
         cancel_at_period_end: Boolean(m.cancel_at_period_end),
 
-        total_credits: null,
-        credits_used: null,
-        credits_reserved: null,
-        available_credits: null,
+        sessions_per_period: sessionsPerPeriod,
+        sessions_used_period: used,
+        sessions_available_period: available,
       };
     });
 
@@ -341,9 +240,9 @@ export async function getClientDashboardEntitlements(userId: number): Promise<Cl
     // console.log("[entitlements] programLineItems sample", programLineItems.slice(0, 3));
 
     // 6) Unified lineItems array for the UI
-    const lineItems: DashboardLineItem[] = [...packLineItems, ...membershipLineItems, ...programLineItems].sort((a, b) => {
+    const lineItems: LineItem[] = [...packLineItems, ...membershipLineItems, ...programLineItems].sort((a, b) => {
       // order: membership, pack, program (or whatever you prefer)
-      const order: Record<DashboardLineItem["kind"], number> = {
+      const order: Record<LineItem["kind"], number> = {
         membership: 0,
         pack: 1,
         program: 2,

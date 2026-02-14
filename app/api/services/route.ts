@@ -29,7 +29,7 @@ export async function GET() {
     const [packRows] = await pool.execute<RowDataPacket[]>(
       `
       SELECT DISTINCT sc.sanity_service_id
-      FROM session_credits sc
+      FROM packs sc
       WHERE sc.user_id = ?
         AND sc.status = 'active'
         AND (sc.expires_at IS NULL OR sc.expires_at > NOW())

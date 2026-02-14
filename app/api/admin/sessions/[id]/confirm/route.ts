@@ -69,7 +69,7 @@ export async function POST(
       `
       SELECT
         id, client_id, coach_id,
-        credit_id, credits_charged,
+        pack_id, credits_charged,
         status,
         scheduled_start, scheduled_end
       FROM sessions
@@ -87,7 +87,7 @@ export async function POST(
     const s = sessionRows[0];
     const currentStatus = String(s.status);
     const clientId = Number(s.client_id);
-    const creditId = s.credit_id != null ? Number(s.credit_id) : null;
+    const packId = s.pack_id != null ? Number(s.pack_id) : null;
     const creditsCharged = Number(s.credits_charged ?? 1);
 
     // MVP rule: only finalize scheduled sessions
@@ -99,10 +99,10 @@ export async function POST(
       );
     }
 
-    if (!creditId) {
+    if (!packId) {
       await conn.rollback();
       return NextResponse.json(
-        { message: "Session has no linked credit_id. Cannot finalize." },
+        { message: "Session has no linked pack_id. Cannot finalize." },
         { status: 400 }
       );
     }
@@ -122,11 +122,11 @@ export async function POST(
         id, user_id,
         total_credits, credits_used, credits_reserved,
         status, expires_at
-      FROM session_credits
+      FROM packs
       WHERE id = ?
       FOR UPDATE
       `,
-      [creditId]
+      [packId]
     );
 
     if (creditRows.length === 0) {
@@ -208,23 +208,23 @@ export async function POST(
     if (isConsume) {
       await conn.execute(
         `
-        UPDATE session_credits
+        UPDATE packs
         SET
           credits_reserved = credits_reserved - ?,
           credits_used = credits_used + ?
         WHERE id = ?
         `,
-        [creditsCharged, creditsCharged, creditId]
+        [creditsCharged, creditsCharged, packId]
       );
     } else {
       await conn.execute(
         `
-        UPDATE session_credits
+        UPDATE packs
         SET
           credits_reserved = credits_reserved - ?
         WHERE id = ?
         `,
-        [creditsCharged, creditId]
+        [creditsCharged, packId]
       );
     }
 
@@ -234,11 +234,11 @@ export async function POST(
       await conn.execute(
         `
         INSERT INTO credit_transactions
-          (user_id, session_credit_id, session_id, type, amount, note, created_at)
+          (user_id, pack_id, session_id, type, amount, note, created_at)
         VALUES
           (?, ?, ?, ?, ?, ?, NOW())
         `,
-        [clientId, creditId, sessionId, txType, creditsCharged, note]
+        [clientId, packId, sessionId, txType, creditsCharged, note]
       );
     } catch (err: any) {
       // Duplicate consume/release for same session, or other constraint

@@ -7,78 +7,7 @@ import RenewMembershipModal from "../components/modal/RenewMembershipModal";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-export type PackLineItem = {
-  kind: "pack";
-  session_credit_id: number;
-  purchased_at: string | Date;
-  status: "active" | "refunded" | "voided";
-  expires_at: string | Date | null;
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  total_credits: number;
-  credits_used: number;
-  credits_reserved: number;
-  available_credits: number;
-
-  payment_id: number;
-  payment_item_id: number | null;
-};
-
-export type MembershipLineItem = {
-  kind: "membership";
-
-  // ✅ add this (from subscriptions.id)
-  subscription_id: number;
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  status:
-    | "trialing"
-    | "active"
-    | "past_due"
-    | "canceled"
-    | "unpaid"
-    | "incomplete"
-    | "incomplete_expired"
-    | "paused";
-
-  db_active_flag: boolean;
-  current_period_end: Date | null;
-  cancel_at_period_end: boolean;
-};
-
-export type ProgramLineItem = {
-  kind: "program";
-
-  program_entitlement_id: number;
-  purchased_at: string | Date;
-  status: "active" | "refunded" | "voided";
-
-  sanity_service_id: string | null;
-  sanity_service_slug: string | null;
-  service_title: string | null;
-  service_category: string | null;
-
-  program_version: string | null;
-  program_notes: string | null;
-  cover_image_url: string | null;
-  cover_image_alt: string | null;
-
-  // this is the locked version pointer (not shown, but useful)
-  sanity_file_asset_ref: string;
-
-  payment_id: number;
-  payment_item_id: number;
-};
-
-export type LineItem = PackLineItem | MembershipLineItem | ProgramLineItem;
+import type { PackLineItem, MembershipLineItem, LineItem } from "@/app/types/entitlements";
 
 type StripeSubStatus =
   | "trialing"
@@ -256,7 +185,7 @@ function packStateLabel(p: PackLineItem) {
 
 /** ✅ Stable key generator (no idx). */
 function getItemKey(item: LineItem) {
-  if (item.kind === "pack") return `pack-${item.session_credit_id}`;
+  if (item.kind === "pack") return `pack-${item.pack_id}`;
   if (item.kind === "membership") return `membership-${item.subscription_id}`;
 }
 
@@ -416,6 +345,8 @@ export default function LineItems({
     if (item.kind === "membership") {
       const end = item.current_period_end ? new Date(item.current_period_end) : null;
       const state = getMembershipEntitlementState(item);
+      const available = Number(item.sessions_available_period ?? 0);
+      const bookable = state.entitled && available > 0;
 
       const footerContent = end ? (
         <div className="flex items-baseline gap-2">
@@ -481,14 +412,22 @@ export default function LineItems({
                 {state.badgeLabel}
               </span>
             </div>
+            <div className="text-xs text-grey-600 flex items-center gap-2">
+              <span>
+                <span className="font-semibold">{item.sessions_available_period}</span> of{" "}
+                <span className="font-semibold">{item.sessions_per_period}</span>{" "}
+                {plural(item.sessions_per_period, "session")} available this period
+              </span>
+            </div>
             {footerContent}
           </div>
 
-          {state.entitled && (
+          {bookable && (
             <BookCtaButton
-              href={`/client/schedule?serviceId=${encodeURIComponent(item.sanity_service_id ?? "")}`}
-              label="BOOK"
-            />
+            href={`/client/schedule?serviceId=${encodeURIComponent(item.sanity_service_id ?? "")}`}
+            disabled={!bookable}
+            disabledReason="You’ve used all sessions for this period."
+          />
           )}
         </div>
       );
@@ -548,7 +487,7 @@ export default function LineItems({
           {isBookable && (
             <BookCtaButton
               href={`/client/schedule?serviceId=${encodeURIComponent(p.sanity_service_id ?? "")}`}
-              label="BOOK"
+              label="Book"
             />
           )}
         </div>
