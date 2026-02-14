@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { MembershipLineItem } from "../../dashboard/line-item"; // <-- adjust path to where your type lives
+import type { MembershipLineItem } from "@/app/types/entitlements"; // <-- adjust path to where your type lives
 
 function formatDate(d: string | Date) {
   const dt = typeof d === "string" ? new Date(d) : d;
