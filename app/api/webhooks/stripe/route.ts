@@ -17,7 +17,7 @@ export const runtime = "nodejs";
 
 const DEBUG_WEBHOOK = true;
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_SB!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
 });
 
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET_SB!
+      process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Invalid signature";
