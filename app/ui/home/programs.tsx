@@ -9,17 +9,8 @@ import { fetchServiceCategories } from "@/sanity/lib/queries/categories";
 import { fetchAllServices } from "@/sanity/lib/queries/services";
 import ServiceModalPublic from "@/app/ui/components/service/service-modal-public"
 
-const CATEGORY_TITLES = {
-  in_person: "In-Person Training",
-  online: "Online Coaching",
-  program: "Strength Programs",
-  nutrition: "Nutrition Coaching",
-};
-
-// Remove sample data, will fetch from Sanity
-
 export default function ProgramsTabs() {
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Array<{value: string; title: string}>>([]);
   const [services, setServices] = useState<any[]>([]);
   const [selectedService, setSelectedService] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,18 +24,18 @@ export default function ProgramsTabs() {
   }, []);
 
   const tabs = categories.map((cat) => ({
-    title: CATEGORY_TITLES[cat as keyof typeof CATEGORY_TITLES] || cat,
-    value: cat,
+    title: cat.title,
+    value: cat.value,
     content: (
       <section className="flex flex-col w-full max-w-[450px] md:max-w-[834px] lg:max-w-[1220px] mx-auto px-8 py-16 pb-20 md:py-18 lg:py-16 bg-grey-900 rounded-2xl shadow-lg relative">
         <div className="flex flex-col items-center text-center">
           <h3 className="text-white font-bold! text-3xl! lg:text-4xl! font-oxanium! mb-4">
-            {CATEGORY_TITLES[cat as keyof typeof CATEGORY_TITLES] || cat}
+            {cat.title}
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
           {services
-            .filter((service) => service.category === cat)
+            .filter((service) => service.category === cat.value)
             .map((service) => (
               <ServiceCard
                 key={service._id}

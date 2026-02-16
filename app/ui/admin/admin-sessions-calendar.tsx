@@ -81,21 +81,6 @@ function coachColor(seed: string | number) {
   return colors[hash % colors.length];
 }
 
-async function finalizeFromModal(sessionId: number, action: SessionAction, extra?: any) {
-  const res = await fetch(`/api/admin/sessions/${sessionId}/confirm`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      outcome: action,
-      ...(extra ?? {}),
-    }),
-  });
-
-  const body = await res.json();
-  if (!res.ok) throw new Error(body?.message || "Failed to finalize session.");
-  return body; // optional: use response for toast/UI
-}
-
 export default function AdminSessionsCalendar() {
   const calendarRef = useRef<FullCalendar | null>(null);
   const sessionsRef = useRef<SessionRow[]>([]);
@@ -220,39 +205,6 @@ export default function AdminSessionsCalendar() {
     setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   }
 
-  async function handleFinalize(id: number, outcome: SessionAction, extra?: any) {
-    // 1) optimistic UI update (instant)
-    const optimisticStatus =
-      outcome === "complete" ? "completed" :
-      outcome === "cancel_release" ? "cancelled" :
-      outcome === "no_show_charge" || outcome === "no_show_release" ? "no_show" :
-      undefined;
-
-    const prev = sessionsRef.current?.find((s) => s.id === id); // optional: for perfect revert
-
-    if (optimisticStatus) {
-      patchSession(id, {
-        status: optimisticStatus as any,
-        confirmed_at: new Date().toISOString(),
-        ...(outcome === "cancel_release"
-          ? { cancellation_reason: extra?.cancellationReason ?? null }
-          : {}),
-      });
-    }
-
-    try {
-      // 2) call API
-      await finalizeFromModal(id, outcome, extra);
-
-      // 3) re-fetch visible range to guarantee DB truth
-      if (range) await fetchRange(range.start, range.end);
-    } catch (e) {
-      // 4) revert if API fails
-      if (prev) patchSession(id, prev);
-      throw e;
-    }
-  }
-
   async function cancelSessionByAdmin(sessionId: number, reason = "Cancelled by admin") {
     const toastId = toast.loading("Canceling session...");
     try {
@@ -277,6 +229,63 @@ export default function AdminSessionsCalendar() {
     } catch (e: any) {
       toast.update(toastId, {
         render: e?.message ?? "Failed to cancel session",
+        type: "error",
+        isLoading: false,
+        autoClose: 4500,
+      });
+      throw e;
+    }
+  }
+
+  async function markNoShowByAdmin(sessionId: number, reason = "Client did not show up for scheduled session") {
+    const toastId = toast.loading("Marking as no-show...");
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/no-show`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.detail || data?.error || "No-show marking failed");
+      }
+      toast.update(toastId, {
+        render: "Session marked as no-show. Credit has been consumed.",
+        type: "success",
+        isLoading: false,
+        autoClose: 3500,
+      });
+    } catch (e: any) {
+      toast.update(toastId, {
+        render: e?.message ?? "Failed to mark session as no-show",
+        type: "error",
+        isLoading: false,
+        autoClose: 4500,
+      });
+      throw e;
+    }
+  }
+
+  async function completeSessionByAdmin(sessionId: number) {
+    const toastId = toast.loading("Marking session as complete...");
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.detail || data?.error || "Completion failed");
+      }
+      toast.update(toastId, {
+        render: "Session marked as complete. Credit has been consumed.",
+        type: "success",
+        isLoading: false,
+        autoClose: 3500,
+      });
+    } catch (e: any) {
+      toast.update(toastId, {
+        render: e?.message ?? "Failed to mark session as complete",
         type: "error",
         isLoading: false,
         autoClose: 4500,
@@ -452,8 +461,12 @@ export default function AdminSessionsCalendar() {
           setModalBusy(true);
           setModalBusyText("Confirming…");
           try {
-            await handleFinalize(selected.id, "complete");
+            await completeSessionByAdmin(selected.id);
+            if (range) {
+              await fetchRange(range.start, range.end);
+            }
             setSelected(null);
+          } catch (e) {
           } finally {
             setModalBusy(false);
           }
@@ -480,8 +493,12 @@ export default function AdminSessionsCalendar() {
           setModalBusy(true);
           setModalBusyText("Marking no-show…");
           try {
-            await handleFinalize(selected.id, "no_show_charge");
+            await markNoShowByAdmin(selected.id);
+            if (range) {
+              await fetchRange(range.start, range.end);
+            }
             setSelected(null);
+          } catch (e) {
           } finally {
             setModalBusy(false);
           }
