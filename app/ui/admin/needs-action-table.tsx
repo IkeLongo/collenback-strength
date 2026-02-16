@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { SyncedHorizontalScroll } from "@/app/ui/components/layout/synced-horizontal-scroll";
 import { ActionMultiSelect, type SessionAction } from "@/app/ui/components/select/action";
 import { UserAvatar } from "../components/user/user-avatar";
+import {
+  cancelSessionByAdmin,
+  markNoShowByAdmin,
+  completeSessionByAdmin,
+} from "@/app/lib/admin/session-actions";
 
 const TZ = "America/Chicago";
 
@@ -100,8 +105,11 @@ export default function NeedsActionTable() {
   const [rows, setRows] = useState<SessionRow[]>([]);
   const [error, setError] = useState<string>("");
 
-  // Row-level loading so only the acted row gets disabled
-  const [busySessionId, setBusySessionId] = useState<number | null>(null);
+  // Pending actions - store actions to be submitted in batch
+  const [pendingActions, setPendingActions] = useState<Map<number, SessionAction>>(new Map());
+  
+  // Submitting state
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Cancel modal
   const [cancelModal, setCancelModal] = useState<CancelModalState>({
@@ -160,32 +168,6 @@ export default function NeedsActionTable() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, refreshKey]);
 
-  async function finalize(sessionId: number, action: SessionAction, extra?: any) {
-    setError("");
-    setBusySessionId(sessionId);
-
-    try {
-      const res = await fetch(`/api/admin/sessions/${sessionId}/confirm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outcome: action,
-          ...(extra ?? {}),
-        }),
-      });
-
-      const body = await res.json();
-      if (!res.ok) throw new Error(body?.message || "Failed to finalize session.");
-
-      // ✅ Refresh current page after action
-      setRefreshKey((k) => k + 1);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to finalize session.");
-    } finally {
-      setBusySessionId(null);
-    }
-  }
-
   function openCancel(sessionId: number) {
     setCancelReason("");
     setCancelModal({ open: true, sessionId });
@@ -195,14 +177,57 @@ export default function NeedsActionTable() {
     const id = cancelModal.sessionId;
     if (!id) return;
 
-    const reason = cancelReason.trim();
-    await finalize(id, "cancel_release", {
-      cancellationReason: reason || null,
-      note: reason || null,
+    // Add to pending actions with reason
+    setPendingActions((prev) => {
+      const next = new Map(prev);
+      next.set(id, "cancel_release");
+      return next;
     });
-
+    
     setCancelModal({ open: false, sessionId: null });
     setCancelReason("");
+  }
+
+  async function handleSubmitAll() {
+    if (pendingActions.size === 0) {
+      setRefreshKey((k) => k + 1);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    const errors: string[] = [];
+    const sessionIds = Array.from(pendingActions.keys());
+
+    for (const sessionId of sessionIds) {
+      const action = pendingActions.get(sessionId);
+      if (!action) continue;
+
+      try {
+        if (action === "complete") {
+          await completeSessionByAdmin(sessionId);
+        } else if (action === "no_show_charge") {
+          await markNoShowByAdmin(sessionId);
+        } else if (action === "cancel_release") {
+          const reason = cancelReason.trim();
+          await cancelSessionByAdmin(sessionId,reason || "Cancelled by admin");
+        }
+      } catch (e: any) {
+        errors.push(`Session #${sessionId}: ${e?.message ?? "Failed"}`);
+      }
+    }
+
+    // Clear pending actions
+    setPendingActions(new Map());
+    setIsSubmitting(false);
+
+    if (errors.length > 0) {
+      setError(errors.join(", "));
+    }
+
+    // Refresh the table
+    setRefreshKey((k) => k + 1);
   }
 
   const canPrev = page > 0;
@@ -219,12 +244,17 @@ export default function NeedsActionTable() {
         </div>
 
         <div className="flex items-center gap-2">
+          {pendingActions.size > 0 && (
+            <span className="text-sm text-grey-600">
+              {pendingActions.size} action{pendingActions.size !== 1 ? "s" : ""} pending
+            </span>
+          )}
           <button
             className="rounded-xl border border-grey-300 bg-white px-3 py-2 text-sm text-grey-700 shadow-sm hover:bg-grey-100 disabled:opacity-50"
-            onClick={() => setRefreshKey((k) => k + 1)}
-            disabled={loading}
+            onClick={handleSubmitAll}
+            disabled={loading || isSubmitting}
           >
-            Submit
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -311,10 +341,14 @@ export default function NeedsActionTable() {
                   rows.map((s) => {
                     const clientName = name(s.client_first_name, s.client_last_name);
                     const coachName = name(s.coach_first_name, s.coach_last_name);
-                    const busy = busySessionId === s.id;
+                    const hasPendingAction = pendingActions.has(s.id);
+                    const pendingAction = pendingActions.get(s.id);
 
                     return (
-                      <tr key={s.id} className="border-t border-grey-300">
+                      <tr 
+                        key={s.id} 
+                        className={`border-t border-grey-300 ${hasPendingAction ? "bg-yellow-50" : ""}`}
+                      >
                         <td className="px-4 py-3 pl-6">
                           {fmtWhenRange(s.scheduled_start, s.scheduled_end)}
                           <div className="text-xs text-grey-500">Session #{s.id}</div>
@@ -354,25 +388,40 @@ export default function NeedsActionTable() {
                           </span>
                         </td>
 
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
+                        <td className="px-4 py-3" data-no-drag>
+                          <div className="flex items-center gap-2" data-no-drag>
                             <ActionMultiSelect
-                              value={null}
-                              disabled={busy}
+                              value={pendingAction ?? null}
+                              disabled={isSubmitting}
                               onChange={(action) => {
-                                if (!action) return;
+                                if (!action) {
+                                  // Remove pending action
+                                  setPendingActions((prev) => {
+                                    const next = new Map(prev);
+                                    next.delete(s.id);
+                                    return next;
+                                  });
+                                  return;
+                                }
+                                
                                 if (action === "cancel_release") {
                                   openCancel(s.id);
                                   return;
                                 }
-                                finalize(s.id, action);
+                                
+                                // Add to pending actions
+                                setPendingActions((prev) => {
+                                  const next = new Map(prev);
+                                  next.set(s.id, action);
+                                  return next;
+                                });
                               }}
                               className="w-56 bg-white text-black font-outfit max-w-full rounded-md border border-grey-300 shadow-sm"
                             />
 
-                            {busy ? (
-                              <span className="text-xs text-grey-500">Working…</span>
-                            ) : null}
+                            {hasPendingAction && (
+                              <span className="text-xs font-medium text-yellow-700">Pending</span>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -432,15 +481,16 @@ export default function NeedsActionTable() {
                   setCancelModal({ open: false, sessionId: null });
                   setCancelReason("");
                 }}
-                disabled={busySessionId !== null}
-              >
+                disabled={isSubmitting}
+                data-no-drag>
                 Close
               </button>
 
               <button
                 className="flex-1 rounded-xl bg-grey-700 px-3 py-2 text-sm font-semibold text-white hover:bg-grey-900 disabled:opacity-50"
                 onClick={submitCancel}
-                disabled={busySessionId !== null}
+                disabled={isSubmitting}
+                data-no-drag
               >
                 Confirm cancel
               </button>

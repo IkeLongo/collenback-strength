@@ -4,7 +4,6 @@ import { MultiSelect } from "../input/multi-select";
 export type SessionAction =
   | "complete"
   | "no_show_charge"
-  | "no_show_release"
   | "cancel_release";
 
 type ActionMultiSelectProps = {
@@ -17,7 +16,6 @@ type ActionMultiSelectProps = {
 const ACTION_OPTIONS: { value: SessionAction; label: string }[] = [
   { value: "complete", label: "Complete session" },
   { value: "no_show_charge", label: "No-show (charge credit)" },
-  { value: "no_show_release", label: "No-show (release credit)" },
   { value: "cancel_release", label: "Cancel (release credit)" },
 ];
 
