@@ -1,6 +1,12 @@
-import { client } from "@/sanity/lib/client";
+// Category options as defined in the service schema
+const CATEGORY_OPTIONS = [
+  { value: "in_person", title: "In-Person Coaching" },
+  { value: "online", title: "Online Coaching" },
+  { value: "program", title: "Strength Program" },
+  { value: "nutrition", title: "Nutrition Coaching" },
+];
 
+// Fetches all category options (value and title)
 export async function fetchServiceCategories() {
-  const query = `array::unique(*[_type == "service" && defined(category)].category)`;
-  return await client.fetch(query);
+  return CATEGORY_OPTIONS;
 }

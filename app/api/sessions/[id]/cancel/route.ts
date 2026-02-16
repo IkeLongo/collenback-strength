@@ -4,6 +4,8 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { withTx } from "@/app/lib/mysql";
 import { auth } from "@/app/actions/nextauth";
 import { getUserByIdWithRole, getUserById } from "@/app/lib/queries/users";
+import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
+import { fetchServiceCategories } from "@/sanity/lib/queries/categories";
 import { getCoachContactById } from "@/app/lib/queries/coaches";
 import {
   sendCoachCancelNotificationEmail,
@@ -82,6 +84,7 @@ export async function POST(req: Request, ctx: RouteContext) {
     startIso: string;
     endIso: string;
     policy: CancelPolicy;
+    serviceTitle?: string | null;
   } = null;
 
   // These will be set inside the transaction and used after
@@ -106,6 +109,8 @@ export async function POST(req: Request, ctx: RouteContext) {
           s.charged,
           s.scheduled_start,
           s.scheduled_end,
+          s.sanity_service_id,
+          s.sanity_service_slug,
           TIMESTAMPDIFF(MINUTE, UTC_TIMESTAMP(), s.scheduled_start) AS minutes_until_start,
           p.payment_id AS pack_payment_id
         FROM sessions s
@@ -198,6 +203,8 @@ export async function POST(req: Request, ctx: RouteContext) {
       // Use the session's client_id for all credit/email logic
       targetClientId = s.client_id;
       targetCoachId = s.coach_id;
+      // Store sanity_service_id for later
+      const sanityServiceId = s.sanity_service_id;
 
       // 3) No entitlement attached (rare): only update charged if refundable
       if (!hasPack && !hasSub) {
@@ -224,6 +231,7 @@ export async function POST(req: Request, ctx: RouteContext) {
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
+          serviceTitle: sanityServiceId || null, // placeholder, will fetch after tx
         };
 
         return;
@@ -312,6 +320,7 @@ export async function POST(req: Request, ctx: RouteContext) {
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
+          serviceTitle: sanityServiceId || null, // placeholder, will fetch after tx
         };
 
         return;
@@ -367,6 +376,7 @@ export async function POST(req: Request, ctx: RouteContext) {
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
+          serviceTitle: sanityServiceId || null, // placeholder, will fetch after tx
         };
 
         return;
@@ -375,8 +385,27 @@ export async function POST(req: Request, ctx: RouteContext) {
 
     // ✅ Send emails AFTER COMMIT (best-effort; do not fail cancellation if email fails)
     if (emailContext) {
+      const { coachId, startIso, endIso, serviceTitle: sanityServiceId, policy } = emailContext;
 
-      const { coachId, startIso, endIso, serviceTitle, policy } = emailContext;
+      // Fetch service category from Sanity and map to display string
+      let serviceCategory: string | undefined = undefined;
+      if (sanityServiceId) {
+        const sanityServices = await getServicesByIds([sanityServiceId]);
+        const categoryValue = sanityServices[0]?.category ?? "Session";
+        // Fetch category mapping from Sanity
+        let categoryTitle = "Session";
+        try {
+          const categories = await fetchServiceCategories(); // returns array of {value, title}
+          const found = categories.find(cat => cat.value === categoryValue);
+          categoryTitle = found ? found.title : categoryValue
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        } catch {}
+        serviceCategory = categoryTitle;
+      } else {
+        serviceCategory = "Session";
+      }
 
       // Always fetch client info by session's client_id
       let clientName: string | undefined = undefined;
@@ -414,7 +443,7 @@ export async function POST(req: Request, ctx: RouteContext) {
             coachName,
             start: startIso,
             end: endIso,
-            serviceTitle: serviceTitle ?? undefined,
+            serviceTitle: serviceCategory ?? undefined,
             policy,
           }).catch(() => {})
         );
@@ -431,7 +460,7 @@ export async function POST(req: Request, ctx: RouteContext) {
             clientPhone: clientPhone || undefined,
             start: startIso,
             end: endIso,
-            serviceTitle: serviceTitle ?? undefined,
+            serviceTitle: serviceCategory ?? undefined,
             policy,
           }).catch(() => {})
         );
