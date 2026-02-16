@@ -4,7 +4,7 @@ import { auth } from "@/app/actions/nextauth";
 import { pool } from "@/app/lib/mysql";
 import type { RowDataPacket } from "mysql2/promise";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_SB!, {
   apiVersion: "2025-11-17.clover",
 });
 
