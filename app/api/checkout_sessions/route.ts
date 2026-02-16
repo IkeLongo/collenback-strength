@@ -4,7 +4,7 @@ import { fetchAllServices } from "@/sanity/lib/queries/services";
 import { Service } from "@/app/types/types";
 import { auth } from "@/app/actions/nextauth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_SB!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-11-17.clover",
 });
 
