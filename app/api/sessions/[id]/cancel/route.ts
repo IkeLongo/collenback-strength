@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { withTx } from "@/app/lib/mysql";
 import { auth } from "@/app/actions/nextauth";
+import { getUserByIdWithRole, getUserById } from "@/app/lib/queries/users";
 import { getCoachContactById } from "@/app/lib/queries/coaches";
 import {
   sendCoachCancelNotificationEmail,
@@ -55,9 +56,21 @@ export async function POST(req: Request, ctx: RouteContext) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const clientId = Number(session.user.id);
-  if (!Number.isFinite(sessionId) || !Number.isFinite(clientId)) {
+  const userId = Number(session.user.id);
+  if (!Number.isFinite(sessionId) || !Number.isFinite(userId)) {
     return NextResponse.json({ ok: false, error: "invalid_input" }, { status: 400 });
+  }
+
+  // Check if user is admin
+  let isAdmin = false;
+  try {
+    const userWithRole = await getUserByIdWithRole(userId);
+    if (userWithRole && userWithRole.length > 0) {
+      const roles = userWithRole.map((u) => u.role_name);
+      isAdmin = roles.includes("admin");
+    }
+  } catch (e) {
+    // fallback: not admin
   }
 
   const body = (await req.json().catch(() => ({}))) as CancelBody;
@@ -71,12 +84,16 @@ export async function POST(req: Request, ctx: RouteContext) {
     policy: CancelPolicy;
   } = null;
 
+  // These will be set inside the transaction and used after
+  let targetClientId: number | null = null;
+  let targetCoachId: number | null = null;
+
   // Also helpful to return to the client UI
   let payload: any = { ok: true };
 
   try {
     await withTx(async (conn) => {
-      // 1) Lock session row + compute minutes until start (UTC)
+      // 1) Always fetch the session row by id
       const [rows] = await conn.execute<RowDataPacket[]>(
         `
         SELECT
@@ -93,10 +110,10 @@ export async function POST(req: Request, ctx: RouteContext) {
           p.payment_id AS pack_payment_id
         FROM sessions s
         LEFT JOIN packs p ON p.id = s.pack_id
-        WHERE s.id = ? AND s.client_id = ?
+        WHERE s.id = ?
         FOR UPDATE
         `,
-        [sessionId, clientId]
+        [sessionId]
       );
 
       if (rows.length === 0) {
@@ -106,6 +123,11 @@ export async function POST(req: Request, ctx: RouteContext) {
       }
 
       const s = rows[0] as any;
+
+      // Permission check: admin or client
+      if (!isAdmin && s.client_id !== userId) {
+        return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+      }
 
       const minutesUntilStart = Number(s.minutes_until_start ?? 0);
       const refundable = minutesUntilStart >= CUTOFF_MINUTES;
@@ -137,18 +159,33 @@ export async function POST(req: Request, ctx: RouteContext) {
       }
 
       // 2) Mark cancelled
-      await conn.execute<ResultSetHeader>(
-        `
-        UPDATE sessions
-        SET
-          status = 'cancelled',
-          cancelled_at = NOW(),
-          cancellation_reason = ?,
-          updated_at = NOW()
-        WHERE id = ? AND client_id = ? AND status = 'scheduled'
-        `,
-        [reason, sessionId, clientId]
-      );
+      if (isAdmin) {
+        await conn.execute<ResultSetHeader>(
+          `
+          UPDATE sessions
+          SET
+            status = 'cancelled',
+            cancelled_at = NOW(),
+            cancellation_reason = ?,
+            updated_at = NOW()
+          WHERE id = ? AND status = 'scheduled'
+          `,
+          [reason, sessionId]
+        );
+      } else {
+        await conn.execute<ResultSetHeader>(
+          `
+          UPDATE sessions
+          SET
+            status = 'cancelled',
+            cancelled_at = NOW(),
+            cancellation_reason = ?,
+            updated_at = NOW()
+          WHERE id = ? AND client_id = ? AND status = 'scheduled'
+          `,
+          [reason, sessionId, userId]
+        );
+      }
 
       const hasPack = Boolean(s.pack_id);
       const hasSub = Boolean(s.subscription_id);
@@ -158,12 +195,16 @@ export async function POST(req: Request, ctx: RouteContext) {
           ? "Released entitlement due to cancellation (>= 24h notice)"
           : "Consumed entitlement due to late cancellation (< 24h notice)";
 
+      // Use the session's client_id for all credit/email logic
+      targetClientId = s.client_id;
+      targetCoachId = s.coach_id;
+
       // 3) No entitlement attached (rare): only update charged if refundable
       if (!hasPack && !hasSub) {
         if (policy === "release") {
           await conn.execute<ResultSetHeader>(
             `UPDATE sessions SET charged = 0 WHERE id = ? AND client_id = ?`,
-            [sessionId, clientId]
+            [sessionId, targetClientId]
           );
         }
 
@@ -179,7 +220,7 @@ export async function POST(req: Request, ctx: RouteContext) {
 
         // Email context still useful (coach/client should know it was cancelled)
         emailContext = {
-          coachId: s.coach_id ? Number(s.coach_id) : null,
+          coachId: targetCoachId ? Number(targetCoachId) : null,
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
@@ -215,7 +256,7 @@ export async function POST(req: Request, ctx: RouteContext) {
                 AND ct.type IN ('release','consume')
             )
           `,
-          [policy, txNote, sessionId, clientId]
+          [policy, txNote, sessionId, targetClientId]
         );
 
         if (ins.affectedRows === 1) {
@@ -228,12 +269,12 @@ export async function POST(req: Request, ctx: RouteContext) {
               SET p.credits_reserved = GREATEST(p.credits_reserved - 1, 0)
               WHERE s.id = ? AND s.client_id = ?
               `,
-              [sessionId, clientId]
+              [sessionId, targetClientId]
             );
 
             await conn.execute<ResultSetHeader>(
               `UPDATE sessions SET charged = 0 WHERE id = ? AND client_id = ?`,
-              [sessionId, clientId]
+              [sessionId, targetClientId]
             );
           } else {
             // consume: reserved decreases, used increases; session charged=1
@@ -246,12 +287,12 @@ export async function POST(req: Request, ctx: RouteContext) {
                 p.credits_used = p.credits_used + 1
               WHERE s.id = ? AND s.client_id = ?
               `,
-              [sessionId, clientId]
+              [sessionId, targetClientId]
             );
 
             await conn.execute<ResultSetHeader>(
               `UPDATE sessions SET charged = 1 WHERE id = ? AND client_id = ?`,
-              [sessionId, clientId]
+              [sessionId, targetClientId]
             );
           }
         }
@@ -267,7 +308,7 @@ export async function POST(req: Request, ctx: RouteContext) {
         };
 
         emailContext = {
-          coachId: s.coach_id ? Number(s.coach_id) : null,
+          coachId: targetCoachId ? Number(targetCoachId) : null,
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
@@ -303,13 +344,13 @@ export async function POST(req: Request, ctx: RouteContext) {
                 AND ct.type IN ('release','consume')
             )
           `,
-          [policy, txNote, sessionId, clientId]
+          [policy, txNote, sessionId, targetClientId]
         );
 
         // “Release” = charged=0; “Consume” = charged=1.
         await conn.execute<ResultSetHeader>(
           `UPDATE sessions SET charged = ? WHERE id = ? AND client_id = ?`,
-          [policy === "release" ? 0 : 1, sessionId, clientId]
+          [policy === "release" ? 0 : 1, sessionId, targetClientId]
         );
 
         payload = {
@@ -322,7 +363,7 @@ export async function POST(req: Request, ctx: RouteContext) {
         };
 
         emailContext = {
-          coachId: s.coach_id ? Number(s.coach_id) : null,
+          coachId: targetCoachId ? Number(targetCoachId) : null,
           startIso: mysqlUtcDatetimeToIso(s.scheduled_start),
           endIso: mysqlUtcDatetimeToIso(s.scheduled_end),
           policy,
@@ -334,15 +375,31 @@ export async function POST(req: Request, ctx: RouteContext) {
 
     // ✅ Send emails AFTER COMMIT (best-effort; do not fail cancellation if email fails)
     if (emailContext) {
+
       const { coachId, startIso, endIso, serviceTitle, policy } = emailContext;
 
-      const clientEmail = typeof session.user.email === "string" ? session.user.email : "";
-      const clientName = [session.user.firstName, session.user.lastName].filter(Boolean).join(" ") || undefined;
+      // Always fetch client info by session's client_id
+      let clientName: string | undefined = undefined;
+      let clientEmail: string | undefined = undefined;
+      let clientPhone: string | undefined = undefined;
+      if (typeof emailContext !== 'undefined') {
+        // getUserById returns User[]
+        const clientArr = await getUserById(targetClientId);
+        const client = clientArr[0];
+        if (client) {
+          clientName = [client.first_name, client.last_name].filter(Boolean).join(" ") || undefined;
+          clientEmail = client.email || undefined;
+          clientPhone = client.phone || undefined;
+        }
+      }
 
+      // Always fetch coach info by coachId
       let coachName: string | undefined = undefined;
+      let coachEmail: string | undefined = undefined;
       if (coachId) {
         const coach = await getCoachContactById(coachId);
         coachName = coach?.name || undefined;
+        coachEmail = coach?.email || undefined;
       }
 
       // ✅ Collect email promises to await them (critical for Vercel serverless)
@@ -364,25 +421,19 @@ export async function POST(req: Request, ctx: RouteContext) {
       }
 
       // coach email
-      if (coachId) {
+      if (coachEmail) {
         emailPromises.push(
-          getCoachContactById(coachId)
-            .then((coach) => {
-              if (!coach?.email) return;
-
-              return sendCoachCancelNotificationEmail({
-                to: coach.email,
-                coachName: coach.name || undefined,
-                clientName,
-                clientEmail: clientEmail || undefined,
-                clientPhone: session.user.phone || undefined,
-                start: startIso,
-                end: endIso,
-                serviceTitle: serviceTitle ?? undefined,
-                policy,
-              });
-            })
-            .catch(() => {})
+          sendCoachCancelNotificationEmail({
+            to: coachEmail,
+            coachName,
+            clientName,
+            clientEmail: clientEmail || undefined,
+            clientPhone: clientPhone || undefined,
+            start: startIso,
+            end: endIso,
+            serviceTitle: serviceTitle ?? undefined,
+            policy,
+          }).catch(() => {})
         );
       }
 

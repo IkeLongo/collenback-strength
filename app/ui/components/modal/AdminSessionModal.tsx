@@ -217,7 +217,7 @@ export default function AdminSessionModal({
               <>
                 <button
                   type="button"
-                  className="rounded-md border border-red-700 bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                  className="rounded-md border border-red-700 bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800"
                   onClick={onCancel}
                 >
                   Cancel

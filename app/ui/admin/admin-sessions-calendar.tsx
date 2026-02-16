@@ -8,6 +8,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import luxonPlugin from "@fullcalendar/luxon3";
 import { formatInTimeZone } from "date-fns-tz";
 import AdminSessionModal from "@/app/ui/components/modal/AdminSessionModal";
+import { toast } from "react-toastify";
 import { ActionMultiSelect, type SessionAction } from "@/app/ui/components/select/action";
 import { client } from "@/sanity/lib/client";
 
@@ -208,7 +209,11 @@ export default function AdminSessionsCalendar() {
     const res = await fetch(`/api/admin/sessions?${qs.toString()}`, { cache: "no-store" });
     const data = await res.json();
     if (!res.ok || !data.ok) throw new Error(data?.message || "Failed to load sessions.");
-    setSessions(data.sessions ?? []);
+    // Only include scheduled and completed sessions
+    const filtered = (data.sessions ?? []).filter(
+      (s: SessionRow) => s.status === "scheduled" || s.status === "completed"
+    );
+    setSessions(filtered);
   }
 
   function patchSession(id: number, patch: Partial<SessionRow>) {
@@ -244,6 +249,38 @@ export default function AdminSessionsCalendar() {
     } catch (e) {
       // 4) revert if API fails
       if (prev) patchSession(id, prev);
+      throw e;
+    }
+  }
+
+  async function cancelSessionByAdmin(sessionId: number, reason = "Cancelled by admin") {
+    const toastId = toast.loading("Canceling session...");
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.detail || data?.error || "Cancel failed");
+      }
+      toast.update(toastId, {
+        render:
+          data.policy === "release"
+            ? "Session cancelled. Your credit was released."
+            : "Session cancelled. Cancellation was within 24 hours, so the credit was consumed.",
+        type: "success",
+        isLoading: false,
+        autoClose: 3500,
+      });
+    } catch (e: any) {
+      toast.update(toastId, {
+        render: e?.message ?? "Failed to cancel session",
+        type: "error",
+        isLoading: false,
+        autoClose: 4500,
+      });
       throw e;
     }
   }
@@ -422,12 +459,18 @@ export default function AdminSessionsCalendar() {
           }
         }}
         onCancel={async () => {
-          if (!selected) return;
+          if (!selected) {
+            return;
+          }
           setModalBusy(true);
           setModalBusyText("Canceling…");
           try {
-            await handleFinalize(selected.id, "cancel_release");
+            await cancelSessionByAdmin(selected.id, "Cancelled by admin");
+            if (range) {
+              await fetchRange(range.start, range.end);
+            }
             setSelected(null);
+          } catch (e) {
           } finally {
             setModalBusy(false);
           }

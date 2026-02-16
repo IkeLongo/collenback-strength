@@ -68,7 +68,7 @@ export async function getUserByEmailWithRoles(email: string) {
  * @param id - User's ID
  * @returns Promise<User[]> - Array of users (should be 0 or 1)
  */
-export async function getUserById(id: number): Promise<User[]> {
+export async function getUserById(id: number | null): Promise<User[]> {
   const [rows] = await pool.execute<RowDataPacket[]>(
     'SELECT id, email, password_hash, first_name, last_name, phone FROM users WHERE id = ?',
     [id]
