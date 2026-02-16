@@ -119,11 +119,11 @@ export default function OrderSummary() {
         </p>
 
         {/* Test card hint (optional) */}
-        <div className="mt-3 rounded-xl border border-grey-200 bg-grey-50 px-3 py-2">
+        {/* <div className="mt-3 rounded-xl border border-grey-200 bg-grey-50 px-3 py-2">
           <p className="text-xs! text-grey-600!">
             Test card: <span className="font-semibold!">4242 4242 4242 4242</span>
           </p>
-        </div>
+        </div> */}
 
         {/* Continue shopping */}
         <Link href="/client/programs" className="block mt-4">
