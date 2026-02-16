@@ -19,10 +19,8 @@ export async function POST(request: Request) {
     if (!email) return NextResponse.json({ message: "Email is required." }, { status: 400 });
 
     // Look up user
-    const users = await getUserByEmailWithRoles(email);
-    if (users.length === 0) return genericOk;
-
-    const user = users[0];
+    const user = await getUserByEmailWithRoles(email);
+    if (!user) return genericOk;
 
     // (Optional) block inactive users
     // if (user.is_active === 0) return genericOk;
@@ -43,7 +41,7 @@ export async function POST(request: Request) {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXTAUTH_URL ||
-      "http://localhost:3001";
+      "http://localhost:3000";
 
     const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
 
