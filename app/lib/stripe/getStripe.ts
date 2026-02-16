@@ -4,7 +4,7 @@ let stripePromise: Promise<Stripe | null> | undefined;
 
 const getStripe = (): Promise<Stripe | null> => {
   if (!stripePromise) {
-    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_SB as string); // TODO: Update key to live
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string); // TODO: Update key to live
   }
   return stripePromise;
 };
