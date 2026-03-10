@@ -2,7 +2,7 @@
 
 import { Button } from "@heroui/button";
 import Image from "next/image";
-import Link from "next/link";
+import { TrackedCTA } from "@/app/components/analytics/tracked-cta";
 import FadeInUp from "@/app/components/ui/animations/fade-in-up";
 
 export default function TrainWithCade() {
@@ -63,9 +63,15 @@ export default function TrainWithCade() {
                 background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
               }}
             >
-              <Link href="/contact" className="h-full flex items-center justify-center !text-grey-700 !text-[16px] font-semibold">
+              <TrackedCTA
+                href="/contact"
+                cta_id="train-cade-get-started"
+                location="train-w-cade-section"
+                label="Get Started"
+                className="h-full flex items-center justify-center !text-grey-700 !text-[16px] font-semibold"
+              >
                 Get Started
-              </Link>
+              </TrackedCTA>
             </Button>
           </FadeInUp>
         </div>

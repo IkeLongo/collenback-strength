@@ -9,9 +9,8 @@ import Cookies from "js-cookie";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 type CookiePrefs = {
-  functional: boolean;
-  statistical: boolean;
-  marketing: boolean;
+  preferences: boolean;
+  analytics: boolean;
 };
 
 const COOKIE_KEY = "cookiePreferences";
@@ -21,9 +20,8 @@ function safeParsePrefs(raw: string | undefined): CookiePrefs | null {
   try {
     const parsed = JSON.parse(raw);
     if (
-      typeof parsed?.functional === "boolean" &&
-      typeof parsed?.statistical === "boolean" &&
-      typeof parsed?.marketing === "boolean"
+      typeof parsed?.preferences === "boolean" &&
+      typeof parsed?.analytics === "boolean"
     ) {
       return parsed as CookiePrefs;
     }
@@ -41,8 +39,10 @@ export default function AnalyticsGA4() {
       if (!detail) return;
 
       window.gtag?.("consent", "update", {
-        analytics_storage: detail.statistical ? "granted" : "denied",
-        ad_storage: detail.marketing ? "granted" : "denied",
+        analytics_storage: detail.analytics ? "granted" : "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied"
       });
     };
 
@@ -58,8 +58,10 @@ export default function AnalyticsGA4() {
     if (!prefs) return;
 
     window.gtag?.("consent", "update", {
-      analytics_storage: prefs.statistical ? "granted" : "denied",
-      ad_storage: prefs.marketing ? "granted" : "denied",
+      analytics_storage: prefs.analytics ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied"
     });
   }, []);
 
@@ -74,11 +76,17 @@ export default function AnalyticsGA4() {
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
 
+          // Advanced Consent Mode: Sends cookieless pings even when denied
           gtag('consent', 'default', {
             analytics_storage: 'denied',
             ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
             functionality_storage: 'granted',
-            security_storage: 'granted'
+            security_storage: 'granted',
+            wait_for_update: 500,
+            url_passthrough: true,
+            ads_data_redaction: true
           });
         `}
       </Script>

@@ -4,9 +4,8 @@ export const COOKIE_KEY = "cookiePreferences";
 export const CONSENT_EVENT = "cookie_consent_update";
 
 export type CookiePrefs = {
-  functional: boolean;
-  statistical: boolean;
-  marketing: boolean;
+  preferences: boolean;
+  analytics: boolean;
 };
 
 export function readCookiePrefs(): CookiePrefs | null {
@@ -22,9 +21,8 @@ export function readCookiePrefs(): CookiePrefs | null {
 
     const parsed = JSON.parse(decodeURIComponent(raw));
     if (
-      typeof parsed?.functional === "boolean" &&
-      typeof parsed?.statistical === "boolean" &&
-      typeof parsed?.marketing === "boolean"
+      typeof parsed?.preferences === "boolean" &&
+      typeof parsed?.analytics === "boolean"
     ) {
       return parsed as CookiePrefs;
     }

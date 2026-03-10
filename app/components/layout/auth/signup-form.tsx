@@ -15,6 +15,7 @@ import {
   IconBrandX,
   IconBrandFacebook,
 } from "@tabler/icons-react";
+import { trackFormAttempt, trackFormSuccess } from "@/lib/analytics/events";
 		
 export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
   const searchParams = useSearchParams();
@@ -39,9 +40,16 @@ export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
     }));
   };
 
+  // Track form attempt
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    trackFormAttempt({ form_id: "signup-form", location: "auth-signup" });
+  };
+
   // Handle success/error with useEffect
   React.useEffect(() => {
     if (state?.status !== "success") return;
+
+    trackFormSuccess({ form_id: "signup-form", location: "auth-signup" });
 
     toast.success(state.message || "Account created successfully!", {
       position: "top-right",
@@ -85,7 +93,7 @@ export function SignupForm({ onShowLogin }: { onShowLogin: () => void }) {
   return (
         <div className="mx-auto w-full max-w-md rounded-t-[50px] md:rounded-2xl bg-white p-4 md:p-8 relative flex flex-col h-full items-center justify-start md:justify-center z-2 pt-0 md:pt-8 md:py-10 md:shadow-input">
 
-          <form className="mb-0 my-8 w-full" action={action}>
+          <form className="mb-0 my-8 w-full" action={action} onSubmit={handleFormSubmit}>
             <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
               <LabelInputContainer>
                 <Label htmlFor="firstName">First name</Label>

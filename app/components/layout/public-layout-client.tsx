@@ -13,6 +13,7 @@ import {
 	MobileNavToggle,
 } from "@/app/components/layout/navbar/resizeable-navbar";
 import Footer from "./footer/footer";
+import { TrackedCTA } from "@/app/components/analytics/tracked-cta";
 
 export default function PublicLayoutClient({ children }: { children: React.ReactNode }) {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -61,14 +62,28 @@ export default function PublicLayoutClient({ children }: { children: React.React
 						onClose={() => setIsMobileMenuOpen(false)}
 					>
 						{navItems.map((item, idx) => (
-							<a
-								key={`mobile-link-${idx}`}
-								href={item.link}
-								onClick={() => setIsMobileMenuOpen(false)}
-								className="relative text-lg! text-neutral-300"
-							>
-								<span className="block">{item.name}</span>
-							</a>
+							item.name === "Contact" ? (
+								<TrackedCTA
+									key={`mobile-link-${idx}`}
+									href={item.link}
+									cta_id="nav-contact"
+									location="navbar-mobile"
+									label={item.name}
+									className="relative text-lg! text-neutral-300"
+									onClick={() => setIsMobileMenuOpen(false)}
+								>
+									<span className="block">{item.name}</span>
+								</TrackedCTA>
+							) : (
+								<a
+									key={`mobile-link-${idx}`}
+									href={item.link}
+									onClick={() => setIsMobileMenuOpen(false)}
+									className="relative text-lg! text-neutral-300"
+								>
+									<span className="block">{item.name}</span>
+								</a>
+							)
 						))}
 						<div className="flex w-full flex-col gap-4">
 							<NavbarButton

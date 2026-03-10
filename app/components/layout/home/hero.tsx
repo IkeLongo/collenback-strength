@@ -4,6 +4,7 @@ import { Button } from "@heroui/button";
 import Image from "next/image";
 import Link from "next/link";
 import FadeInUp from "@/app/components/ui/animations/fade-in-up";
+import { TrackedCTA } from "@/app/components/analytics/tracked-cta";
 
 import { useEffect, useState } from "react";
 import { useLoading } from "@/app/components/ui/animations/loaders/loading-context";
@@ -95,14 +96,19 @@ export default function Hero() {
               <FadeInUp className="z-7">
                 <Button
                   className="min-w-28 h-10 text-grey-700 text-[14px] px-2 font-bold lg:font-normal rounded-[13px] bg-gradient-gold lg:text-[16px]"
-                  
                   style={{ 
                     background: 'linear-gradient(180deg, #FFE98F 0%, #CB9F24 100%), #79DD1A' 
                   }}
                 >
-                  <Link href="/contact" className="h-full flex items-center justify-center text-grey-700! text-[1.1rem]!">
+                  <TrackedCTA
+                    href="/contact"
+                    cta_id="hero-lift"
+                    location="hero-section"
+                    label="Let's Lift"
+                    className="h-full flex items-center justify-center text-grey-700! text-[1.1rem]!"
+                  >
                     Let's Lift
-                  </Link>
+                  </TrackedCTA>
                 </Button>
               </FadeInUp>
             </div>
