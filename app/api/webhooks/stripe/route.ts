@@ -1,14 +1,14 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { pool } from "@/app/lib/mysql";
+import { pool } from "@/lib/db/mysql";
 
-import { sendPurchaseConfirmationEmail } from "@/app/lib/email/sendPurchaseConfirmation";
-import { sendAdminPurchaseNotificationEmail } from "@/app/lib/email/sendAdminPurchaseNotification";
-import { sendMembershipStatusEmail } from "@/app/lib/email/sendMembershipStatusEmail";
-import { sendAdminMembershipStatusEmail } from "@/app/lib/email/sendAdminMembershipStatusEmail";
-import { inferMembershipNotificationFromSubEvent } from "@/app/lib/stripe/subscriptionEventDiff";
+import { sendPurchaseConfirmationEmail } from "@/lib/email/sendPurchaseConfirmation";
+import { sendAdminPurchaseNotificationEmail } from "@/lib/email/sendAdminPurchaseNotification";
+import { sendMembershipStatusEmail } from "@/lib/email/sendMembershipStatusEmail";
+import { sendAdminMembershipStatusEmail } from "@/lib/email/sendAdminMembershipStatusEmail";
+import { inferMembershipNotificationFromSubEvent } from "@/lib/stripe/subscriptionEventDiff";
 
-import type { PurchaseLine } from "@/app/lib/email/sendPurchaseConfirmation";
+import type { PurchaseLine } from "@/lib/email/sendPurchaseConfirmation";
 
 import { urlFor } from "@/sanity/lib/image";
 import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";

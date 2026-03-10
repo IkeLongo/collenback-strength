@@ -1,0 +1,36 @@
+.cookie-drawer h2 {
+  color: white;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 500;
+  font-size: 36px;
+}
+
+.cookie-drawer p {
+  color: white;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: 0.02em;
+  font-weight: 200;
+}
+
+.cookie-modal h2 {
+  color: white;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 500;
+  font-size: 36px;
+}
+
+.cookie-modal p, .cookie-modal li {
+  color: white;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: 0.02em;
+  font-size: 20.8px;
+  font-weight: 200;
+}
+
+.cookie-modal a {
+  color: white;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: 0.02em;
+  color: #88d1fc;
+  font-weight: 200;
+}

@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { auth } from "@/app/actions/nextauth";
-import { pool } from "@/app/lib/mysql";
+import { auth } from "@/lib/actions/nextauth";
+import { pool } from "@/lib/db/mysql";
 import type { RowDataPacket } from "mysql2/promise";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

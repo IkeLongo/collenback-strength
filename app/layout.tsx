@@ -1,16 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { LoadingProvider } from "./ui/components/load/loading-context";
-import PageLoadingManager from "./ui/components/load/page-loading-manager";
-import FadeOverlay from "./ui/components/fade/fade-overlay";
+import { LoadingProvider } from "./components/ui/animations/loaders/loading-context";
+import PageLoadingManager from "./components/ui/animations/loaders/page-loading-manager";
+import FadeOverlay from "./components/ui/animations/fade-overlay";
 import { ToastContainer } from "react-toastify";
-import GoogleAnalytics from "./lib/analytics/google-analytics";
-import CookieBanner from "./ui/cookies/banner";
+import AnalyticsGA4 from "@/app/components/analytics/analytics-ga4";
+import { AnalyticsProvider } from "@/app/components/analytics/analytics-provider";
+import CookieBanner from "@/app/components/cookies/components/CookieBanner";
+import ClarityScript from "@/app/components/analytics/microsoft-clarity";
 import { SessionProvider } from "next-auth/react";
-import { draftMode } from 'next/headers'
-import { VisualEditing } from 'next-sanity/visual-editing'
-import { DisableDraftMode } from "./ui/components/button/disable-draft-mode";
-import { SanityLive } from '@/sanity/lib/live'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -110,24 +108,20 @@ export default async function RootLayout({
             })
           }}
         />
+        <ClarityScript />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
           <LoadingProvider>
+            <AnalyticsGA4 />
+            <ToastContainer limit={1} theme="dark" />
             <PageLoadingManager />
             <FadeOverlay />
+            <AnalyticsProvider>
               {children}
-              <SanityLive />
-              {(await draftMode()).isEnabled && (
-                <>
-                  <DisableDraftMode />
-                  <VisualEditing />
-                </>
-              )}
-            <ToastContainer limit={1} theme="dark" />
-            <GoogleAnalytics />
+            </AnalyticsProvider>
             <CookieBanner />
           </LoadingProvider>
         </SessionProvider>

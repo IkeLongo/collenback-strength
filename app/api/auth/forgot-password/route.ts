@@ -2,9 +2,9 @@
 
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { getUserByEmailWithRoles } from "@/app/lib/queries/users";
-import { createPasswordResetToken } from "@/app/lib/queries/passwordReset";
-import { sendResetEmail } from "@/app/lib/email/sendResetEmail";
+import { getUserByEmailWithRoles } from "@/lib/queries/users";
+import { createPasswordResetToken } from "@/lib/queries/passwordReset";
+import { sendResetEmail } from "@/lib/email/sendResetEmail";
 
 export async function POST(request: Request) {
   try {

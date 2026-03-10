@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/app/lib/mysql';
+import { pool } from '@/lib/db/mysql';
 import { ResultSetHeader } from 'mysql2';
 
 export async function POST(request: Request) {

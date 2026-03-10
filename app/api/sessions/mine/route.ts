@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/app/actions/nextauth";
-import { pool } from "@/app/lib/mysql";
+import { auth } from "@/lib/actions/nextauth";
+import { pool } from "@/lib/db/mysql";
 import type { RowDataPacket } from "mysql2/promise";
 import { client as sanityClient } from "@/sanity/lib/client";
 

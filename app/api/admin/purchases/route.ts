@@ -1,6 +1,6 @@
 // app/api/admin/purchases/route.ts
 import { NextResponse } from "next/server";
-import { getAdminPurchases } from "@/app/lib/auth/getPurchases";
+import { getAdminPurchases } from "@/lib/auth/getPurchases";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

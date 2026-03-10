@@ -1,6 +1,6 @@
 // app/api/sessions/[id]/complete/route.ts
 import { NextResponse } from "next/server";
-import { withTx } from "@/app/lib/mysql";
+import { withTx } from "@/lib/db/mysql";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
 type RouteContext = {

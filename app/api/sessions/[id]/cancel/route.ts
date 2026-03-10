@@ -1,16 +1,16 @@
 // app/api/sessions/[id]/cancel/route.ts
 import { NextResponse } from "next/server";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
-import { withTx } from "@/app/lib/mysql";
-import { auth } from "@/app/actions/nextauth";
-import { getUserByIdWithRole, getUserById } from "@/app/lib/queries/users";
+import { withTx } from "@/lib/db/mysql";
+import { auth } from "@/lib/actions/nextauth";
+import { getUserByIdWithRole, getUserById } from "@/lib/queries/users";
 import { getServicesByIds } from "@/sanity/lib/queries/getServiceByIds";
 import { fetchServiceCategories } from "@/sanity/lib/queries/categories";
-import { getCoachContactById } from "@/app/lib/queries/coaches";
+import { getCoachContactById } from "@/lib/queries/coaches";
 import {
   sendCoachCancelNotificationEmail,
   sendClientCancelConfirmationEmail,
-} from "@/app/lib/email/sendCancelConfirmation";
+} from "@/lib/email/sendCancelConfirmation";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/app/lib/mysql";
+import { pool } from "@/lib/db/mysql";
 import type { RowDataPacket } from "mysql2/promise";
-import { auth } from "@/app/actions/nextauth";
+import { auth } from "@/lib/actions/nextauth";
 
 type RoleName = "client" | "coach" | "admin";
 
