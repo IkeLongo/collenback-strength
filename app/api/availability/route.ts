@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/app/lib/mysql";
+import { pool } from "@/lib/db/mysql";
 import type { RowDataPacket } from "mysql2/promise";
 import { addDays, format, isBefore } from "date-fns";
 import {

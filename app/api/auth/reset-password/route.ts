@@ -5,7 +5,7 @@ import {
   getValidPasswordResetTokenByHash,
   markPasswordResetTokenUsed,
   updateUserPasswordHash,
-} from "@/app/lib/queries/passwordReset";
+} from "@/lib/queries/passwordReset";
 
 export async function POST(request: Request) {
   try {

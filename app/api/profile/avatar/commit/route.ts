@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { ResultSetHeader } from "mysql2/promise";
-import { pool } from "@/app/lib/mysql";
+import { pool } from "@/lib/db/mysql";
 
 // Adjust this import if needed:
-import { auth } from "@/app/actions/nextauth";
+import { auth } from "@/lib/actions/nextauth";
 
 function avatarUrlFromKey(key: string | null) {
   const base = process.env.R2_PUBLIC_BASE_URL;

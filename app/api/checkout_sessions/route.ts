@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { fetchAllServices } from "@/sanity/lib/queries/services";
-import { Service } from "@/app/types/types";
-import { auth } from "@/app/actions/nextauth";
+import { Service } from "@/types/types";
+import { auth } from "@/lib/actions/nextauth";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_SB!, {
   apiVersion: "2025-11-17.clover",

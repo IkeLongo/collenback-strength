@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/app/lib/auth/requireAdmin";
-import { pool } from "@/app/lib/mysql";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { pool } from "@/lib/db/mysql";
 
 function bad(message: string, status = 400) {
   return NextResponse.json({ ok: false, message }, { status });

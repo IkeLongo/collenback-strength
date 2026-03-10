@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcryptjs from 'bcryptjs';
-import { getUserByEmailWithRoles, UserWithRole } from '@/app/lib/queries/users';
+import { getUserByEmailWithRoles, UserWithRole } from '@/lib/queries/users';
 
 interface LoginRequestBody {
   email: string;

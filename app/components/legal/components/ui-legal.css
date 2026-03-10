@@ -1,0 +1,105 @@
+/* styles/legal.css */
+
+.legal {
+  line-height: 1.75;
+}
+
+/* Headings */
+.legal h1 {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  color: black;
+  text-align: center;
+  padding-top: 2rem;
+  font-family: 'Oxanium', sans-serif;
+}
+.legal h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+  color: black;
+  font-family: 'Oxanium', sans-serif;
+}
+.legal h3 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: black;
+  font-family: 'Oxanium', sans-serif;
+  text-transform: none;
+}
+.legal h2,
+.legal h3 {
+  scroll-margin-top: 7rem;
+}
+
+@media (min-width: 768px) {
+  .legal h2,
+  .legal h3 {
+    scroll-margin-top: 8.5rem;
+  }
+}
+
+/* Text */
+.legal p {
+  margin: 0.85rem 0;
+  color: black;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+}
+.legal strong {
+  font-weight: 700;
+}
+
+/* Lists */
+.legal ul {
+  margin: 0.75rem 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+  color: black;
+  font-family: 'Outfit', sans-serif;
+}
+.legal ol {
+  margin: 0.75rem 0;
+  padding-left: 1.25rem;
+  list-style: decimal;
+  color: black;
+  font-family: 'Outfit', sans-serif;
+}
+.legal li {
+  margin: 0.25rem 0;
+  color: black;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Links */
+.legal a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color:black;
+  font-size: 1rem;
+}
+.legal a:hover {
+  opacity: 0.85;
+}
+
+/* Horizontal rule */
+.legal hr {
+  margin: 2rem 0;
+  opacity: 0.2;
+}
+
+/* Anchor link feel (optional) */
+.legal :is(h2, h3) a {
+  text-decoration: none;
+}
+.legal :is(h2, h3) a:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}

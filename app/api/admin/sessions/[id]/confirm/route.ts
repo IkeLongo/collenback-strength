@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2/promise";
-import { pool } from "@/app/lib/mysql";
-import { requireAdmin } from "@/app/lib/auth/requireAdmin";
+import { pool } from "@/lib/db/mysql";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 type Outcome =
   | "complete"

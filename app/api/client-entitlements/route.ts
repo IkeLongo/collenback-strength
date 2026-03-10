@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/app/actions/nextauth";
-import { getClientEntitlements } from "@/app/lib/queries/client-entitlements";
+import { auth } from "@/lib/actions/nextauth";
+import { getClientEntitlements } from "@/lib/queries/client-entitlements";
 
 export async function GET(req: NextRequest) {
   const session = await auth();

@@ -28,7 +28,7 @@
     "**/*.tsx",
     "**/*.d.ts",
     ".next/types/**/*.ts",
-    "app/types/**/*.d.ts",
+    "types/**/*.d.ts",
     "app/api/subject-request/route.js",
     "app/lib/stripe/getStripe.js"
   ],

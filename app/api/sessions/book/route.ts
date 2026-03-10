@@ -1,15 +1,15 @@
 // app/api/sessions/book/route.ts
 import { NextResponse } from "next/server";
-import { withTx } from "@/app/lib/mysql";
+import { withTx } from "@/lib/db/mysql";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
-import { auth } from "@/app/actions/nextauth";
-import { sendBookingConfirmationEmail } from "@/app/lib/email/sendBookingConfirmation";
-import { sendCoachBookingNotificationEmail } from "@/app/lib/email/sendCoachBookingNotification";
-import { getCoachContactById } from "@/app/lib/queries/coaches";
+import { auth } from "@/lib/actions/nextauth";
+import { sendBookingConfirmationEmail } from "@/lib/email/sendBookingConfirmation";
+import { sendCoachBookingNotificationEmail } from "@/lib/email/sendCoachBookingNotification";
+import { getCoachContactById } from "@/lib/queries/coaches";
 import {
   getSubscriptionUsedCountsForWindows,
   type SubscriptionWindow,
-} from "@/app/lib/entitlements/subscriptionUsage";
+} from "@/lib/entitlements/subscriptionUsage";
 
 type BookBody = {
   coachId: number | null;

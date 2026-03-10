@@ -3,9 +3,9 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Adjust this import if needed:
-import { auth } from "@/app/actions/nextauth";
+import { auth } from "@/lib/actions/nextauth";
 
-import { r2 } from "@/app/lib/r2";
+import { r2 } from "@/lib/db/r2";
 
 function extFromMime(mime: string) {
   if (mime === "image/png") return "png";

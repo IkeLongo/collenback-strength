@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/app/actions/nextauth";
-import { getClientDashboardEntitlements } from "@/app/lib/queries/client-dashboard-entitlements";
+import { auth } from "@/lib/actions/nextauth";
+import { getClientDashboardEntitlements } from "@/lib/queries/client-dashboard-entitlements";
 
 export async function GET() {
   const session = await auth();
